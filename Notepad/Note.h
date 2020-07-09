@@ -2,15 +2,19 @@
 #define _NOTE_H
 
 #include "Composite.h"
-#include <string> //GetContent
+#include <string>
+
 typedef signed long int Long;
 using namespace std;
+
 class Glyph;
+
 class Note : public Composite {
 public:
 	Note(Long capacity = 256);
 	Note(const Note& source);
 	virtual ~Note();
+	Note& operator=(const Note& source);
 
 	virtual Long Add(Glyph *glyph);
 	virtual Long Add(Long index, Glyph *glyph);
@@ -21,10 +25,8 @@ public:
 	virtual Long MovePreviousWord();
 	virtual Long MoveNextWord();
 
-	Note& operator =(const Note& source);
-
-	virtual string GetContent();
 	virtual Glyph* Clone();
+	virtual string GetContent();
 };
 
 #endif //_NOTE_H

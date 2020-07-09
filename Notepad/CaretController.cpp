@@ -25,6 +25,13 @@ CaretController::~CaretController() {
 	this->notepadForm->DetachObserver(this);
 }
 
+CaretController& CaretController::operator=(const CaretController& source) {
+	this->notepadForm = source.notepadForm;
+	this->caret = new Caret(*source.caret);
+
+	return *this;
+}
+
 void CaretController::Update() {
 	if (this->caret == 0) {
 		this->caret = new Caret(this->notepadForm);
@@ -32,7 +39,7 @@ void CaretController::Update() {
 	Long height = this->notepadForm->characterMetrics->GetHeight();
 	BOOL isComposing = this->notepadForm->GetIsComposing();
 	Long x;
-	this->notepadForm->current->GetLength(); //
+	this->notepadForm->current->GetLength();
 	if (isComposing == TRUE) {
 		this->caret->Create(this->notepadForm->characterMetrics->GetDoubleByteWidth(), height);
 		x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current, this->notepadForm->current->GetCurrent() - 1);
@@ -54,16 +61,10 @@ void CaretController::Update() {
 	this->caret->Show(true);
 }
 
-CaretController& CaretController::operator =(const CaretController& source) {
-	this->notepadForm = source.notepadForm;
-	this->caret = new Caret(*source.caret);
-
-	return *this;
-}
-
 Long CaretController::GetCaretX() {
 	return this->caret->GetX();
 }
+
 Long CaretController::GetCaretY() {
 	return this->caret->GetY();
 }

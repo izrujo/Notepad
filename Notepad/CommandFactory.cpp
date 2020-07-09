@@ -7,11 +7,8 @@
 #include "SaveAsCommand.h"
 #include "NotepadForm.h"
 #include "resource.h"
-#include "WordWrapCheckedCommand.h"
-#include "WordWrapUnCheckedCommand.h"
-#include "WordWrapController.h"
 
-CommandFactory::CommandFactory(NotepadForm *notepadForm) {
+CommandFactory::CommandFactory(NotepadForm* notepadForm) {
 	this->notepadForm = notepadForm;
 }
 
@@ -20,10 +17,17 @@ CommandFactory::CommandFactory(const CommandFactory& source) {
 }
 
 CommandFactory::~CommandFactory() {
+
+}
+
+CommandFactory& CommandFactory::operator=(const CommandFactory& source) {
+	this->notepadForm = source.notepadForm;
+
+	return *this;
 }
 
 Command* CommandFactory::Make(int uID) {
-	Command *command = 0;
+	Command* command = 0;
 	if (uID == IDM_FORMAT_FONT) {
 		command = new FontCommand(this->notepadForm);
 	}
@@ -39,31 +43,6 @@ Command* CommandFactory::Make(int uID) {
 	else if (uID == IDM_FILE_SAVEAS) {
 		command = new SaveAsCommand(this->notepadForm);
 	}
-	else if (uID == IDM_FORMAT_WORDWRAP) {
-		CMenu *menu = this->notepadForm->GetMenu();
-		UINT menuState = menu->GetMenuState(uID, MF_BYCOMMAND);
-		if (menuState == MF_UNCHECKED) {
-			menu->CheckMenuItem(uID, MF_CHECKED | MF_BYCOMMAND);
-			if (this->notepadForm->wordWrapController == NULL) {
-				this->notepadForm->wordWrapController = new WordWrapController(this->notepadForm);
-			}
-			command = new WordWrapCheckedCommand(this->notepadForm);
-		}
-		else if (menuState == MF_CHECKED) {
-			menu->CheckMenuItem(uID, MF_UNCHECKED | MF_BYCOMMAND);
-			if (this->notepadForm->wordWrapController != NULL) {
-				delete this->notepadForm->wordWrapController;
-				this->notepadForm->wordWrapController = NULL;
-			}
-			command = new WordWrapUnCheckedCommand(this->notepadForm);
-		}
-	}
 
 	return command;
-}
-
-CommandFactory& CommandFactory::operator =(const CommandFactory& source) {
-	this->notepadForm = source.notepadForm;
-
-	return *this;
 }

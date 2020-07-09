@@ -32,7 +32,6 @@ private:
 	NotepadForm *notepadForm;
 	Long widths[129];
 	Long height;
-	TEXTMETRICA	textmetrica;
 };
 
 inline Long CharacterMetrics::GetWidth(Long index) const {
@@ -44,7 +43,7 @@ inline Long CharacterMetrics::GetDoubleByteWidth() const {
 }
 
 inline Long CharacterMetrics::GetHeight() const {
-	return height;
+	return this->height;
 }
 
 #endif // !CHARACTERMETRICS_H

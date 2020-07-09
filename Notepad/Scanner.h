@@ -11,10 +11,12 @@ public:
 	Scanner(string pattern);
 	Scanner(const Scanner& source);
 	~Scanner();
+	Scanner& operator=(const Scanner& source);
+
 	string GetToken();
 	Long Next();
 	bool IsEnd();
-	Scanner& operator=(const Scanner& source);
+
 	string GetPattern() const;
 	Long GetCurrent() const;
 	Long GetLength() const;

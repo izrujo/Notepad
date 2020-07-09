@@ -19,6 +19,14 @@ Scanner::~Scanner() {
 
 }
 
+Scanner& Scanner::operator=(const Scanner& source) {
+	this->pattern = source.pattern;
+	this->current = source.current;
+	this->length = source.length;
+
+	return *this;
+}
+
 string Scanner::GetToken() {
 	string token = "";
 
@@ -52,14 +60,6 @@ bool Scanner::IsEnd() {
 	}
 
 	return ret;
-}
-
-Scanner& Scanner::operator=(const Scanner& source) {
-	this->pattern = source.pattern;
-	this->current = source.current;
-	this->length = source.length;
-
-	return *this;
 }
 
 /*

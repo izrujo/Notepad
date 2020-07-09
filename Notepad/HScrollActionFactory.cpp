@@ -14,6 +14,12 @@ HScrollActionFactory::~HScrollActionFactory() {
 
 }
 
+HScrollActionFactory& HScrollActionFactory::operator=(const HScrollActionFactory& source) {
+	this->notepadForm = source.notepadForm;
+
+	return *this;
+}
+
 HScrollAction* HScrollActionFactory::Make(UINT nSBCode) {
 	HScrollAction *hScrollAction = 0;
 
@@ -38,10 +44,4 @@ HScrollAction* HScrollActionFactory::Make(UINT nSBCode) {
 	}
 
 	return hScrollAction;
-}
-
-HScrollActionFactory& HScrollActionFactory::operator=(const HScrollActionFactory& source) {
-	this->notepadForm = source.notepadForm;
-
-	return *this;
 }

@@ -1,7 +1,6 @@
 #include "Font.h"
 #include "NotepadForm.h"
 
-
 Font::Font(NotepadForm *notepadForm) {
 	this->notepadForm = notepadForm;
 	CDC *dc = this->notepadForm->GetDC();
@@ -23,16 +22,17 @@ Font::Font(const Font& source) {
 }
 
 Font::~Font() {
+
 }
 
-void Font::Create(CFont& font) {
-	font.CreateFontIndirectA(&this->font);
-}
-
-Font& Font::operator = (const Font& source) {
+Font& Font::operator= (const Font& source) {
 	this->font = source.font;
 	this->color = source.color;
 	this->notepadForm = source.notepadForm;
 
 	return *this;
+}
+
+void Font::Create(CFont& font) {
+	font.CreateFontIndirectA(&this->font);
 }

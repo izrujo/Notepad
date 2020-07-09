@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Array.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Caret.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -28,9 +25,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CharacterMetrics.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Command.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="CommandFactory.h">
@@ -46,9 +40,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Font.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FontCommand.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Glyph.h">
@@ -72,9 +63,6 @@
     <ClInclude Include="Line.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="NewCommand.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Note.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -87,16 +75,7 @@
     <ClInclude Include="Observer.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="OpenCommand.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="resource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SaveAsCommand.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="SaveCommand.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="Scanner.h">
@@ -117,13 +96,10 @@
     <ClInclude Include="VScrollActions.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="WordWrapCheckedCommand.h">
+    <ClInclude Include="Array.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="WordWrapController.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="WordWrapUnCheckedCommand.h">
+    <ClInclude Include="Commands.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -140,9 +116,6 @@
     <ClCompile Include="CharacterMetrics.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Command.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="CommandFactory.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -156,9 +129,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Font.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="FontCommand.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Glyph.cpp">
@@ -182,9 +152,6 @@
     <ClCompile Include="Line.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="NewCommand.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="Note.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -195,15 +162,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Observer.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="OpenCommand.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SaveAsCommand.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="SaveCommand.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Scanner.cpp">
@@ -224,13 +182,7 @@
     <ClCompile Include="VScrollActions.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="WordWrapCheckedCommand.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="WordWrapController.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="WordWrapUncheckedCommand.cpp">
+    <ClCompile Include="Commands.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

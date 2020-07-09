@@ -24,13 +24,12 @@
     <ClInclude Include="CaretController.h" />
     <ClInclude Include="Character.h" />
     <ClInclude Include="CharacterMetrics.h" />
-    <ClInclude Include="Command.h" />
+    <ClInclude Include="Commands.h" />
     <ClInclude Include="CommandFactory.h" />
     <ClInclude Include="Composite.h" />
     <ClInclude Include="DummyLine.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="Font.h" />
-    <ClInclude Include="FontCommand.h" />
     <ClInclude Include="Glyph.h" />
     <ClInclude Include="GlyphFactory.h" />
     <ClInclude Include="HScrollActionFactory.h" />
@@ -38,37 +37,29 @@
     <ClInclude Include="KeyActionFactory.h" />
     <ClInclude Include="KeyActions.h" />
     <ClInclude Include="Line.h" />
-    <ClInclude Include="NewCommand.h" />
     <ClInclude Include="Note.h" />
     <ClInclude Include="NotepadApp.h" />
     <ClInclude Include="NotepadForm.h" />
     <ClInclude Include="Observer.h" />
-    <ClInclude Include="OpenCommand.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="SaveAsCommand.h" />
-    <ClInclude Include="SaveCommand.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="Scroll.h" />
     <ClInclude Include="ScrollController.h" />
     <ClInclude Include="Subject.h" />
     <ClInclude Include="VScrollActionFactory.h" />
     <ClInclude Include="VScrollActions.h" />
-    <ClInclude Include="WordWrapCheckedCommand.h" />
-    <ClInclude Include="WordWrapController.h" />
-    <ClInclude Include="WordWrapUnCheckedCommand.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Caret.cpp" />
     <ClCompile Include="CaretController.cpp" />
     <ClCompile Include="Character.cpp" />
     <ClCompile Include="CharacterMetrics.cpp" />
-    <ClCompile Include="Command.cpp" />
+    <ClCompile Include="Commands.cpp" />
     <ClCompile Include="CommandFactory.cpp" />
     <ClCompile Include="Composite.cpp" />
     <ClCompile Include="DummyLine.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="Font.cpp" />
-    <ClCompile Include="FontCommand.cpp" />
     <ClCompile Include="Glyph.cpp" />
     <ClCompile Include="GlyphFactory.cpp" />
     <ClCompile Include="HScrollActionFactory.cpp" />
@@ -76,23 +67,16 @@
     <ClCompile Include="KeyActionFactory.cpp" />
     <ClCompile Include="KeyActions.cpp" />
     <ClCompile Include="Line.cpp" />
-    <ClCompile Include="NewCommand.cpp" />
     <ClCompile Include="Note.cpp" />
     <ClCompile Include="NotepadApp.cpp" />
     <ClCompile Include="NotepadForm.cpp" />
     <ClCompile Include="Observer.cpp" />
-    <ClCompile Include="OpenCommand.cpp" />
-    <ClCompile Include="SaveAsCommand.cpp" />
-    <ClCompile Include="SaveCommand.cpp" />
     <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="Scroll.cpp" />
     <ClCompile Include="ScrollController.cpp" />
     <ClCompile Include="Subject.cpp" />
     <ClCompile Include="VScrollActionFactory.cpp" />
     <ClCompile Include="VScrollActions.cpp" />
-    <ClCompile Include="WordWrapCheckedCommand.cpp" />
-    <ClCompile Include="WordWrapController.cpp" />
-    <ClCompile Include="WordWrapUncheckedCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Notepad20190501.rc" />
@@ -131,6 +115,7 @@
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <UseOfMfc>Dynamic</UseOfMfc>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -184,6 +169,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

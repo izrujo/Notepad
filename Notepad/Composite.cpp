@@ -30,6 +30,27 @@ Composite::~Composite() {
 	}
 }
 
+Composite& Composite::operator=(const Composite& source) {
+	Long i = 0;
+	while (i < this->length) {
+		if (this->glyphs[i] != 0) {
+			delete this->glyphs[i];
+		}
+		i++;
+	}
+	this->glyphs = source.glyphs;
+	i = 0;
+	while (i < source.length) {
+		this->glyphs.Modify(i, (const_cast<Composite&>(source)).glyphs[i]->Clone());
+		i++;
+	}
+	this->capacity = source.capacity;
+	this->length = source.length;
+	this->current = source.current;
+
+	return *this;
+}
+
 Long Composite::Add(Glyph *glyph) {
 	Long index;
 	if (this->length < this->capacity) {
@@ -45,10 +66,6 @@ Long Composite::Add(Glyph *glyph) {
 	return index;
 }
 
-Glyph* Composite::GetAt(Long index) {
-	return this->glyphs.GetAt(index);
-}
-
 Long Composite::Add(Long index, Glyph *glyph) {
 	index = this->glyphs.Insert(index, glyph);
 	this->length++;
@@ -56,6 +73,22 @@ Long Composite::Add(Long index, Glyph *glyph) {
 	this->current = index + 1;
 
 	return index;
+}
+
+Long Composite::Remove(Long index) {
+	if (this->glyphs[index] != 0) {
+		delete this->glyphs.GetAt(index);
+	}
+	this->current = index;
+	index = this->glyphs.Delete(index);
+	this->capacity--;
+	this->length--;
+
+	return index;
+}
+
+Glyph* Composite::GetAt(Long index) {
+	return this->glyphs.GetAt(index);
 }
 
 Long Composite::First() {
@@ -94,46 +127,18 @@ Long Composite::Move(Long index) {
 	return this->current;
 }
 
-Composite& Composite::operator =(const Composite& source) {
-	Long i = 0;
-	while (i < this->length) {
-		if (this->glyphs[i] != 0) {
-			delete this->glyphs[i];
-		}
-		i++;
-	}
-	this->glyphs = source.glyphs;
-	i = 0;
-	while (i < source.length) {
-		this->glyphs.Modify(i, (const_cast<Composite&>(source)).glyphs[i]->Clone());
-		i++;
-	}
-	this->capacity = source.capacity;
-	this->length = source.length;
-	this->current = source.current;
-
-	return *this;
-}
-Long Composite::Remove(Long index) {
-	if (this->glyphs[index] != 0) {
-		delete this->glyphs.GetAt(index);
-	}
-	this->current = index;
-	index = this->glyphs.Delete(index);
-	this->capacity--;
-	this->length--;
-	
-	return index;
-}
 Glyph* Composite::operator [](Long index) {
 	return this->glyphs[index];
 }
+
 Long Composite::GetCapacity() const {
 	return this->capacity;
 }
+
 Long Composite::GetLength() const {
 	return this->length;
 }
+
 Long Composite::GetCurrent() const {
 	return this->current;
 }

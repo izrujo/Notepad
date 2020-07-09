@@ -10,19 +10,19 @@ typedef signed long int Long;
 class File {
 public:
 	File();
-	File(string name, ios_base::openmode mode);
+	File(string name);
 	File(const File& source);
 	~File();
+	File& operator=(const File& source);
 	
 	Long Save(string content);
 	string Load();
 
-	File& operator =(const File& source);
 	string& GetName() const;
 private:
 	string name;
-	ios_base::openmode mode;
 };
+
 inline string& File::GetName() const {
 	return const_cast<string&>(this->name);
 }

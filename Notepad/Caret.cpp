@@ -1,4 +1,3 @@
-//Caret.cpp
 #include "Caret.h"
 #include "NotePadForm.h"
 
@@ -16,6 +15,14 @@ Caret::Caret(const Caret& source) {
 
 Caret::~Caret() {
 	::DestroyCaret();
+}
+
+Caret& Caret::operator=(const Caret& source) {
+	this->notepadForm = source.notepadForm;
+	this->x = source.x;
+	this->y = source.y;
+
+	return *this;
 }
 
 void Caret::Create(Long width, Long height) {
@@ -36,12 +43,4 @@ void Caret::Show(bool isShow) {
 	else {
 		this->notepadForm->HideCaret();
 	}
-}
-
-Caret& Caret::operator=(const Caret& source) {
-	this->notepadForm = source.notepadForm;
-	this->x = source.x;
-	this->y = source.y;
-
-	return *this;
 }

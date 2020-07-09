@@ -4,12 +4,12 @@
 #include "Character.h"
 #include "Font.h"
 
-CharacterMetrics::CharacterMetrics(NotepadForm *notepadForm) {
+CharacterMetrics::CharacterMetrics(NotepadForm* notepadForm) {
 	this->notepadForm = notepadForm;
-	CDC *dc = this->notepadForm->GetDC();
+	CDC* dc = this->notepadForm->GetDC();
 	CString buffer;
 	CSize size;
-	CFont *oldFont; 
+	CFont* oldFont;
 	CFont font;
 	this->notepadForm->font->Create(font);
 	oldFont = dc->SelectObject(&font);
@@ -25,11 +25,14 @@ CharacterMetrics::CharacterMetrics(NotepadForm *notepadForm) {
 	this->widths[0] = this->widths[32];
 	size = dc->GetTextExtent("°¡");
 	this->widths[i] = size.cx;
-	memset(&this->textmetrica, 0, sizeof(this->textmetrica));
-	dc->GetTextMetrics(&this->textmetrica);
-	this->height = this->textmetrica.tmHeight;
+
+	TEXTMETRICA textmetrica;
+	memset(&textmetrica, 0, sizeof(textmetrica));
+	dc->GetTextMetrics(&textmetrica);
+	this->height = textmetrica.tmHeight;
 	dc->SelectObject(oldFont);
 }
+
 CharacterMetrics::CharacterMetrics(const CharacterMetrics& source) {
 	this->notepadForm = source.notepadForm;
 
@@ -46,12 +49,12 @@ CharacterMetrics::~CharacterMetrics() {
 
 }
 
-Long CharacterMetrics::GetX(Glyph *line) {
+Long CharacterMetrics::GetX(Glyph* line) {
 	Long x = 0;
 
 	Long i = 0;
 	while (i < line->GetCurrent()) {
-		Glyph *character = line->GetAt(i);
+		Glyph* character = line->GetAt(i);
 
 		if (dynamic_cast<SingleByteCharacter*>(character)) {
 			string content = character->GetContent();
@@ -72,12 +75,12 @@ Long CharacterMetrics::GetX(Glyph *line) {
 	return x;
 }
 
-Long CharacterMetrics::GetX(Glyph *line, Long index) {
+Long CharacterMetrics::GetX(Glyph* line, Long index) {
 	Long x = 0;
 
 	Long i = 0;
 	while (i < index) {
-		Glyph *character = line->GetAt(i);
+		Glyph* character = line->GetAt(i);
 
 		if (dynamic_cast<SingleByteCharacter*>(character)) {
 			string content = character->GetContent();
@@ -125,7 +128,7 @@ Long CharacterMetrics::GetY(Long index) {
 	return this->height * (index);
 }
 
-CharacterMetrics& CharacterMetrics::operator =(const CharacterMetrics& source) {
+CharacterMetrics& CharacterMetrics::operator=(const CharacterMetrics& source) {
 	this->notepadForm = source.notepadForm;
 
 	Long i = 0;
@@ -139,11 +142,11 @@ CharacterMetrics& CharacterMetrics::operator =(const CharacterMetrics& source) {
 	return *this;
 }
 
-Long CharacterMetrics::GetColumn(Glyph *line, Long x) {
+Long CharacterMetrics::GetColumn(Glyph* line, Long x) {
 	Long index = 0;
 	Long currentX = 0;
 	Long previousX = -1;
-	Glyph *character;
+	Glyph* character;
 	string content;
 	Long asciiIndex;
 	Long width;
@@ -180,11 +183,11 @@ Long CharacterMetrics::GetRow(Long y) {
 	return y / this->height;
 }
 
-Long CharacterMetrics::GetNoteWidth(Glyph *note) {
+Long CharacterMetrics::GetNoteWidth(Glyph* note) {
 	Long i = 0;
 	Long j;
-	Glyph *line;
-	Glyph *character;
+	Glyph* line;
+	Glyph* character;
 	Long lineWidth;
 	Long noteWidth = 0;
 	string content;
@@ -220,5 +223,10 @@ Long CharacterMetrics::GetNoteWidth(Glyph *note) {
 }
 
 Long CharacterMetrics::GetWidthAverage() {
-	return this->textmetrica.tmAveCharWidth;
+	CDC* dc = this->notepadForm->GetDC();
+	TEXTMETRICA textmetrica;
+	memset(&textmetrica, 0, sizeof(textmetrica));
+	dc->GetTextMetrics(&textmetrica);
+
+	return textmetrica.tmAveCharWidth;
 }

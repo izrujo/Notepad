@@ -9,8 +9,9 @@ public:
 	CommandFactory(NotepadForm *notepadForm = 0);
 	CommandFactory(const CommandFactory& source);
 	~CommandFactory();
+	CommandFactory& operator=(const CommandFactory& source);
+
 	Command* Make(int uID);
-	CommandFactory& operator =(const CommandFactory& source);
 private:
 	NotepadForm *notepadForm;
 };

@@ -10,14 +10,17 @@ public:
 	Scroll(Long minimum, Long maximum, Long pageSize, Long lineSize, Long position);
 	Scroll(const Scroll& source);
 	virtual ~Scroll() = 0;
+	Scroll& operator=(const Scroll& source);
+
 	Long Up();
 	Long Down();
 	Long PageUp();
 	Long PageDown();
 	Long Move(Long position);
 	Long Rotate(short delta);
-	Scroll& operator=(const Scroll& source);
+
 	SCROLLINFO GetScrollInfo();
+
 	Long GetMinimum() const;
 	Long GetMaximum() const;
 	Long GetPageSize() const;

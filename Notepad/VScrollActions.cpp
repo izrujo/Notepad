@@ -22,9 +22,8 @@ VScrollAction& VScrollAction::operator=(const VScrollAction& source) {
 }
 
 // LineUpAction
-
 LineUpAction::LineUpAction(NotepadForm *notepadForm)
-	:VScrollAction(notepadForm) {
+	: VScrollAction(notepadForm) {
 
 }
 
@@ -37,6 +36,12 @@ LineUpAction::~LineUpAction() {
 
 }
 
+LineUpAction& LineUpAction::operator=(const LineUpAction& source) {
+	VScrollAction::operator=(source);
+
+	return *this;
+}
+
 void LineUpAction::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) {
 	Long position = this->notepadForm->scrollController->Up();
 	int previous = this->notepadForm->SetScrollPos(SB_VERT, position, TRUE);
@@ -45,16 +50,9 @@ void LineUpAction::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) {
 	this->notepadForm->ScrollWindow(0, previous - position);
 }
 
-LineUpAction& LineUpAction::operator=(const LineUpAction& source) {
-	VScrollAction::operator=(source);
-
-	return *this;
-}
-
 // LineDownAction
-
 LineDownAction::LineDownAction(NotepadForm *notepadForm)
-	:VScrollAction(notepadForm) {
+	: VScrollAction(notepadForm) {
 
 }
 
@@ -67,6 +65,12 @@ LineDownAction::~LineDownAction() {
 
 }
 
+LineDownAction& LineDownAction::operator=(const LineDownAction& source) {
+	VScrollAction::operator=(source);
+
+	return *this;
+}
+
 void LineDownAction::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) {
 	Long position = this->notepadForm->scrollController->Down();
 	int previous = this->notepadForm->SetScrollPos(SB_VERT, position, TRUE);
@@ -75,16 +79,9 @@ void LineDownAction::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) 
 	this->notepadForm->ScrollWindow(0, previous - position);
 }
 
-LineDownAction& LineDownAction::operator=(const LineDownAction& source) {
-	VScrollAction::operator=(source);
-
-	return *this;
-}
-
 // PageUpAction
-
 PageUpAction::PageUpAction(NotepadForm *notepadForm)
-	:VScrollAction(notepadForm) {
+	: VScrollAction(notepadForm) {
 
 }
 
@@ -97,6 +94,12 @@ PageUpAction::~PageUpAction() {
 
 }
 
+PageUpAction& PageUpAction::operator=(const PageUpAction& source) {
+	VScrollAction::operator=(source);
+
+	return *this;
+}
+
 void PageUpAction::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) {
 	Long position = this->notepadForm->scrollController->PageUp();
 	int previous = this->notepadForm->SetScrollPos(SB_VERT, position, TRUE);
@@ -105,16 +108,9 @@ void PageUpAction::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) {
 	this->notepadForm->ScrollWindow(0, previous - position);
 }
 
-PageUpAction& PageUpAction::operator=(const PageUpAction& source) {
-	VScrollAction::operator=(source);
-
-	return *this;
-}
-
 // PageDownAction
-
 PageDownAction::PageDownAction(NotepadForm *notepadForm)
-	:VScrollAction(notepadForm) {
+	: VScrollAction(notepadForm) {
 
 }
 
@@ -127,6 +123,12 @@ PageDownAction::~PageDownAction() {
 
 }
 
+PageDownAction& PageDownAction::operator=(const PageDownAction& source) {
+	VScrollAction::operator=(source);
+
+	return *this;
+}
+
 void PageDownAction::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) {
 	Long position = this->notepadForm->scrollController->PageDown();
 	int previous = this->notepadForm->SetScrollPos(SB_VERT, position, TRUE);
@@ -135,16 +137,9 @@ void PageDownAction::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) 
 	this->notepadForm->ScrollWindow(0, previous - position);
 }
 
-PageDownAction& PageDownAction::operator=(const PageDownAction& source) {
-	VScrollAction::operator=(source);
-
-	return *this;
-}
-
 // ThumbTrackVScrollAction
-
 ThumbTrackVScrollAction::ThumbTrackVScrollAction(NotepadForm *notepadForm)
-	:VScrollAction(notepadForm) {
+	: VScrollAction(notepadForm) {
 
 }
 
@@ -157,16 +152,16 @@ ThumbTrackVScrollAction::~ThumbTrackVScrollAction() {
 
 }
 
+ThumbTrackVScrollAction& ThumbTrackVScrollAction::operator=(const ThumbTrackVScrollAction& source) {
+	VScrollAction::operator=(source);
+
+	return *this;
+}
+
 void ThumbTrackVScrollAction::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) {
 	Long position = this->notepadForm->scrollController->MoveVerticalScroll(nPos);
 	int previous = this->notepadForm->SetScrollPos(SB_VERT, position, TRUE);
 	position = this->notepadForm->GetScrollPos(SB_VERT);
 	this->notepadForm->scrollController->MoveVerticalScroll(position);
 	this->notepadForm->ScrollWindow(0, previous - position);
-}
-
-ThumbTrackVScrollAction& ThumbTrackVScrollAction::operator=(const ThumbTrackVScrollAction& source) {
-	VScrollAction::operator=(source);
-
-	return *this;
 }

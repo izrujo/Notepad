@@ -3,26 +3,33 @@
 
 File::File()
 	: name("") {
-	this->mode = ios_base::in | ios_base::out;
+
 }
 
-File::File(string name, ios_base::openmode mode)
+File::File(string name)
 	: name(name) {
-	this->mode = mode;
+
 }
 
 File::File(const File& source)
 	: name(source.name) {
-	this->mode = source.mode;
+
 }
 
 File::~File() {
+
+}
+
+File& File::operator=(const File& source) {
+	this->name = source.name;
+
+	return *this;
 }
 
 Long File::Save(string content) {
 	fstream fs;
 
-	fs.open(this->name.c_str(), this->mode);
+	fs.open(this->name.c_str(), ios_base::out);
 	if (fs.is_open()) {
 		fs << content;
 		fs.close();
@@ -36,7 +43,7 @@ string File::Load() {
 	string line;
 	fstream fs;
 
-	fs.open(this->name, this->mode);
+	fs.open(this->name, ios_base::in);
 	if (fs.is_open()) {
 		while (!fs.eof()) {
 			getline(fs, line);
@@ -46,11 +53,4 @@ string File::Load() {
 	}
 
 	return content;
-}
-
-File& File::operator =(const File& source) {
-	this->name = source.name;
-	this->mode = source.mode;
-
-	return *this;
 }

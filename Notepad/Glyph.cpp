@@ -9,7 +9,19 @@ Glyph::Glyph(const Glyph& source) {
 Glyph::~Glyph() {
 }
 
+Glyph& Glyph::operator=(const Glyph& source) {
+	return *this;
+}
+
 Long Glyph::Add(Glyph *glyph) {
+	return -1;
+}
+
+Long Glyph::Add(Long index, Glyph *glyph) {
+	return -1;
+}
+
+Long Glyph::Remove(Long index) {
 	return -1;
 }
 
@@ -17,13 +29,6 @@ Glyph* Glyph::GetAt(Long index) {
 	return 0;
 }
 
-Long Glyph::Remove(Long index) {
-	return -1;
-}
-
-Long Glyph::Add(Long index, Glyph *glyph) {
-	return -1;
-}
 
 Glyph* Glyph::Divide(Long index) {
 	return 0;

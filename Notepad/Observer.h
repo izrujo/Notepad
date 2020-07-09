@@ -8,6 +8,8 @@ public:
 	Observer();
 	Observer(const Observer& source);
 	virtual ~Observer() = 0;
+	Observer& operator=(const Observer& source);
+
 	virtual void Update() = 0;
 };
 

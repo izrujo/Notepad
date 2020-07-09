@@ -3,18 +3,21 @@
 #include "Note.h"
 #include "Line.h"
 #include "Character.h"
-#include "NotepadForm.h"
 #include "CharacterMetrics.h"
 #include "DummyLine.h"
 
-GlyphFactory::GlyphFactory(NotepadForm *notepadForm) {
-	this->notepadForm = notepadForm;
+GlyphFactory::GlyphFactory() {
+	
 }
+
 GlyphFactory::GlyphFactory(const GlyphFactory& source) {
-	this->notepadForm = source.notepadForm;
+	
 }
+
 GlyphFactory::~GlyphFactory() {
+
 }
+
 Glyph* GlyphFactory::Make(const char(*content)) {
 	Glyph *glyph = 0;
 	if (content[0] == '\0') {
@@ -36,69 +39,6 @@ Glyph* GlyphFactory::Make(const char(*content)) {
 	return glyph;
 }
 
-Glyph* GlyphFactory::Make(Glyph *line, Long clientWidth) {
-	Long lineWidth = this->notepadForm->characterMetrics->GetX(line, line->GetLength());
-	Glyph *character = 0;
-	string content;
-	Long characterWidth;
-	Long i = line->GetLength() - 1;
-	while (i >= 0 && lineWidth > clientWidth) {
-		character = line->GetAt(i);
-		if (dynamic_cast<SingleByteCharacter*>(character)) {
-			content = character->GetContent();
-			if (content.length() == 1) {
-				characterWidth = this->notepadForm->characterMetrics->GetWidth(content[0]);
-			}
-			else {
-				characterWidth = this->notepadForm->characterMetrics->GetWidth(9);
-			}
-		}
-		else if (dynamic_cast<DoubleByteCharacter*>(character)) {
-			characterWidth = this->notepadForm->characterMetrics->GetDoubleByteWidth();
-		}
-		lineWidth -= characterWidth;
-		i--;
-	}
-	Glyph *blank;
-	Long j = i + 1; //화면 폭을 벗어난 글자부터 확인
-	while (j >= 0 && content != " ") {
-		blank = line->GetAt(j);
-		content = blank->GetContent();
-		j--;
-	}
-	bool isBlankExist = FALSE;
-	if (j >= 0) {
-		isBlankExist = TRUE;
-		j += 1; //공백문자 다음 위치로 설정
-	}
-	Long l;
-	Glyph *dummyCharacter;
-	Glyph *temp = 0;
-	Glyph *dummyLine = new DummyLine;
-	if (isBlankExist == TRUE) {
-		temp = line->Divide(j);
-		l = 0;
-		while (l < temp->GetLength()) {
-			dummyCharacter = temp->GetAt(l)->Clone();
-			dummyLine->Add(dummyCharacter);
-			l++;
-		}
-	}
-	else if (isBlankExist == FALSE || dynamic_cast<DoubleByteCharacter*>(character)) {
-		temp = line->Divide(i + 1);
-		l = 0;
-		while (l < temp->GetLength()) {
-			dummyCharacter = temp->GetAt(l)->Clone();
-			dummyLine->Add(dummyCharacter);
-			l++;
-		}
-	}
-	if (temp != 0) {
-		delete temp;
-	}
-
-	return dummyLine;
-}
 /*
 #include <iostream>
 #include "Character.h"

@@ -5,7 +5,8 @@
 #include "Subject.h"
 #include "Line.h"
 
-ScrollController::ScrollController(NotepadForm *notepadForm) {
+ScrollController::ScrollController(NotepadForm* notepadForm)
+	: Observer() {
 	this->notepadForm = notepadForm;
 	this->noteWidth = this->notepadForm->characterMetrics->GetNoteWidth(this->notepadForm->note);
 
@@ -15,31 +16,31 @@ ScrollController::ScrollController(NotepadForm *notepadForm) {
 	RECT rect;
 	this->notepadForm->GetClientRect(&rect);
 	Long clientWidth = rect.right - rect.left;
-	Long clientHeight = rect.bottom - rect.top; //
+	Long clientHeight = rect.bottom - rect.top;
 
 	Long maximum = this->noteWidth - clientWidth;
 	Long lineSize = this->notepadForm->characterMetrics->GetWidthAverage();
-	Long pageSize = clientWidth;//
-	
+	Long pageSize = clientWidth;
+
 	this->horizontalScroll = new HorizontalScroll(0, maximum, pageSize, lineSize, 0);
 
 	maximum = this->noteHeight - clientHeight;
 	lineSize = this->notepadForm->characterMetrics->GetHeight();
-	pageSize = clientHeight;////
-	
+	pageSize = clientHeight;
+
 	this->verticalScroll = new VerticalScroll(0, maximum, pageSize, lineSize, 0);
 
 	this->notepadForm->AttachObserver(this);
 }
 
-ScrollController::ScrollController(const ScrollController& source) {
+ScrollController::ScrollController(const ScrollController& source)
+	: Observer(source) {
 	this->notepadForm = source.notepadForm;
 	this->noteWidth = source.noteWidth;
 	this->noteHeight = source.noteHeight;
-	
+
 	this->horizontalScroll = new HorizontalScroll(*(dynamic_cast<HorizontalScroll*>(source.horizontalScroll)));
 	this->verticalScroll = new VerticalScroll(*(dynamic_cast<VerticalScroll*>(source.horizontalScroll)));
-
 }
 
 ScrollController::~ScrollController() {
@@ -51,6 +52,23 @@ ScrollController::~ScrollController() {
 	}
 
 	this->notepadForm->DetachObserver(this);
+}
+
+ScrollController& ScrollController::operator=(const ScrollController& source) {
+	Observer::operator=(source);
+
+	this->notepadForm = source.notepadForm;
+	this->noteWidth = source.noteWidth;
+	this->noteHeight = source.noteHeight;
+
+	if (this->horizontalScroll != 0) {
+		delete this->horizontalScroll;
+		this->horizontalScroll = new HorizontalScroll(*(dynamic_cast<HorizontalScroll*>(source.horizontalScroll)));
+	}
+	if (this->verticalScroll != 0) {
+		delete this->verticalScroll;
+		this->verticalScroll = new VerticalScroll(*(dynamic_cast<VerticalScroll*>(source.horizontalScroll)));
+	}
 }
 
 void ScrollController::Update() {
@@ -93,11 +111,6 @@ void ScrollController::Update() {
 		minimum = this->horizontalScroll->GetMinimum();
 		maximum = this->noteWidth;//
 		position = this->horizontalScroll->GetPosition();
-#if 0
-		if (position > maximum) {
-			position = maximum;
-		}
-#endif
 		lineSize = this->notepadForm->characterMetrics->GetWidthAverage();
 		pageSize = clientWidth;//
 
@@ -106,22 +119,6 @@ void ScrollController::Update() {
 		}
 		this->horizontalScroll = new HorizontalScroll(minimum, maximum, pageSize, lineSize, position);
 		scrollInfo = this->horizontalScroll->GetScrollInfo();
-#if 0
-		if (scrollInfo.nPage > scrollInfo.nMax) {
-			scrollInfo.nPage = scrollInfo.nMax / 2;
-		}
-#endif
-		//this->notepadForm->SetScrollInfo(SB_HORZ, &scrollInfo, TRUE);
-
-#if 0
-		//디버깅
-		this->notepadForm->GetScrollInfo(SB_HORZ, &scrollInfo);
-		scrollInfo.nMax = this->horizontalScroll->GetMaximum();
-		scrollInfo.nMin = this->horizontalScroll->GetMinimum();
-		scrollInfo.nPage = this->horizontalScroll->GetPageSize();
-		scrollInfo.nPos = this->horizontalScroll->GetPosition();
-		//endif
-#endif
 	}
 	else {
 		style = style & ~WS_HSCROLL;
@@ -145,11 +142,6 @@ void ScrollController::Update() {
 		minimum = this->verticalScroll->GetMinimum();
 		maximum = this->noteHeight;
 		position = this->verticalScroll->GetPosition();
-#if 0 
-		if (position > maximum) {
-			position = maximum;
-		}
-#endif
 		pageSize = clientHeight / lineSize * lineSize;
 
 		if (this->verticalScroll != 0) {
@@ -158,22 +150,6 @@ void ScrollController::Update() {
 		this->verticalScroll = new VerticalScroll(minimum, maximum, pageSize, lineSize, position);
 		scrollInfo = this->verticalScroll->GetScrollInfo();
 		this->notepadForm->SetScrollInfo(SB_VERT, &scrollInfo, TRUE);
-
-#if 0
-		if (scrollInfo.nPage > scrollInfo.nMax) {
-			scrollInfo.nPage = scrollInfo.nMax / 2;
-		}
-#endif
-
-#if 0// 디버깅용
-		this->notepadForm->GetScrollInfo(SB_VERT, &scrollInfo);
-		scrollInfo.cbSize = sizeof(SCROLLINFO);
-		scrollInfo.nMax = this->verticalScroll->GetMaximum();
-		scrollInfo.nMin = this->verticalScroll->GetMinimum();
-		scrollInfo.nPage = this->verticalScroll->GetPageSize();
-		scrollInfo.nPos = this->verticalScroll->GetPosition();
-#endif
-
 	}
 	else {
 		style = style & ~WS_VSCROLL;
@@ -181,20 +157,14 @@ void ScrollController::Update() {
 			delete this->verticalScroll;
 			this->verticalScroll = new VerticalScroll(0, 0, 0, 0, 0);
 			scrollInfo = this->verticalScroll->GetScrollInfo();
-			
+
 		}
 
 	}
 	this->notepadForm->SetScrollInfo(SB_VERT, &scrollInfo, TRUE);
 	::SetWindowLong(this->notepadForm->m_hWnd, GWL_STYLE, style);
 	
-	
 	this->notepadForm->RedrawWindow();
-	
-}
-
-Observer* ScrollController::GetClone() {
-	return new ScrollController(*this);
 }
 
 Long ScrollController::Left() {
@@ -276,13 +246,13 @@ void ScrollController::SmartScrollToPoint(Long x, Long y) {
 	this->horizontalScroll->Move(positionX);
 
 	//클라이언트 영역 좌표를 구한다.
-	if (y < clientTop ) {//y가 클라이언트 영역 안에 있지 않고 클라이언트 영역보다 위에 있으면
+	if (y < clientTop) {//y가 클라이언트 영역 안에 있지 않고 클라이언트 영역보다 위에 있으면
 		distanceOfY = y - clientTop;//	1.y좌표의 거리와 클라이언트 시작점을 빼다
 	}
 	else if (y > clientBottom) {//y가 클라이언트 영역 안에 있지 않고 클라이언트 영역보다 위에 있으면
 		distanceOfY = y - clientBottom;//	1. 클라이언트 끝점과 y좌표의 거리를 빼다.
 	}
-	
+
 	positionY = this->verticalScroll->GetPosition();//현재 위치를 구한다.
 	positionY += distanceOfY;//현재 위치에서 구한값을 더하다.
 	positionY = this->verticalScroll->Move(positionY);//스크롤 컨트롤러에서 이동하다.

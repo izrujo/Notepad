@@ -12,8 +12,9 @@ public:
 	CaretController(NotepadForm *notepadForm = 0);
 	CaretController(const CaretController& source);
 	virtual ~CaretController();
+	CaretController& operator=(const CaretController& source);
+
 	virtual void Update();
-	CaretController& operator =(const CaretController& source);
 
 	Long GetCaretX();
 	Long GetCaretY();

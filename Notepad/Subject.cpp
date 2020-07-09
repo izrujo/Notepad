@@ -31,6 +31,29 @@ Subject::~Subject() {
 	}
 }
 
+Subject& Subject::operator=(const Subject& source) {
+	Long i = 0;
+	while (i < this->length) {
+		delete this->observers[i];
+		i++;
+	}
+	Observer* observer;
+	this->observers = source.observers;
+	this->capacity = source.capacity;
+	i = 0;
+	while (i < source.length) {
+		observer = (const_cast<Subject&>(source)).observers.GetAt(i);
+		if (dynamic_cast<CaretController*>(observer)) {
+			observer = new CaretController(*(dynamic_cast<CaretController*>(observer)));
+		}
+		this->observers.Modify(i, observer);
+		i++;
+	}
+	this->length = source.length;
+
+	return *this;
+}
+
 Long Subject::AttachObserver(Observer *observer) {
 	Long index;
 	if (this->length < this->capacity) {
@@ -66,29 +89,6 @@ void Subject::Notify() {
 
 Observer* Subject::GetAt(Long index) {
 	return this->observers.GetAt(index);
-}
-
-Subject& Subject::operator =(const Subject& source) {
-	Long i = 0;
-	while (i < this->length) {
-		delete this->observers[i];
-		i++;
-	}
-	Observer *observer;
-	this->observers = source.observers;
-	this->capacity = source.capacity;
-	i = 0;
-	while (i < source.length) {
-		observer = (const_cast<Subject&>(source)).observers.GetAt(i);
-		if (dynamic_cast<CaretController*>(observer)) {
-			observer = new CaretController(*(dynamic_cast<CaretController*>(observer)));
-		}
-		this->observers.Modify(i, observer);
-		i++;
-	}
-	this->length = source.length;
-
-	return *this;
 }
 
 int CompareObserverLinks(void *one, void *other) {

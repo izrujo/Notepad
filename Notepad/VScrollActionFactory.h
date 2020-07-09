@@ -5,13 +5,15 @@
 
 class VScrollAction;
 class NotepadForm;
+
 class VScrollActionFactory {
 public:
 	VScrollActionFactory(NotepadForm *notepadForm = 0);
 	VScrollActionFactory(const VScrollActionFactory& source);
 	~VScrollActionFactory();
-	VScrollAction* Make(UINT nSBCode);
 	VScrollActionFactory& operator=(const VScrollActionFactory& source);
+
+	VScrollAction* Make(UINT nSBCode);
 private:
 	NotepadForm *notepadForm;
 };

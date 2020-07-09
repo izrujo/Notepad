@@ -3,17 +3,19 @@
 
 #include "Observer.h"
 
-class NotepadForm;
 typedef signed long int Long;
-
+class NotepadForm;
 class Scroll;
+
 class ScrollController : public Observer {
 public:
 	ScrollController(NotepadForm *notepadForm = 0);
 	ScrollController(const ScrollController& source);
 	virtual ~ScrollController();
+	ScrollController& operator=(const ScrollController& source);
+
 	virtual void Update();
-	virtual Observer* GetClone();
+
 	Long Left();
 	Long Right();
 	Long PageLeft();
@@ -38,15 +40,19 @@ private:
 	Scroll *horizontalScroll;
 	Scroll *verticalScroll;
 };
+
 inline Long ScrollController::GetNoteWidth() const {
 	return this->noteWidth;
 }
+
 inline Long ScrollController::GetNoteHeight() const {
 	return this->noteHeight;
 }
+
 inline Scroll* ScrollController::GetHorizontalScroll() const {
 	return const_cast<Scroll*>(this->horizontalScroll);
 }
+
 inline Scroll* ScrollController::GetVerticalScroll() const {
 	return const_cast<Scroll*>(this->verticalScroll);
 }

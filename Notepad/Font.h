@@ -10,8 +10,9 @@ public:
 	Font(LOGFONT Font, COLORREF color, NotepadForm *notepadForm);
 	Font(const Font& source);
 	~Font();
+	Font& operator=(const Font& source);
+
 	void Create(CFont& Font);
-	Font& operator =(const Font& source);
 
 	LOGFONT& GetFont() const;
 	COLORREF& GetColor() const;
@@ -20,9 +21,11 @@ private:
 	COLORREF color;
 	NotepadForm *notepadForm;
 };
+
 inline LOGFONT& Font::GetFont() const {
 	return const_cast<LOGFONT&>(this->font);
 }
+
 inline COLORREF& Font::GetColor() const {
 	return const_cast<COLORREF&>(this->color);
 }

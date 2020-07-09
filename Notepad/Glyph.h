@@ -9,15 +9,15 @@ public:
 	Glyph();
 	Glyph(const Glyph& source);
 	virtual ~Glyph() = 0; //abstract
+	Glyph& operator=(const Glyph& source);
 
 	virtual Long Add(Glyph *glyph); //virtual
-	virtual Glyph* GetAt(Long index); //virtual
-	virtual Long Remove(Long index); //virtual
 	virtual Long Add(Long index, Glyph *glyph);
+	virtual Long Remove(Long index); //virtual
+	virtual Glyph* GetAt(Long index); //virtual
 	virtual Glyph* Divide(Long index);
 	virtual Glyph* Combine(Glyph *index);
-	virtual string GetContent() = 0; //abstract
-	virtual Glyph* Clone() = 0; //abstract
+	
 	virtual Long First();
 	virtual Long Last();
 	virtual Long Previous();
@@ -26,6 +26,9 @@ public:
 	virtual Long MovePreviousWord();
 	virtual Long MoveNextWord();
 
+	virtual Glyph* Clone() = 0; //abstract
+	virtual string GetContent() = 0; //abstract
+	
 	virtual Long GetCapacity() const; //virtual
 	virtual Long GetLength() const; //virtual
 	virtual Long GetCurrent() const; //virtual

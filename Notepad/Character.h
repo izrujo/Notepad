@@ -16,14 +16,16 @@ public:
 	SingleByteCharacter(char content);
 	SingleByteCharacter(const SingleByteCharacter& source);
 	virtual ~SingleByteCharacter();
+	SingleByteCharacter& operator=(const SingleByteCharacter& source);
+	
 	bool IsEqual(const SingleByteCharacter& other);
 	bool IsNotEqual(const SingleByteCharacter& other);
-	bool operator ==(const SingleByteCharacter& other);
+	
+	bool operator==(const SingleByteCharacter& other);
 	bool operator !=(const SingleByteCharacter& other);
-	SingleByteCharacter& operator =(const SingleByteCharacter& source);
 
-	virtual string GetContent();
 	virtual Glyph* Clone();
+	virtual string GetContent();
 private:
 	char content;
 };
@@ -34,14 +36,16 @@ public:
 	DoubleByteCharacter(const char(*content));
 	DoubleByteCharacter(const DoubleByteCharacter& source);
 	virtual ~DoubleByteCharacter();
-	DoubleByteCharacter& operator =(const DoubleByteCharacter& source);
+	DoubleByteCharacter& operator=(const DoubleByteCharacter& source);
+	
 	bool IsEqual(const DoubleByteCharacter& other);
 	bool IsNotEqual(const DoubleByteCharacter& other);
-	bool operator ==(const DoubleByteCharacter& other);
+	
+	bool operator==(const DoubleByteCharacter& other);
 	bool operator !=(const DoubleByteCharacter& other);
 
-	virtual string GetContent();
 	virtual Glyph* Clone();
+	virtual string GetContent();
 private:
 	char content[2];
 };

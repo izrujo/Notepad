@@ -1,14 +1,24 @@
 #include "KeyActionFactory.h"
 #include "KeyActions.h"
-#include <WinUser.h>
 #include "NotepadForm.h"
+#include <WinUser.h>
 
 KeyActionFactory::KeyActionFactory(NotepadForm *notepadForm) {
 	this->notepadForm = notepadForm;
 }
 
+KeyActionFactory::KeyActionFactory(const KeyActionFactory& source) {
+	this->notepadForm = source.notepadForm;
+}
+
 KeyActionFactory::~KeyActionFactory() {
 
+}
+
+KeyActionFactory& KeyActionFactory::operator=(const KeyActionFactory& source) {
+	this->notepadForm = source.notepadForm;
+
+	return *this;
 }
 
 KeyAction* KeyActionFactory::Make(UINT nChar) {

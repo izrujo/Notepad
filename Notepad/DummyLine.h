@@ -7,13 +7,12 @@
 class DummyLine : public Line {
 public:
 	DummyLine(Long capacity = 256);
-	//DummyLine(Glyph *line);
 	DummyLine(const DummyLine& source);
 	~DummyLine();
-	DummyLine& operator =(const DummyLine& source);
+	DummyLine& operator=(const DummyLine& source);
 
-	virtual string GetContent();
 	virtual Glyph* Clone();
+	virtual string GetContent();
 };
 
 #endif //_DUMMYLINE_H

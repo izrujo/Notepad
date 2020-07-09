@@ -26,7 +26,19 @@ Scroll::Scroll(const Scroll& source) {
 }
 
 Scroll::~Scroll() {
+
 }
+
+Scroll& Scroll::operator=(const Scroll& source) {
+	this->minimum = source.minimum;
+	this->maximum = source.maximum;
+	this->pageSize = source.pageSize;
+	this->lineSize = source.lineSize;
+	this->position = source.position;
+
+	return *this;
+}
+
 Long Scroll::Up() {
 	this->position += this->lineSize;
 	if (this->position > (this->maximum-this->pageSize + 1)) { 
@@ -75,16 +87,6 @@ Long Scroll::Rotate(short delta) {
 	return this->position;
 }
 
-Scroll& Scroll::operator=(const Scroll& source) {
-	this->minimum = source.minimum;
-	this->maximum = source.maximum;
-	this->pageSize = source.pageSize;
-	this->lineSize = source.lineSize;
-	this->position = source.position;
-
-	return *this;
-}
-
 SCROLLINFO Scroll::GetScrollInfo(){
 	SCROLLINFO scrollInfo = { 0, };
 	scrollInfo.cbSize = sizeof(SCROLLINFO);
@@ -98,17 +100,18 @@ SCROLLINFO Scroll::GetScrollInfo(){
 }
 
 //VerticalScroll
-HorizontalScroll::HorizontalScroll() {
+HorizontalScroll::HorizontalScroll() 
+	: Scroll() {
 
 }
 
 HorizontalScroll::HorizontalScroll(Long minimum, Long maximum, Long pageSize, Long lineSize, Long position)
-:Scroll(minimum, maximum, pageSize, lineSize, position){
+	: Scroll(minimum, maximum, pageSize, lineSize, position){
 
 }
 
 HorizontalScroll::HorizontalScroll(const HorizontalScroll& source)
-:Scroll(source){
+	: Scroll(source){
 
 }
 
@@ -118,18 +121,21 @@ HorizontalScroll::~HorizontalScroll() {
 
 HorizontalScroll& HorizontalScroll::operator=(const HorizontalScroll& source) {
 	Scroll::operator=(source);
+	
 	return *this;
 }
 
 //VerticalScroll
-VerticalScroll::VerticalScroll() {
+VerticalScroll::VerticalScroll() 
+	: Scroll() {
 
 }
 
 VerticalScroll::VerticalScroll(Long minimum, Long maximum, Long pageSize, Long lineSize, Long position)
-	:Scroll(minimum, maximum, pageSize, lineSize, position){
+	: Scroll(minimum, maximum, pageSize, lineSize, position){
 
 }
+
 VerticalScroll::VerticalScroll(const VerticalScroll& source)
 	: Scroll(source) {
 
@@ -141,6 +147,6 @@ VerticalScroll::~VerticalScroll() {
 
 VerticalScroll& VerticalScroll::operator=(const VerticalScroll& source) {
 	Scroll::operator=(source);
-	return *this;
 
+	return *this;
 }

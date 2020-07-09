@@ -22,9 +22,10 @@ KeyAction::KeyAction(const KeyAction& source) {
 }
 
 KeyAction::~KeyAction() {
+
 }
 
-KeyAction& KeyAction::operator =(const KeyAction& source) {
+KeyAction& KeyAction::operator=(const KeyAction& source) {
 	this->notepadForm = source.notepadForm;
 
 	return *this;
@@ -32,17 +33,22 @@ KeyAction& KeyAction::operator =(const KeyAction& source) {
 
 //LeftKeyAction
 LeftKeyAction::LeftKeyAction(NotepadForm *notepadForm)
-	:KeyAction(notepadForm) {
+	: KeyAction(notepadForm) {
 
 }
 
 LeftKeyAction::LeftKeyAction(const LeftKeyAction& source)
-	: KeyAction(notepadForm) {
+	: KeyAction(source) {
 
 }
 
 LeftKeyAction::~LeftKeyAction() {
 
+}
+
+LeftKeyAction& LeftKeyAction::operator=(const LeftKeyAction& source) {
+	KeyAction::operator=(source);
+	return *this;
 }
 
 void LeftKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
@@ -57,21 +63,22 @@ void LeftKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
 
 }
 
-LeftKeyAction& LeftKeyAction::operator = (const LeftKeyAction& source) {
-	KeyAction::operator=(source);
-	return *this;
-}
-
 //RightKeyAction
 RightKeyAction::RightKeyAction(NotepadForm *notepadForm)
-	:KeyAction(notepadForm) {
-}
-
-RightKeyAction::RightKeyAction(const RightKeyAction& source)
 	: KeyAction(notepadForm) {
 }
 
+RightKeyAction::RightKeyAction(const RightKeyAction& source)
+	: KeyAction(source) {
+}
+
 RightKeyAction::~RightKeyAction() {
+
+}
+
+RightKeyAction& RightKeyAction::operator=(const RightKeyAction& source) {
+	KeyAction::operator=(source);
+	return *this;
 }
 
 void RightKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
@@ -87,14 +94,9 @@ void RightKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
 	}
 }
 
-RightKeyAction& RightKeyAction::operator=(const RightKeyAction& source) {
-	KeyAction::operator=(source);
-	return *this;
-}
-
 //UpKeyAction
 UpKeyAction::UpKeyAction(NotepadForm *notepadForm)
-	:KeyAction(notepadForm) {
+	: KeyAction(notepadForm) {
 
 }
 
@@ -107,6 +109,11 @@ UpKeyAction::~UpKeyAction() {
 
 }
 
+UpKeyAction& UpKeyAction::operator=(const UpKeyAction& source) {
+	KeyAction::operator=(source);
+	return *this;
+}
+
 void UpKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
 	if (this->notepadForm->note->GetCurrent() > 0) {
 		Long x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current);
@@ -117,11 +124,6 @@ void UpKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
 	}
 }
 
-UpKeyAction& UpKeyAction::operator = (const UpKeyAction& source) {
-	KeyAction::operator=(source);
-	return *this;
-}
-
 //DownKeyAction
 DownKeyAction::DownKeyAction(NotepadForm *notepadForm)
 	:KeyAction(notepadForm) {
@@ -129,12 +131,18 @@ DownKeyAction::DownKeyAction(NotepadForm *notepadForm)
 }
 
 DownKeyAction::DownKeyAction(const DownKeyAction& source)
-	: KeyAction(notepadForm) {
+	: KeyAction(source) {
 
 }
 
 DownKeyAction::~DownKeyAction() {
 
+}
+
+DownKeyAction& DownKeyAction::operator=(const DownKeyAction& source) {
+	KeyAction::operator=(source);
+
+	return *this;
 }
 
 void DownKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
@@ -148,12 +156,6 @@ void DownKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
 	}
 }
 
-DownKeyAction& DownKeyAction::operator=(const DownKeyAction& source) {
-	KeyAction::operator=(source);
-	return *this;
-
-}
-
 //HomeKeyAction
 HomeKeyAction::HomeKeyAction(NotepadForm *notepadForm)
 	: KeyAction(notepadForm) {
@@ -164,16 +166,17 @@ HomeKeyAction::HomeKeyAction(const HomeKeyAction& source)
 }
 
 HomeKeyAction::~HomeKeyAction() {
+
+}
+
+HomeKeyAction& HomeKeyAction::operator=(const HomeKeyAction& source) {
+	KeyAction::operator=(source);
+
+	return *this;
 }
 
 void HomeKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	this->notepadForm->current->First();
-}
-
-HomeKeyAction& HomeKeyAction::operator =(const HomeKeyAction& source) {
-	KeyAction::operator =(source);
-
-	return *this;
 }
 
 //EndKeyAction
@@ -186,16 +189,17 @@ EndKeyAction::EndKeyAction(const EndKeyAction& source)
 }
 
 EndKeyAction::~EndKeyAction() {
+
+}
+
+EndKeyAction& EndKeyAction::operator=(const EndKeyAction& source) {
+	KeyAction::operator=(source);
+
+	return *this;
 }
 
 void EndKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	this->notepadForm->current->Last();
-}
-
-EndKeyAction& EndKeyAction::operator =(const EndKeyAction& source) {
-	KeyAction::operator =(source);
-
-	return *this;
 }
 
 //CtrlLeftKeyAction
@@ -208,17 +212,18 @@ CtrlLeftKeyAction::CtrlLeftKeyAction(const CtrlLeftKeyAction& source)
 }
 
 CtrlLeftKeyAction::~CtrlLeftKeyAction() {
+
+}
+
+CtrlLeftKeyAction& CtrlLeftKeyAction::operator=(const CtrlLeftKeyAction& source) {
+	KeyAction::operator=(source);
+
+	return *this;
 }
 
 void CtrlLeftKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	Long index = this->notepadForm->note->MovePreviousWord();
 	this->notepadForm->current = this->notepadForm->note->GetAt(index);
-}
-
-CtrlLeftKeyAction& CtrlLeftKeyAction::operator =(const CtrlLeftKeyAction& source) {
-	KeyAction::operator =(source);
-
-	return *this;
 }
 
 //CtrlRightKeyAction
@@ -231,17 +236,18 @@ CtrlRightKeyAction::CtrlRightKeyAction(const CtrlRightKeyAction& source)
 }
 
 CtrlRightKeyAction::~CtrlRightKeyAction() {
+
+}
+
+CtrlRightKeyAction& CtrlRightKeyAction::operator=(const CtrlRightKeyAction& source) {
+	KeyAction::operator=(source);
+
+	return *this;
 }
 
 void CtrlRightKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	Long index = this->notepadForm->note->MoveNextWord();
 	this->notepadForm->current = this->notepadForm->note->GetAt(index);
-}
-
-CtrlRightKeyAction& CtrlRightKeyAction::operator =(const CtrlRightKeyAction& source) {
-	KeyAction::operator =(source);
-
-	return *this;
 }
 
 //CtrlHomeKeyAction
@@ -254,18 +260,19 @@ CtrlHomeKeyAction::CtrlHomeKeyAction(const CtrlHomeKeyAction& source)
 }
 
 CtrlHomeKeyAction::~CtrlHomeKeyAction() {
+
+}
+
+CtrlHomeKeyAction& CtrlHomeKeyAction::operator=(const CtrlHomeKeyAction& source) {
+	KeyAction::operator=(source);
+
+	return *this;
 }
 
 void CtrlHomeKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	Long index = this->notepadForm->note->First();
 	this->notepadForm->current = this->notepadForm->note->GetAt(index);
 	this->notepadForm->current->First();
-}
-
-CtrlHomeKeyAction& CtrlHomeKeyAction::operator =(const CtrlHomeKeyAction& source) {
-	KeyAction::operator =(source);
-
-	return *this;
 }
 
 //CtrlEndKeyAction
@@ -278,18 +285,19 @@ CtrlEndKeyAction::CtrlEndKeyAction(const CtrlEndKeyAction& source)
 }
 
 CtrlEndKeyAction::~CtrlEndKeyAction() {
+
+}
+
+CtrlEndKeyAction& CtrlEndKeyAction::operator=(const CtrlEndKeyAction& source) {
+	KeyAction::operator=(source);
+
+	return *this;
 }
 
 void CtrlEndKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	Long index = this->notepadForm->note->Last();
 	this->notepadForm->current = this->notepadForm->note->GetAt(index);
 	this->notepadForm->current->Last();
-}
-
-CtrlEndKeyAction& CtrlEndKeyAction::operator =(const CtrlEndKeyAction& source) {
-	KeyAction::operator =(source);
-
-	return *this;
 }
 
 //DeleteKeyAction
@@ -302,6 +310,13 @@ DeleteKeyAction::DeleteKeyAction(const DeleteKeyAction& source)
 }
 
 DeleteKeyAction::~DeleteKeyAction() {
+
+}
+
+DeleteKeyAction& DeleteKeyAction::operator=(const DeleteKeyAction& source) {
+	KeyAction::operator=(source);
+
+	return *this;
 }
 
 void DeleteKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
@@ -319,12 +334,6 @@ void DeleteKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	}
 }
 
-DeleteKeyAction& DeleteKeyAction::operator =(const DeleteKeyAction& source) {
-	KeyAction::operator =(source);
-
-	return *this;
-}
-
 //BackSpaceKeyAction
 BackSpaceKeyAction::BackSpaceKeyAction(NotepadForm *notepadForm)
 	: KeyAction(notepadForm) {
@@ -335,6 +344,13 @@ BackSpaceKeyAction::BackSpaceKeyAction(const BackSpaceKeyAction& source)
 }
 
 BackSpaceKeyAction::~BackSpaceKeyAction() {
+
+}
+
+BackSpaceKeyAction& BackSpaceKeyAction::operator=(const BackSpaceKeyAction& source) {
+	KeyAction::operator=(source);
+
+	return *this;
 }
 
 void BackSpaceKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
@@ -354,12 +370,6 @@ void BackSpaceKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	}
 }
 
-BackSpaceKeyAction& BackSpaceKeyAction::operator =(const BackSpaceKeyAction& source) {
-	KeyAction::operator =(source);
-
-	return *this;
-}
-
 //PageUpKeyAction
 PageUpKeyAction::PageUpKeyAction(NotepadForm *notepadForm)
 	:KeyAction(notepadForm) {
@@ -373,6 +383,11 @@ PageUpKeyAction::PageUpKeyAction(const PageUpKeyAction& source)
 
 PageUpKeyAction::~PageUpKeyAction() {
 
+}
+
+PageUpKeyAction& PageUpKeyAction::operator=(const PageUpKeyAction& source) {
+	KeyAction::operator=(source);
+	return *this;
 }
 
 void PageUpKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
@@ -398,11 +413,6 @@ void PageUpKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 
 }
 
-PageUpKeyAction& PageUpKeyAction::operator = (const PageUpKeyAction& source) {
-	KeyAction::operator=(source);
-	return *this;
-}
-
 //PageDownKeyAction
 PageDownKeyAction::PageDownKeyAction(NotepadForm *notepadForm)
 	:KeyAction(notepadForm) {
@@ -414,6 +424,12 @@ PageDownKeyAction::PageDownKeyAction(const PageDownKeyAction& source)
 }
 
 PageDownKeyAction::~PageDownKeyAction() {
+
+}
+
+PageDownKeyAction& PageDownKeyAction::operator=(const PageDownKeyAction& source) {
+	KeyAction::operator=(source);
+	return *this;
 }
 
 void PageDownKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
@@ -431,9 +447,4 @@ void PageDownKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	this->notepadForm->current = this->notepadForm->note->GetAt(index);
 	Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
 	this->notepadForm->current->Move(column);
-}
-
-PageDownKeyAction& PageDownKeyAction::operator=(const PageDownKeyAction& source) {
-	KeyAction::operator=(source);
-	return *this;
 }

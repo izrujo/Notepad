@@ -2,13 +2,42 @@
 
 Note::Note(Long capacity)
 	: Composite(capacity) {
+
 }
 
 Note::Note(const Note& source)
 	: Composite(source) {
+
 }
 
 Note::~Note() {
+
+}
+
+Note& Note::operator=(const Note& source) {
+	Composite::operator=(source);
+
+	return *this;
+}
+
+Long Note::Add(Glyph *glyph) {
+	Long index = Composite::Add(glyph);
+	this->current = index;
+
+	return index;
+}
+
+Long Note::Add(Long index, Glyph *glyph) {
+	Composite::Add(index, glyph);
+	this->current = index;
+
+	return this->current;
+}
+Long Note::Remove(Long index) {
+	Composite::Remove(index);
+	this->current = index - 1;
+
+	return -1;
 }
 
 Long Note::Next() {
@@ -60,10 +89,10 @@ Long Note::MoveNextWord() {
 	return this->current;
 }
 
-Note& Note::operator =(const Note& source) {
-	Composite::operator =(source);
-	return *this;
+Glyph* Note::Clone() {
+	return new Note(*this);
 }
+
 string Note::GetContent() {
 	string content = "";
 	string characterString;
@@ -100,27 +129,4 @@ string Note::GetContent() {
 	}
 	return content;
 	*/
-}
-Glyph* Note::Clone() {
-	return new Note(*this);
-}
-
-Long Note::Add(Glyph *glyph) {
-	Long index = Composite::Add(glyph);
-	this->current = index;
-
-	return index;
-}
-
-Long Note::Add(Long index, Glyph *glyph) {
-	Composite::Add(index, glyph);
-	this->current = index;
-
-	return this->current;
-}
-Long Note::Remove(Long index) {
-	Composite::Remove(index);
-	this->current = index - 1;
-
-	return -1;
 }

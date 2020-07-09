@@ -6,21 +6,6 @@
 DummyLine::DummyLine(Long capacity)
 	: Line(capacity) {
 }
-/*
-DummyLine::DummyLine(Glyph *line) {
-
-	Glyph *character;
-	Long i = 0;
-	while (i < line->GetLength()) {
-		character = line->GetAt(i);
-		this->glyphs.AppendFromRear(character->Clone());
-		i++;
-	}
-	this->capacity = line->GetCapacity();
-	this->length = line->GetLength();
-	this->current = 0;
-}
-*/
 
 DummyLine::DummyLine(const DummyLine& source)
 	: Line(source) {
@@ -29,10 +14,14 @@ DummyLine::DummyLine(const DummyLine& source)
 DummyLine::~DummyLine() {
 }
 
-DummyLine& DummyLine::operator =(const DummyLine& source) {
-	Line::operator =(source);
+DummyLine& DummyLine::operator=(const DummyLine& source) {
+	Line::operator=(source);
 
 	return *this;
+}
+
+Glyph* DummyLine::Clone() {
+	return new DummyLine(*this);
 }
 
 string DummyLine::GetContent() {
@@ -43,8 +32,4 @@ string DummyLine::GetContent() {
 		i++;
 	}
 	return content;
-}
-
-Glyph* DummyLine::Clone() {
-	return new DummyLine(*this);
 }

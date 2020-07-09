@@ -14,6 +14,12 @@ VScrollActionFactory::~VScrollActionFactory() {
 
 }
 
+VScrollActionFactory& VScrollActionFactory::operator=(const VScrollActionFactory& source) {
+	this->notepadForm = source.notepadForm;
+
+	return *this;
+}
+
 VScrollAction* VScrollActionFactory::Make(UINT nSBCode) {
 	VScrollAction *vScrollAction = 0;
 
@@ -38,10 +44,4 @@ VScrollAction* VScrollActionFactory::Make(UINT nSBCode) {
 	}
 
 	return vScrollAction;
-}
-
-VScrollActionFactory& VScrollActionFactory::operator=(const VScrollActionFactory& source) {
-	this->notepadForm = source.notepadForm;
-
-	return *this;
 }

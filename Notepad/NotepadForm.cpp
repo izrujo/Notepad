@@ -20,27 +20,26 @@
 #include "HScrollActionFactory.h"
 #include "HScrollActions.h"
 #include "Scroll.h"
-#include "WordWrapController.h"
 
 BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_CREATE()
+	ON_WM_CLOSE()
 	ON_WM_CHAR()
 	ON_MESSAGE(WM_IME_COMPOSITION, OnImeComposition)
 	ON_MESSAGE(WM_IME_CHAR, OnImeChar)
 	ON_MESSAGE(WM_IME_STARTCOMPOSITION, OnImeStartComposition)
 	ON_WM_PAINT()
+	ON_WM_SIZE()
 	ON_WM_SETFOCUS()
 	ON_WM_KILLFOCUS()
+	ON_WM_LBUTTONDOWN()
 	ON_COMMAND_RANGE(IDM_FORMAT_FONT, IDM_FORMAT_WORDWRAPCANCEL, OnCommandRange)
 	ON_WM_KEYDOWN()
-	ON_WM_LBUTTONDOWN()
 	ON_WM_HSCROLL()
 	ON_WM_VSCROLL()
 	ON_WM_MOUSEWHEEL()
-	ON_WM_SIZE()
-	//ON_UPDATE_COMMAND_UI_RANGE(IDM_FORMAT_WORDWRAP, IDM_FORMAT_WORDWRAP, OnUpdateCommandUIRange)
-	ON_WM_CLOSE()
 	ON_WM_MENUSELECT()
+	//ON_UPDATE_COMMAND_UI_RANGE(IDM_FORMAT_WORDWRAP, IDM_FORMAT_WORDWRAP, OnUpdateCommandUIRange)
 END_MESSAGE_MAP()
 
 NotepadForm::NotepadForm() {
@@ -53,17 +52,20 @@ NotepadForm::NotepadForm() {
 	this->isSaved = TRUE;
 	this->fileName = "제목 없음";
 	this->scrollController = NULL;
-	this->wordWrapController = NULL;
 }
 
 int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	CFrameWnd::OnCreate(lpCreateStruct);
+
 	GlyphFactory glyphFactory;
 	this->note = glyphFactory.Make("");
 	this->current = glyphFactory.Make("\r\n");
 	this->note->Add(this->current);
+
 	this->font = new Font(this);
+
 	this->characterMetrics = new CharacterMetrics(this);
+
 	this->menu.LoadMenuA(IDR_MENU1);
 	this->SetMenu(&menu);
 	this->menu.CheckMenuItem(IDM_FORMAT_WORDWRAP, MF_UNCHECKED | MF_BYCOMMAND);
@@ -76,6 +78,19 @@ int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	return 0;
 }
 
+void NotepadForm::OnClose() {
+	if (this->characterMetrics != NULL) {
+		delete this->characterMetrics;
+	}
+	if (this->font != NULL) {
+		delete this->font;
+	}
+	if (this->note != NULL) {
+		delete this->note;
+		this->note = NULL;
+	}
+	CFrameWnd::OnClose();
+}
 
 void NotepadForm::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	GlyphFactory glyphFactory;
@@ -114,7 +129,7 @@ void NotepadForm::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	this->Invalidate();
 	this->isSaved = FALSE;
 	//스마트스크롤 부분
-	Long x = this->characterMetrics->GetX(this->current) + 1; // 
+	Long x = this->characterMetrics->GetX(this->current) + 1;
 	Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
 	this->scrollController->SmartScrollToPoint(x, y);
 }
@@ -184,7 +199,6 @@ LRESULT NotepadForm::OnImeChar(WPARAM wParam, LPARAM lParam) {
 		this->current->Add(this->current->GetCurrent(), glyph);
 	}
 
-	
 	this->isComposing = FALSE;
 	this->Notify();
 	this->Invalidate();
@@ -233,6 +247,16 @@ void NotepadForm::OnPaint() {
 	dc.SetTextColor(oldColor);
 }
 
+void NotepadForm::OnSize(UINT nType, int cs, int cy) {
+	if (this->scrollController == NULL) {
+		this->scrollController = new ScrollController(this);
+	}
+	if (this->note != NULL) {
+		this->Notify();
+	}
+
+}
+
 void NotepadForm::OnSetFocus(CWnd *pNewWnd) {
 	if (this->caretController == NULL) {
 		this->caretController = new CaretController(this);
@@ -245,6 +269,19 @@ void NotepadForm::OnKillFocus(CWnd *pNewWnd) {
 		delete this->caretController;
 		this->caretController = NULL;
 	}
+}
+
+void NotepadForm::OnLButtonDown(UINT nFlag, CPoint point) {
+	Long row = this->characterMetrics->GetRow(this->scrollController->GetVerticalScroll()->GetPosition() + point.y);
+	if (row >= this->note->GetLength()) {
+		row = this->note->GetLength() - 1;
+	}
+	Long index = this->note->Move(row);
+	this->current = this->note->GetAt(index);
+	Long column = this->characterMetrics->GetColumn(this->current, this->scrollController->GetHorizontalScroll()->GetPosition() + point.x);
+	this->current->Move(column);
+
+	this->Notify();
 }
 
 void NotepadForm::OnCommandRange(UINT uID) {
@@ -282,19 +319,6 @@ void NotepadForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	this->Invalidate();
 }
 
-void NotepadForm::OnLButtonDown(UINT nFlag, CPoint point) {
-	Long row = this->characterMetrics->GetRow(this->scrollController->GetVerticalScroll()->GetPosition() + point.y);
-	if (row >= this->note->GetLength()) {
-		row = this->note->GetLength() - 1;
-	}
-	Long index = this->note->Move(row);
-	this->current = this->note->GetAt(index);
-	Long column = this->characterMetrics->GetColumn(this->current, this->scrollController->GetHorizontalScroll()->GetPosition() + point.x);
-	this->current->Move(column);
-
-	this->Notify();
-}
-
 void NotepadForm::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) {
 	HScrollActionFactory hScrollFactory(this);
 	HScrollAction *hScrollAction = hScrollFactory.Make(nSBCode);
@@ -330,28 +354,4 @@ BOOL NotepadForm::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) {
 		this->Notify();
 	}
 	return TRUE;
-}
-
-void NotepadForm::OnSize(UINT nType, int cs, int cy) {
-	if (this->scrollController == NULL) {
-		this->scrollController = new ScrollController(this);
-	}
-	if (this->note != NULL) {
-		this->Notify();
-	}
-
-}
-
-void NotepadForm::OnClose() {
-	if (this->characterMetrics != NULL) {
-		delete this->characterMetrics;
-	}
-	if (this->font != NULL) {
-		delete this->font;
-	}
-	if (this->note != NULL) {
-		delete this->note;
-		this->note = NULL;
-	}
-	CFrameWnd::OnClose();
 }
