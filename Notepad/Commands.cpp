@@ -1,25 +1,15 @@
 #include "Commands.h"
 #include "NotepadForm.h"
-
 #include "Font.h"
 #include "CharacterMetrics.h"
-
-#include "Note.h"
-#include "File.h"
-#include "GlyphFactory.h"
-#include "CaretController.h"
-#include "ScrollController.h"
-
-#include "Line.h"
-#include "Glyph.h"
-#include "Scanner.h"
+#include "FileManager.h"
 
 #include <afxdlgs.h>
 #include <WinUser.h>
 #include <direct.h>
 
 //Command
-Command::Command(NotepadForm *notepadForm) {
+Command::Command(NotepadForm* notepadForm) {
 	this->notepadForm = notepadForm;
 }
 
@@ -42,9 +32,9 @@ FontCommand::FontCommand(NotepadForm* notepadForm)
 	: Command(notepadForm) {
 }
 
-FontCommand::FontCommand(const FontCommand& source) 
+FontCommand::FontCommand(const FontCommand& source)
 	: Command(source) {
-	
+
 }
 
 FontCommand::~FontCommand() {
@@ -99,96 +89,42 @@ NewCommand& NewCommand::operator=(const NewCommand& source) {
 }
 
 void NewCommand::Execute() {
-	GlyphFactory glyphFactory;
+	FileManager fileManager(this->notepadForm);
+	int message;
+	
 	if (this->notepadForm->GetIsSaved() == FALSE) {
 		CString messageText;
 		messageText.Format("변경 내용을 %s에 저장하시겠습니까?", (LPCTSTR)this->notepadForm->fileName);
-		int message = MessageBox(NULL, (LPCTSTR)messageText, "메모장", MB_YESNOCANCEL);
+		message = MessageBox(NULL, (LPCTSTR)messageText, "메모장", MB_YESNOCANCEL);
 		if (message == IDYES) {
 			if (this->notepadForm->fileName.Compare("제목 없음") == 0) {
-				//여기부터
-				CFileDialog fileDialog(FALSE);
+				CFileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 				int ret = fileDialog.DoModal();
 				if (ret == IDOK) {
 					CString pathName = fileDialog.GetPathName();
-					File file((LPCTSTR)pathName);
-					string content = this->notepadForm->note->GetContent();
-					file.Save(content);
+
+					fileManager.Save((LPCTSTR)pathName);
+
 					CString title = fileDialog.GetFileTitle();
 					title.AppendFormat(" - 메모장");
 					this->notepadForm->SetWindowTextA((LPCTSTR)title);
+
 					this->notepadForm->fileName = pathName;
 				}
-				//여기까지 동일
 			}
 			else {
-				File file((LPCTSTR)this->notepadForm->fileName);
-				string content = this->notepadForm->note->GetContent();
-				file.Save(content);
+				fileManager.Save((LPCTSTR)this->notepadForm->fileName);
 			}
-			//새로 만들기 처리
-			if (this->notepadForm->note != NULL) {
-				delete this->notepadForm->note;
-			}
-			this->notepadForm->note = glyphFactory.Make("");
-			Glyph* line = glyphFactory.Make("\r\n");
-			this->notepadForm->note->Add(line);
-			this->notepadForm->SetWindowTextA("제목 없음 - 메모장");
-			this->notepadForm->fileName = "제목 없음";
-
-			Long index = this->notepadForm->note->First();
-			this->notepadForm->current = this->notepadForm->note->GetAt(index);
-			this->notepadForm->current->First();
-			// 스크롤 컨트롤러 재생성
-			if (this->notepadForm->scrollController != NULL) {
-				delete this->notepadForm->scrollController;
-				this->notepadForm->scrollController = new ScrollController(this->notepadForm);
-			}
-			// 스크롤 컨트롤러 재생성
-			this->notepadForm->Notify();
-		}
-		else if (message == IDNO) {
-			if (this->notepadForm->note != NULL) {
-				delete this->notepadForm->note;
-			}
-			this->notepadForm->note = glyphFactory.Make("");
-			Glyph* line = glyphFactory.Make("\r\n");
-			this->notepadForm->note->Add(line);
-			this->notepadForm->SetWindowTextA("제목 없음 - 메모장");
-			this->notepadForm->fileName = "제목 없음";
-
-			Long index = this->notepadForm->note->First();
-			this->notepadForm->current = this->notepadForm->note->GetAt(index);
-			this->notepadForm->current->First();
-			// 스크롤 컨트롤러 재생성
-			if (this->notepadForm->scrollController != NULL) {
-				delete this->notepadForm->scrollController;
-				this->notepadForm->scrollController = new ScrollController(this->notepadForm);
-			}
-			// 스크롤 컨트롤러 재생성
-			this->notepadForm->Notify();
 		}
 	}
-	else {
-		if (this->notepadForm->note != NULL) {
-			delete this->notepadForm->note;
-		}
-		this->notepadForm->note = glyphFactory.Make("");
-		Glyph* line = glyphFactory.Make("\r\n");
-		this->notepadForm->note->Add(line);
-		this->notepadForm->SetWindowTextA("제목 없음 - 메모장");
-		this->notepadForm->fileName = "제목 없음";
 
-		Long index = this->notepadForm->note->First();
-		this->notepadForm->current = this->notepadForm->note->GetAt(index);
-		this->notepadForm->current->First();
-		// 스크롤 컨트롤러 재생성
-		if (this->notepadForm->scrollController != NULL) {
-			delete this->notepadForm->scrollController;
-			this->notepadForm->scrollController = new ScrollController(this->notepadForm);
-		}
-		// 스크롤 컨트롤러 재생성
-		this->notepadForm->Notify();
+	if (this->notepadForm->GetIsSaved() == TRUE || message != IDCANCEL) {
+		//새로 만들기 처리
+		fileManager.New();
+
+		this->notepadForm->SetWindowTextA("제목 없음 - 메모장");
+
+		this->notepadForm->fileName = "제목 없음";
 	}
 }
 
@@ -212,160 +148,48 @@ OpenCommand& OpenCommand::operator=(const OpenCommand& source) {
 }
 
 void OpenCommand::Execute() {
-	GlyphFactory glyphFactory;
+	FileManager fileManager(this->notepadForm);
+	int message;
+
 	if (this->notepadForm->GetIsSaved() == FALSE) {
 		CString messageText;
 		messageText.Format("변경 내용을 %s에 저장하시겠습니까?", (LPCTSTR)this->notepadForm->fileName);
-		int message = MessageBox(NULL, (LPCTSTR)messageText, "메모장", MB_YESNOCANCEL);
+		message = MessageBox(NULL, (LPCTSTR)messageText, "메모장", MB_YESNOCANCEL);
 		if (message == IDYES) {
 			if (this->notepadForm->fileName.Compare("제목 없음") == 0) {
 				//여기부터
-				CFileDialog fileDialog(FALSE);
+				CFileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 				int ret = fileDialog.DoModal();
 				if (ret == IDOK) {
 					CString pathName = fileDialog.GetPathName();
-					File file((LPCTSTR)pathName);
-					string content = this->notepadForm->note->GetContent();
-					file.Save(content);
+					fileManager.Save((LPCTSTR)pathName);
 					CString title = fileDialog.GetFileTitle();
 					title.AppendFormat(" - 메모장");
 					this->notepadForm->SetWindowTextA((LPCTSTR)title);
+
 					this->notepadForm->fileName = pathName;
 				}
 				//여기까지 동일
 			}
 			else {
-				File file((LPCTSTR)this->notepadForm->fileName);
-				string content = this->notepadForm->note->GetContent();
-				file.Save(content);
-			}
-			CFileDialog fileDialog(TRUE);
-			int ret = fileDialog.DoModal();
-			if (ret == IDOK) {
-				CString pathName = fileDialog.GetPathName();
-				File file((LPCTSTR)pathName);
-				string content = file.Load();
-				if (this->notepadForm->note != NULL) {
-					delete this->notepadForm->note;
-				}
-				this->notepadForm->note = glyphFactory.Make("");
-				this->notepadForm->current = glyphFactory.Make("\r\n");
-				this->notepadForm->note->Add(this->notepadForm->current);
-				Scanner scanner(content);
-				while (scanner.IsEnd() == FALSE) {
-					string token = scanner.GetToken();
-					Glyph* glyph = glyphFactory.Make(token.c_str());
-					if (token != "\r\n") {
-						this->notepadForm->current->Add(glyph);
-					}
-					else {
-						Long index = this->notepadForm->note->Add(glyph);
-						this->notepadForm->current = this->notepadForm->note->GetAt(index);
-					}
-					scanner.Next();
-				}
-				CString title = fileDialog.GetFileTitle();
-				title.AppendFormat(" - 메모장");
-				this->notepadForm->SetWindowTextA((LPCTSTR)title);
-				this->notepadForm->fileName = pathName;
-
-				Long index = this->notepadForm->note->First();
-				this->notepadForm->current = this->notepadForm->note->GetAt(index);
-				this->notepadForm->current->First();
-				// 스크롤 컨트롤러 재생성
-				if (this->notepadForm->scrollController != NULL) {
-					delete this->notepadForm->scrollController;
-					this->notepadForm->scrollController = new ScrollController(this->notepadForm);
-				}
-				// 스크롤 컨트롤러 재생성
-				this->notepadForm->Notify();
-			}
-		}
-		else if (message == IDNO) {
-			CFileDialog fileDialog(TRUE);
-			int ret = fileDialog.DoModal();
-			if (ret == IDOK) {
-				CString pathName = fileDialog.GetPathName();
-				File file((LPCTSTR)pathName);
-				string content = file.Load();
-				if (this->notepadForm->note != NULL) {
-					delete this->notepadForm->note;
-				}
-				this->notepadForm->note = glyphFactory.Make("");
-				this->notepadForm->current = glyphFactory.Make("\r\n");
-				this->notepadForm->note->Add(this->notepadForm->current);
-				Scanner scanner(content);
-				while (scanner.IsEnd() == FALSE) {
-					string token = scanner.GetToken();
-					Glyph* glyph = glyphFactory.Make(token.c_str());
-					if (token != "\r\n") {
-						this->notepadForm->current->Add(glyph);
-					}
-					else {
-						Long index = this->notepadForm->note->Add(glyph);
-						this->notepadForm->current = this->notepadForm->note->GetAt(index);
-					}
-					scanner.Next();
-				}
-				CString title = fileDialog.GetFileTitle();
-				title.AppendFormat(" - 메모장");
-				this->notepadForm->SetWindowTextA((LPCTSTR)title);
-				this->notepadForm->fileName = pathName;
-
-				Long index = this->notepadForm->note->First();
-				this->notepadForm->current = this->notepadForm->note->GetAt(index);
-				this->notepadForm->current->First();
-				// 스크롤 컨트롤러 재생성
-				if (this->notepadForm->scrollController != NULL) {
-					delete this->notepadForm->scrollController;
-					this->notepadForm->scrollController = new ScrollController(this->notepadForm);
-				}
-				// 스크롤 컨트롤러 재생성
-				this->notepadForm->Notify();
+				fileManager.Save((LPCTSTR)this->notepadForm->fileName);
 			}
 		}
 	}
-	else {
-		CFileDialog fileDialog(TRUE);
+
+	if (this->notepadForm->GetIsSaved() == TRUE || message != IDCANCEL) {
+		CFileDialog fileDialog(TRUE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 		int ret = fileDialog.DoModal();
 		if (ret == IDOK) {
 			CString pathName = fileDialog.GetPathName();
-			File file((LPCTSTR)pathName);
-			string content = file.Load();
-			if (this->notepadForm->note != NULL) {
-				delete this->notepadForm->note;
-			}
-			this->notepadForm->note = glyphFactory.Make("");
-			this->notepadForm->current = glyphFactory.Make("\r\n");
-			this->notepadForm->note->Add(this->notepadForm->current);
-			Scanner scanner(content);
-			while (scanner.IsEnd() == FALSE) {
-				string token = scanner.GetToken();
-				Glyph* glyph = glyphFactory.Make(token.c_str());
-				if (token != "\r\n") {
-					this->notepadForm->current->Add(glyph);
-				}
-				else {
-					Long index = this->notepadForm->note->Add(glyph);
-					this->notepadForm->current = this->notepadForm->note->GetAt(index);
-				}
-				scanner.Next();
-			}
+
+			fileManager.Load((LPCTSTR)pathName);
+
 			CString title = fileDialog.GetFileTitle();
 			title.AppendFormat(" - 메모장");
 			this->notepadForm->SetWindowTextA((LPCTSTR)title);
-			this->notepadForm->fileName = pathName;
 
-			Long index = this->notepadForm->note->First();
-			this->notepadForm->current = this->notepadForm->note->GetAt(index);
-			this->notepadForm->current->First();
-			// 스크롤 컨트롤러 재생성
-			if (this->notepadForm->scrollController != NULL) {
-				delete this->notepadForm->scrollController;
-				this->notepadForm->scrollController = new ScrollController(this->notepadForm);
-			}
-			// 스크롤 컨트롤러 재생성
-			this->notepadForm->Notify();
+			this->notepadForm->fileName = pathName;
 		}
 	}
 }
@@ -390,24 +214,23 @@ SaveCommand& SaveCommand::operator=(const SaveCommand& source) {
 }
 
 void SaveCommand::Execute() {
+	FileManager fileManager(this->notepadForm);
+
+	CFileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 	if (this->notepadForm->fileName.Compare("제목 없음") == 0) {
-		CFileDialog fileDialog(FALSE);
 		int ret = fileDialog.DoModal();
 		if (ret == IDOK) {
 			CString pathName = fileDialog.GetPathName();
-			File file((LPCTSTR)pathName);
-			string content = this->notepadForm->note->GetContent();
-			file.Save(content);
+			fileManager.Save((LPCTSTR)pathName);
 			CString title = fileDialog.GetFileTitle();
 			title.AppendFormat(" - 메모장");
 			this->notepadForm->SetWindowTextA((LPCTSTR)title);
+
 			this->notepadForm->fileName = pathName;
 		}
 	}
 	else {
-		File file((LPCTSTR)this->notepadForm->fileName);
-		string content = this->notepadForm->note->GetContent();
-		file.Save(content);
+		fileManager.Save((LPCTSTR)this->notepadForm->fileName);
 	}
 }
 
@@ -431,16 +254,17 @@ SaveAsCommand& SaveAsCommand::operator=(const SaveAsCommand& source) {
 }
 
 void SaveAsCommand::Execute() {
-	CFileDialog fileDialog(FALSE);
+	FileManager fileManager(this->notepadForm);
+
+	CFileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 	int ret = fileDialog.DoModal();
 	if (ret == IDOK) {
 		CString pathName = fileDialog.GetPathName();
-		File file((LPCTSTR)pathName);
-		string content = this->notepadForm->note->GetContent();
-		file.Save(content);
+		fileManager.Save((LPCTSTR)pathName);
 		CString title = fileDialog.GetFileTitle();
 		title.AppendFormat(" - 메모장");
 		this->notepadForm->SetWindowTextA((LPCTSTR)title);
+
 		this->notepadForm->fileName = pathName;
 	}
 }

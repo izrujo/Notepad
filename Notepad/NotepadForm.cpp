@@ -7,7 +7,7 @@
 #include "CharacterMetrics.h"
 #include "Font.h"
 #include "CommandFactory.h"
-#include "Command.h"
+#include "Commands.h"
 #include "KeyActionFactory.h"
 #include "KeyActions.h"
 #include <WinUser.h>

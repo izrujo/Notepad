@@ -1,10 +1,5 @@
 #include "CommandFactory.h"
-#include "Command.h"
-#include "FontCommand.h"
-#include "NewCommand.h"
-#include "OpenCommand.h"
-#include "SaveCommand.h"
-#include "SaveAsCommand.h"
+#include "Commands.h"
 #include "NotepadForm.h"
 #include "resource.h"
 

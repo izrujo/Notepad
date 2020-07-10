@@ -69,6 +69,8 @@ ScrollController& ScrollController::operator=(const ScrollController& source) {
 		delete this->verticalScroll;
 		this->verticalScroll = new VerticalScroll(*(dynamic_cast<VerticalScroll*>(source.horizontalScroll)));
 	}
+	
+	return *this;
 }
 
 void ScrollController::Update() {
