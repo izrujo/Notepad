@@ -3,6 +3,7 @@
 #include "Font.h"
 #include "CharacterMetrics.h"
 #include "FileManager.h"
+#include "Document.h"
 
 #include <afxdlgs.h>
 #include <WinUser.h>
@@ -91,13 +92,15 @@ NewCommand& NewCommand::operator=(const NewCommand& source) {
 void NewCommand::Execute() {
 	FileManager fileManager(this->notepadForm);
 	int message;
-	
-	if (this->notepadForm->GetIsSaved() == FALSE) {
+	bool isDirty = this->notepadForm->document->GetIsDirty();
+	string fileName = this->notepadForm->document->GetPathName();
+
+	if (isDirty == true) {
 		CString messageText;
-		messageText.Format("변경 내용을 %s에 저장하시겠습니까?", (LPCTSTR)this->notepadForm->fileName);
+		messageText.Format("변경 내용을 %s에 저장하시겠습니까?", fileName.c_str());
 		message = MessageBox(NULL, (LPCTSTR)messageText, "메모장", MB_YESNOCANCEL);
 		if (message == IDYES) {
-			if (this->notepadForm->fileName.Compare("제목 없음") == 0) {
+			if (fileName == "제목 없음") {
 				CFileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 				int ret = fileDialog.DoModal();
 				if (ret == IDOK) {
@@ -109,22 +112,24 @@ void NewCommand::Execute() {
 					title.AppendFormat(" - 메모장");
 					this->notepadForm->SetWindowTextA((LPCTSTR)title);
 
-					this->notepadForm->fileName = pathName;
+					this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 				}
 			}
 			else {
-				fileManager.Save((LPCTSTR)this->notepadForm->fileName);
+				fileManager.Save(fileName);
 			}
 		}
 	}
 
-	if (this->notepadForm->GetIsSaved() == TRUE || message != IDCANCEL) {
+	if (isDirty == false || message != IDCANCEL) {
 		//새로 만들기 처리
 		fileManager.New();
 
 		this->notepadForm->SetWindowTextA("제목 없음 - 메모장");
 
-		this->notepadForm->fileName = "제목 없음";
+		this->notepadForm->document->SetPathName("제목 없음");
+
+		this->notepadForm->document->SetIsDirty(false);
 	}
 }
 
@@ -150,34 +155,36 @@ OpenCommand& OpenCommand::operator=(const OpenCommand& source) {
 void OpenCommand::Execute() {
 	FileManager fileManager(this->notepadForm);
 	int message;
+	bool isDirty = this->notepadForm->document->GetIsDirty();
+	string fileName = this->notepadForm->document->GetPathName();
 
-	if (this->notepadForm->GetIsSaved() == FALSE) {
+	if (isDirty == true) {
 		CString messageText;
-		messageText.Format("변경 내용을 %s에 저장하시겠습니까?", (LPCTSTR)this->notepadForm->fileName);
+		messageText.Format("변경 내용을 %s에 저장하시겠습니까?", fileName.c_str());
 		message = MessageBox(NULL, (LPCTSTR)messageText, "메모장", MB_YESNOCANCEL);
 		if (message == IDYES) {
-			if (this->notepadForm->fileName.Compare("제목 없음") == 0) {
-				//여기부터
+			if (fileName == "제목 없음") {
 				CFileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 				int ret = fileDialog.DoModal();
 				if (ret == IDOK) {
 					CString pathName = fileDialog.GetPathName();
+
 					fileManager.Save((LPCTSTR)pathName);
+
 					CString title = fileDialog.GetFileTitle();
 					title.AppendFormat(" - 메모장");
 					this->notepadForm->SetWindowTextA((LPCTSTR)title);
 
-					this->notepadForm->fileName = pathName;
+					this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 				}
-				//여기까지 동일
 			}
 			else {
-				fileManager.Save((LPCTSTR)this->notepadForm->fileName);
+				fileManager.Save(fileName);
 			}
 		}
 	}
 
-	if (this->notepadForm->GetIsSaved() == TRUE || message != IDCANCEL) {
+	if (isDirty == false || message != IDCANCEL) {
 		CFileDialog fileDialog(TRUE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 		int ret = fileDialog.DoModal();
 		if (ret == IDOK) {
@@ -189,7 +196,8 @@ void OpenCommand::Execute() {
 			title.AppendFormat(" - 메모장");
 			this->notepadForm->SetWindowTextA((LPCTSTR)title);
 
-			this->notepadForm->fileName = pathName;
+			this->notepadForm->document->SetPathName((LPCTSTR)pathName);
+			this->notepadForm->document->SetIsDirty(false);
 		}
 	}
 }
@@ -215,9 +223,10 @@ SaveCommand& SaveCommand::operator=(const SaveCommand& source) {
 
 void SaveCommand::Execute() {
 	FileManager fileManager(this->notepadForm);
+	string fileName = this->notepadForm->document->GetPathName();
 
 	CFileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
-	if (this->notepadForm->fileName.Compare("제목 없음") == 0) {
+	if (fileName == "제목 없음") {
 		int ret = fileDialog.DoModal();
 		if (ret == IDOK) {
 			CString pathName = fileDialog.GetPathName();
@@ -226,12 +235,13 @@ void SaveCommand::Execute() {
 			title.AppendFormat(" - 메모장");
 			this->notepadForm->SetWindowTextA((LPCTSTR)title);
 
-			this->notepadForm->fileName = pathName;
+			this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 		}
 	}
 	else {
-		fileManager.Save((LPCTSTR)this->notepadForm->fileName);
+		fileManager.Save(fileName);
 	}
+	this->notepadForm->document->SetIsDirty(false);
 }
 
 //SaveAsCommand
@@ -260,11 +270,14 @@ void SaveAsCommand::Execute() {
 	int ret = fileDialog.DoModal();
 	if (ret == IDOK) {
 		CString pathName = fileDialog.GetPathName();
+
 		fileManager.Save((LPCTSTR)pathName);
+
 		CString title = fileDialog.GetFileTitle();
 		title.AppendFormat(" - 메모장");
 		this->notepadForm->SetWindowTextA((LPCTSTR)title);
 
-		this->notepadForm->fileName = pathName;
+		this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 	}
+	this->notepadForm->document->SetIsDirty(false);
 }

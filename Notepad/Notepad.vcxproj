@@ -27,6 +27,7 @@
     <ClInclude Include="Commands.h" />
     <ClInclude Include="CommandFactory.h" />
     <ClInclude Include="Composite.h" />
+    <ClInclude Include="Document.h" />
     <ClInclude Include="DummyLine.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="FileManager.h" />
@@ -58,6 +59,7 @@
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="CommandFactory.cpp" />
     <ClCompile Include="Composite.cpp" />
+    <ClCompile Include="Document.cpp" />
     <ClCompile Include="DummyLine.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FileManager.cpp" />

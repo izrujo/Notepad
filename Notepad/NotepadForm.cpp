@@ -20,6 +20,7 @@
 #include "HScrollActionFactory.h"
 #include "HScrollActions.h"
 #include "Scroll.h"
+#include "Document.h"
 
 BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_CREATE()
@@ -49,9 +50,8 @@ NotepadForm::NotepadForm() {
 	this->font = NULL;
 	this->characterMetrics = NULL;
 	this->isComposing = FALSE;
-	this->isSaved = TRUE;
-	this->fileName = "제목 없음";
 	this->scrollController = NULL;
+	this->document = NULL;
 }
 
 int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
@@ -69,6 +69,8 @@ int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	this->menu.LoadMenuA(IDR_MENU1);
 	this->SetMenu(&menu);
 	this->menu.CheckMenuItem(IDM_FORMAT_WORDWRAP, MF_UNCHECKED | MF_BYCOMMAND);
+
+	this->document = new Document(this);
 
 	Long index = this->note->Move(0);
 	this->current = this->note->GetAt(index);
@@ -89,6 +91,10 @@ void NotepadForm::OnClose() {
 		delete this->note;
 		this->note = NULL;
 	}
+	if (this->document != NULL) {
+		delete this->document;
+	}
+
 	CFrameWnd::OnClose();
 }
 
@@ -99,7 +105,7 @@ void NotepadForm::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
 
 	if (nChar >= 32 || nChar == VK_TAB) {
 		content[0] = nChar;
-		Glyph *character = glyphFactory.Make(content);
+		Glyph* character = glyphFactory.Make(content);
 
 		index = this->current->GetCurrent();
 
@@ -127,7 +133,15 @@ void NotepadForm::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	}
 	this->Notify();
 	this->Invalidate();
-	this->isSaved = FALSE;
+	
+	if (this->document->GetIsDirty() == false) {
+		CString title;
+		this->GetWindowText(title);
+		title.Insert(0, '*');
+		this->SetWindowTextA(title);
+		this->document->SetIsDirty(true);
+	}
+
 	//스마트스크롤 부분
 	Long x = this->characterMetrics->GetX(this->current) + 1;
 	Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
@@ -150,7 +164,7 @@ LRESULT NotepadForm::OnImeComposition(WPARAM wParam, LPARAM lParam) {
 		if (buffer[0] != '\0') {
 			this->isComposing = TRUE;
 			GlyphFactory glyphFactory;
-			Glyph *doubleByteCharacter = glyphFactory.Make(buffer);
+			Glyph* doubleByteCharacter = glyphFactory.Make(buffer);
 			index = this->current->GetCurrent();
 
 			if (index >= this->current->GetLength()) {
@@ -165,7 +179,15 @@ LRESULT NotepadForm::OnImeComposition(WPARAM wParam, LPARAM lParam) {
 		}
 		this->Notify();
 		this->Invalidate();
-		this->isSaved = FALSE;
+
+		if (this->document->GetIsDirty() == false) {
+			CString title;
+			this->GetWindowText(title);
+			title.Insert(0, '*');
+			this->SetWindowTextA(title);
+			this->document->SetIsDirty(true);
+		}
+
 		//스마트스크롤 부분
 		Long x = this->characterMetrics->GetX(this->current) + 1; // 
 		Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
@@ -190,7 +212,7 @@ LRESULT NotepadForm::OnImeChar(WPARAM wParam, LPARAM lParam) {
 	}
 
 	GlyphFactory glyphFactory;
-	Glyph *glyph = glyphFactory.Make(buffer);
+	Glyph* glyph = glyphFactory.Make(buffer);
 
 	if (this->current->GetCurrent() >= this->current->GetLength()) {
 		this->current->Add(glyph);
@@ -202,7 +224,15 @@ LRESULT NotepadForm::OnImeChar(WPARAM wParam, LPARAM lParam) {
 	this->isComposing = FALSE;
 	this->Notify();
 	this->Invalidate();
-	this->isSaved = FALSE;
+
+	if (this->document->GetIsDirty() == false) {
+		CString title;
+		this->GetWindowText(title);
+		title.Insert(0, '*');
+		this->SetWindowTextA(title);
+		this->document->SetIsDirty(true);
+	}
+	
 	//스마트스크롤 부분
 	Long x = this->characterMetrics->GetX(this->current) + 1; // 
 	Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
@@ -216,10 +246,10 @@ LRESULT NotepadForm::OnImeStartComposition(WPARAM wParam, LPARAM lParam) {
 }
 
 void NotepadForm::OnPaint() {
-	Glyph *line;
+	Glyph* line;
 	string content;
 	CPaintDC dc(this);
-	CFont *oldFont;
+	CFont* oldFont;
 	COLORREF oldColor;
 	CFont font;
 	this->font->Create(font);
@@ -257,14 +287,14 @@ void NotepadForm::OnSize(UINT nType, int cs, int cy) {
 
 }
 
-void NotepadForm::OnSetFocus(CWnd *pNewWnd) {
+void NotepadForm::OnSetFocus(CWnd* pNewWnd) {
 	if (this->caretController == NULL) {
 		this->caretController = new CaretController(this);
 	}
 	this->Notify();
 }
 
-void NotepadForm::OnKillFocus(CWnd *pNewWnd) {
+void NotepadForm::OnKillFocus(CWnd* pNewWnd) {
 	if (this->caretController != NULL) {
 		delete this->caretController;
 		this->caretController = NULL;
@@ -286,12 +316,12 @@ void NotepadForm::OnLButtonDown(UINT nFlag, CPoint point) {
 
 void NotepadForm::OnCommandRange(UINT uID) {
 	CommandFactory commandFactory(this);
-	Command *command = commandFactory.Make(uID);
+	Command* command = commandFactory.Make(uID);
 	command->Execute();
 	if (command != NULL) {
 		delete command;
 	}
-	this->isSaved = TRUE;
+	
 	if (this->scrollController != NULL) {
 		delete this->scrollController;
 	}
@@ -303,7 +333,7 @@ void NotepadForm::OnCommandRange(UINT uID) {
 
 void NotepadForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	KeyActionFactory keyActionFactory(this);
-	KeyAction *keyAction = keyActionFactory.Make(nChar);
+	KeyAction* keyAction = keyActionFactory.Make(nChar);
 
 	if (keyAction != 0) {
 		keyAction->OnKeyDown(nChar, nRepCnt, nFlags);
@@ -311,7 +341,7 @@ void NotepadForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 		Long x = this->characterMetrics->GetX(this->current) + 1; // 
 		Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
 		this->scrollController->SmartScrollToPoint(x, y);
-		
+
 		delete keyAction;
 	}
 
@@ -319,9 +349,9 @@ void NotepadForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	this->Invalidate();
 }
 
-void NotepadForm::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) {
+void NotepadForm::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) {
 	HScrollActionFactory hScrollFactory(this);
-	HScrollAction *hScrollAction = hScrollFactory.Make(nSBCode);
+	HScrollAction* hScrollAction = hScrollFactory.Make(nSBCode);
 	if (hScrollAction != NULL) {
 		hScrollAction->OnHScroll(nSBCode, nPos, pScrollBar);
 		delete hScrollAction;
@@ -329,10 +359,10 @@ void NotepadForm::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) {
 	this->Invalidate();
 }
 
-void NotepadForm::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar) {
+void NotepadForm::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar) {
 	VScrollActionFactory vScrollActionFactory(this);
 
-	VScrollAction *vScrollAction = vScrollActionFactory.Make(nSBCode);
+	VScrollAction* vScrollAction = vScrollActionFactory.Make(nSBCode);
 	if (vScrollAction != NULL) {
 		vScrollAction->OnVScroll(nSBCode, nPos, pScrollBar);
 		delete vScrollAction;

@@ -9,6 +9,7 @@ class Font;
 class CaretController;
 class CharacterMetrics;
 class Glyph;
+class Document;
 
 class NotepadForm : public CFrameWnd, public Subject {
 public:
@@ -21,7 +22,7 @@ public:
 	Font *font;
 	CharacterMetrics *characterMetrics;
 	ScrollController *scrollController;
-	CString fileName;
+	Document *document;
 protected:
 	afx_msg void OnClose();
 	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
@@ -42,19 +43,13 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	BOOL GetIsComposing() const;
-	BOOL GetIsSaved() const;
 private:
 	BOOL isComposing;
 	CMenu menu;
-	BOOL isSaved;
 };
 
 inline BOOL NotepadForm::GetIsComposing() const {
 	return this->isComposing;
-}
-
-inline BOOL NotepadForm::GetIsSaved() const {
-	return this->isSaved;
 }
 
 #endif //_NOTEPADFORM_H
