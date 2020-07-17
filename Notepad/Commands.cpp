@@ -263,7 +263,14 @@ void SaveCommand::Execute() {
 
 		fileManager.Save();
 	}
-	this->notepadForm->document->SetIsDirty(false);
+
+	if (this->notepadForm->document->GetIsDirty() == true) {
+		CString title;
+		this->notepadForm->GetWindowText(title);
+		title.Delete(0);
+		this->notepadForm->SetWindowTextA(title);
+		this->notepadForm->document->SetIsDirty(false);
+	}
 }
 
 //SaveAsCommand
@@ -302,5 +309,12 @@ void SaveAsCommand::Execute() {
 		title.AppendFormat(" - ¸Þ¸ðÀå");
 		this->notepadForm->SetWindowTextA((LPCTSTR)title);
 	}
-	this->notepadForm->document->SetIsDirty(false);
+
+	if (this->notepadForm->document->GetIsDirty() == true) {
+		CString title;
+		this->notepadForm->GetWindowText(title);
+		title.Delete(0);
+		this->notepadForm->SetWindowTextA(title);
+		this->notepadForm->document->SetIsDirty(false);
+	}
 }

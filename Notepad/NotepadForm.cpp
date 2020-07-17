@@ -134,7 +134,8 @@ void NotepadForm::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	this->Notify();
 	this->Invalidate();
 	
-	if (this->document->GetIsDirty() == false) {
+	if (this->document->GetIsDirty() == false &&
+		(nChar >= 32 || nChar == VK_TAB || nChar == VK_RETURN)) {
 		CString title;
 		this->GetWindowText(title);
 		title.Insert(0, '*');
