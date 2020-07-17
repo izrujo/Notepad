@@ -5,11 +5,6 @@
 
 #pragma warning (disable:4996)
 
-File::File()
-	: name("") {
-
-}
-
 File::File(string name)
 	: name(name) {
 
@@ -121,11 +116,6 @@ string File::Load(string mode) {
 /////////////////////
 
 //Text File of ANSI
-AnsiFile::AnsiFile()
-	: File() {
-
-}
-
 AnsiFile::AnsiFile(string name)
 	: File(name) {
 
@@ -178,10 +168,6 @@ string AnsiFile::GetType() {
 }
 
 //Text File of UTF-16 BE
-Utf16BigEndianFile::Utf16BigEndianFile()
-	: File() {
-
-}
 
 Utf16BigEndianFile::Utf16BigEndianFile(string name)
 	: File(name) {
@@ -214,10 +200,6 @@ string Utf16BigEndianFile::GetType() {
 }
 
 //Text File of UTF-16 LE
-Utf16LittleEndianFile::Utf16LittleEndianFile()
-	: File() {
-
-}
 
 Utf16LittleEndianFile::Utf16LittleEndianFile(string name)
 	: File(name) {
@@ -277,11 +259,6 @@ string Utf16LittleEndianFile::GetType() {
 }
 
 //Text File of UTF-8 BOM
-Utf8ByteOrderMarkFile::Utf8ByteOrderMarkFile()
-	: File() {
-
-}
-
 Utf8ByteOrderMarkFile::Utf8ByteOrderMarkFile(string name)
 	: File(name) {
 
@@ -340,11 +317,6 @@ string Utf8ByteOrderMarkFile::GetType() {
 }
 
 //Text File of UTF-8
-Utf8File::Utf8File()
-	: File() {
-
-}
-
 Utf8File::Utf8File(string name)
 	: File(name) {
 

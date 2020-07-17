@@ -9,8 +9,7 @@ typedef signed long int Long;
 
 class File {
 public:
-	File();
-	File(string name);
+	File(string name = "");
 	File(const File& source);
 	virtual ~File() = 0;
 	File& operator=(const File& source);
@@ -34,8 +33,7 @@ inline string& File::GetName() const {
 //Text File of ANSI
 class AnsiFile : public File {
 public:
-	AnsiFile();
-	AnsiFile(string name);
+	AnsiFile(string name = "");
 	AnsiFile(const AnsiFile& source);
 	virtual ~AnsiFile();
 	AnsiFile& operator=(const AnsiFile& source);
@@ -49,8 +47,7 @@ public:
 //Text File of UTF-16 BE
 class Utf16BigEndianFile : public File {
 public:
-	Utf16BigEndianFile();
-	Utf16BigEndianFile(string name);
+	Utf16BigEndianFile(string name = "");
 	Utf16BigEndianFile(const Utf16BigEndianFile& source);
 	virtual ~Utf16BigEndianFile();
 	Utf16BigEndianFile& operator=(const Utf16BigEndianFile& source);
@@ -64,8 +61,7 @@ public:
 //Text File of UTF-16 LE
 class Utf16LittleEndianFile : public File {
 public:
-	Utf16LittleEndianFile();
-	Utf16LittleEndianFile(string name);
+	Utf16LittleEndianFile(string name = "");
 	Utf16LittleEndianFile(const Utf16LittleEndianFile& source);
 	virtual ~Utf16LittleEndianFile();
 	Utf16LittleEndianFile& operator=(const Utf16LittleEndianFile& source);
@@ -79,8 +75,7 @@ public:
 //Text File of UTF-8 BOM
 class Utf8ByteOrderMarkFile : public File {
 public:
-	Utf8ByteOrderMarkFile();
-	Utf8ByteOrderMarkFile(string name);
+	Utf8ByteOrderMarkFile(string name = "");
 	Utf8ByteOrderMarkFile(const Utf8ByteOrderMarkFile& source);
 	virtual ~Utf8ByteOrderMarkFile();
 	Utf8ByteOrderMarkFile& operator=(const Utf8ByteOrderMarkFile& source);
@@ -94,8 +89,7 @@ public:
 //Text File of UTF-8
 class Utf8File : public File {
 public:
-	Utf8File();
-	Utf8File(string name);
+	Utf8File(string name = "");
 	Utf8File(const Utf8File& source);
 	virtual ~Utf8File();
 	Utf8File& operator=(const Utf8File& source);
