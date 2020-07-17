@@ -16,14 +16,17 @@ public:
 
 	void SetIsDirty(bool isDirty);
 	void SetPathName(string pathName);
+	void SetEncodingType(string encodingType);
 
 	bool GetIsDirty() const;
 	string& GetPathName() const;
+	string& GetEncodingType() const;
 
 private:
 	NotepadForm* notepadForm;
 	bool isDirty;
 	string pathName;
+	string encodingType;
 };
 
 inline bool Document::GetIsDirty() const {
@@ -32,6 +35,10 @@ inline bool Document::GetIsDirty() const {
 
 inline string& Document::GetPathName() const {
 	return const_cast<string&>(this->pathName);
+}
+
+inline string& Document::GetEncodingType() const {
+	return const_cast<string&>(this->encodingType);
 }
 
 #endif //_DOCUMENT_H

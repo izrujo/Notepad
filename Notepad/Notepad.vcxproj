@@ -29,7 +29,9 @@
     <ClInclude Include="Composite.h" />
     <ClInclude Include="Document.h" />
     <ClInclude Include="DummyLine.h" />
-    <ClInclude Include="File.h" />
+    <ClInclude Include="FileFactory.h" />
+    <ClInclude Include="Files.h" />
+    <ClInclude Include="FileDialog.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="Font.h" />
     <ClInclude Include="Glyph.h" />
@@ -61,7 +63,9 @@
     <ClCompile Include="Composite.cpp" />
     <ClCompile Include="Document.cpp" />
     <ClCompile Include="DummyLine.cpp" />
-    <ClCompile Include="File.cpp" />
+    <ClCompile Include="FileFactory.cpp" />
+    <ClCompile Include="Files.cpp" />
+    <ClCompile Include="FileDialog.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Glyph.cpp" />

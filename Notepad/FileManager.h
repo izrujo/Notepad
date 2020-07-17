@@ -9,13 +9,13 @@ class NotepadForm;
 
 class FileManager {
 public:
-	FileManager(NotepadForm *notepadForm=0);
+	FileManager(NotepadForm* notepadForm = 0);
 	FileManager(const FileManager& source);
 	~FileManager();
 	FileManager& operator=(const FileManager& source);
 
-	void Save(string filePathName);
-	void Load(string filePathName);
+	void Save();
+	void Load();
 	void New();
 private:
 	NotepadForm* notepadForm;

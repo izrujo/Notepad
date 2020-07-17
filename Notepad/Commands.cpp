@@ -4,10 +4,12 @@
 #include "CharacterMetrics.h"
 #include "FileManager.h"
 #include "Document.h"
+#include "FileDialog.h"
 
 #include <afxdlgs.h>
 #include <WinUser.h>
 #include <direct.h>
+#include <dlgs.h>
 
 //Command
 Command::Command(NotepadForm* notepadForm) {
@@ -101,22 +103,28 @@ void NewCommand::Execute() {
 		message = MessageBox(NULL, (LPCTSTR)messageText, "메모장", MB_YESNOCANCEL);
 		if (message == IDYES) {
 			if (fileName == "제목 없음") {
-				CFileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
+				FileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 				int ret = fileDialog.DoModal();
 				if (ret == IDOK) {
+					string encodingType = fileDialog.GetEncodingType();
+					this->notepadForm->document->SetEncodingType(encodingType);
 					CString pathName = fileDialog.GetPathName();
+					this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 
-					fileManager.Save((LPCTSTR)pathName);
+					fileManager.Save();
 
 					CString title = fileDialog.GetFileTitle();
 					title.AppendFormat(" - 메모장");
 					this->notepadForm->SetWindowTextA((LPCTSTR)title);
-
-					this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 				}
 			}
 			else {
-				fileManager.Save(fileName);
+				//===== See annotation of Save() in Files.h =====
+				string encodingType = "ANSI";
+				this->notepadForm->document->SetEncodingType(encodingType);
+				//===============================================
+
+				fileManager.Save();
 			}
 		}
 	}
@@ -164,39 +172,45 @@ void OpenCommand::Execute() {
 		message = MessageBox(NULL, (LPCTSTR)messageText, "메모장", MB_YESNOCANCEL);
 		if (message == IDYES) {
 			if (fileName == "제목 없음") {
-				CFileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
+				FileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 				int ret = fileDialog.DoModal();
 				if (ret == IDOK) {
+					string encodingType = fileDialog.GetEncodingType();
+					this->notepadForm->document->SetEncodingType(encodingType);
 					CString pathName = fileDialog.GetPathName();
+					this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 
-					fileManager.Save((LPCTSTR)pathName);
+					fileManager.Save();
 
 					CString title = fileDialog.GetFileTitle();
 					title.AppendFormat(" - 메모장");
 					this->notepadForm->SetWindowTextA((LPCTSTR)title);
-
-					this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 				}
 			}
 			else {
-				fileManager.Save(fileName);
+				//===== See annotation of Save() in Files.h =====
+				string encodingType = "ANSI";
+				this->notepadForm->document->SetEncodingType(encodingType);
+				//===============================================
+
+				fileManager.Save();
 			}
 		}
 	}
 
 	if (isDirty == false || message != IDCANCEL) {
-		CFileDialog fileDialog(TRUE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
+		FileDialog fileDialog(TRUE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 		int ret = fileDialog.DoModal();
 		if (ret == IDOK) {
 			CString pathName = fileDialog.GetPathName();
+			this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 
-			fileManager.Load((LPCTSTR)pathName);
+			fileManager.Load();
 
 			CString title = fileDialog.GetFileTitle();
 			title.AppendFormat(" - 메모장");
 			this->notepadForm->SetWindowTextA((LPCTSTR)title);
 
-			this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 			this->notepadForm->document->SetIsDirty(false);
 		}
 	}
@@ -225,21 +239,29 @@ void SaveCommand::Execute() {
 	FileManager fileManager(this->notepadForm);
 	string fileName = this->notepadForm->document->GetPathName();
 
-	CFileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
+	FileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 	if (fileName == "제목 없음") {
 		int ret = fileDialog.DoModal();
 		if (ret == IDOK) {
+			string encodingType = fileDialog.GetEncodingType();
+			this->notepadForm->document->SetEncodingType(encodingType);
 			CString pathName = fileDialog.GetPathName();
-			fileManager.Save((LPCTSTR)pathName);
+			this->notepadForm->document->SetPathName((LPCTSTR)pathName);
+
+			fileManager.Save();
+
 			CString title = fileDialog.GetFileTitle();
 			title.AppendFormat(" - 메모장");
 			this->notepadForm->SetWindowTextA((LPCTSTR)title);
-
-			this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 		}
 	}
 	else {
-		fileManager.Save(fileName);
+		//===== See annotation of Save() in Files.h =====
+		string encodingType = "ANSI";
+		this->notepadForm->document->SetEncodingType(encodingType);
+		//===============================================
+
+		fileManager.Save();
 	}
 	this->notepadForm->document->SetIsDirty(false);
 }
@@ -266,18 +288,19 @@ SaveAsCommand& SaveAsCommand::operator=(const SaveAsCommand& source) {
 void SaveAsCommand::Execute() {
 	FileManager fileManager(this->notepadForm);
 
-	CFileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
+	FileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 	int ret = fileDialog.DoModal();
 	if (ret == IDOK) {
+		string encodingType = fileDialog.GetEncodingType();
+		this->notepadForm->document->SetEncodingType(encodingType);
 		CString pathName = fileDialog.GetPathName();
+		this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 
-		fileManager.Save((LPCTSTR)pathName);
+		fileManager.Save();
 
 		CString title = fileDialog.GetFileTitle();
 		title.AppendFormat(" - 메모장");
 		this->notepadForm->SetWindowTextA((LPCTSTR)title);
-
-		this->notepadForm->document->SetPathName((LPCTSTR)pathName);
 	}
 	this->notepadForm->document->SetIsDirty(false);
 }

@@ -36,9 +36,6 @@
     <ClInclude Include="DummyLine.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="File.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="Font.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -108,6 +105,15 @@
     <ClInclude Include="Document.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="FileDialog.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Files.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="FileFactory.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Caret.cpp">
@@ -129,9 +135,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="DummyLine.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="File.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Font.cpp">
@@ -195,6 +198,15 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="Document.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FileDialog.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Files.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="FileFactory.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
