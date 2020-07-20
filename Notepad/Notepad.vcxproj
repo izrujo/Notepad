@@ -29,6 +29,7 @@
     <ClInclude Include="Composite.h" />
     <ClInclude Include="Document.h" />
     <ClInclude Include="DummyLine.h" />
+    <ClInclude Include="Editor.h" />
     <ClInclude Include="FileFactory.h" />
     <ClInclude Include="Files.h" />
     <ClInclude Include="FileDialog.h" />
@@ -36,6 +37,7 @@
     <ClInclude Include="Font.h" />
     <ClInclude Include="Glyph.h" />
     <ClInclude Include="GlyphFactory.h" />
+    <ClInclude Include="Highlight.h" />
     <ClInclude Include="HScrollActionFactory.h" />
     <ClInclude Include="HScrollActions.h" />
     <ClInclude Include="KeyActionFactory.h" />
@@ -49,6 +51,7 @@
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="Scroll.h" />
     <ClInclude Include="ScrollController.h" />
+    <ClInclude Include="Selector.h" />
     <ClInclude Include="Subject.h" />
     <ClInclude Include="VScrollActionFactory.h" />
     <ClInclude Include="VScrollActions.h" />
@@ -63,6 +66,7 @@
     <ClCompile Include="Composite.cpp" />
     <ClCompile Include="Document.cpp" />
     <ClCompile Include="DummyLine.cpp" />
+    <ClCompile Include="Editor.cpp" />
     <ClCompile Include="FileFactory.cpp" />
     <ClCompile Include="Files.cpp" />
     <ClCompile Include="FileDialog.cpp" />
@@ -70,6 +74,7 @@
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Glyph.cpp" />
     <ClCompile Include="GlyphFactory.cpp" />
+    <ClCompile Include="Highlight.cpp" />
     <ClCompile Include="HScrollActionFactory.cpp" />
     <ClCompile Include="HScrollActions.cpp" />
     <ClCompile Include="KeyActionFactory.cpp" />
@@ -82,6 +87,7 @@
     <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="Scroll.cpp" />
     <ClCompile Include="ScrollController.cpp" />
+    <ClCompile Include="Selector.cpp" />
     <ClCompile Include="Subject.cpp" />
     <ClCompile Include="VScrollActionFactory.cpp" />
     <ClCompile Include="VScrollActions.cpp" />

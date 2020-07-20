@@ -10,6 +10,7 @@ class CaretController;
 class CharacterMetrics;
 class Glyph;
 class Document;
+class Editor;
 
 class NotepadForm : public CFrameWnd, public Subject {
 public:
@@ -23,6 +24,8 @@ public:
 	CharacterMetrics *characterMetrics;
 	ScrollController *scrollController;
 	Document *document;
+	Glyph* highlight;
+	Editor* editor;
 protected:
 	afx_msg void OnClose();
 	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
@@ -34,6 +37,7 @@ protected:
 	afx_msg void OnSetFocus(CWnd *pNewWnd);
 	afx_msg void OnKillFocus(CWnd *pNewWnd);
 	afx_msg void OnLButtonDown(UINT nFlag, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlag, CPoint point);
 	afx_msg void OnCommandRange(UINT uID);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar);
