@@ -21,9 +21,6 @@
     <ClInclude Include="CaretController.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="Character.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="CharacterMetrics.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -114,15 +111,15 @@
     <ClInclude Include="FileFactory.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="Characters.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Caret.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CaretController.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="Character.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="CharacterMetrics.cpp">
@@ -207,6 +204,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="FileFactory.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Characters.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

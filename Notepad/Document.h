@@ -1,3 +1,13 @@
+//Document.h
+/**************************************************
+Classification : (will classify by UML class stero type)
+Function : Manage current file state.
+MVC : ?
+Author : Chan Hyung Kim
+Written Date : 2020.07.14
+Recently Updated : 2020.07.17
+**************************************************/
+
 #ifndef _DOCUMENT_H
 #define _DOCUMENT_H
 

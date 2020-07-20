@@ -1,3 +1,13 @@
+//Array.h
+/**************************************************
+Classification : (will classify by UML class stero type)
+Function : Array Library
+MVC : ?
+Author : Chan Hyung Kim
+Written Date : 2019.04
+Recently Updated : 2020.05.12
+**************************************************/
+
 #ifndef _ARRAY_H
 #define _ARRAY_H
 

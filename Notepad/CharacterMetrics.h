@@ -1,3 +1,13 @@
+//CharacterMetrics.h
+/**************************************************
+Classification : (will classify by UML class stero type)
+Function : Manage text size data.
+MVC : ?
+Author : Chan Hyung Kim
+Written Date : 2019.05
+Recently Updated : 2019.05
+**************************************************/
+
 #ifndef CHARACTERMETRICS_H
 #define CHARACTERMETRICS_H
 

@@ -1,5 +1,15 @@
-#ifndef _CHARACTER_H
-#define _CHARACTER_H
+//Characters.h
+/**************************************************
+Classification : (will classify by UML class stero type)
+Function : Manage text data.
+MVC : ?
+Author : Chan Hyung Kim
+Written Date : 2019.05
+Recently Updated : 2019.05
+**************************************************/
+
+#ifndef _CHARACTERS_H
+#define _CHARACTERS_H
 
 #include "Glyph.h"
 
@@ -50,4 +60,4 @@ private:
 	char content[2];
 };
 
-#endif //_CHARACTER_H
+#endif //_CHARACTERS_H

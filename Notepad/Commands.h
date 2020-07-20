@@ -1,3 +1,13 @@
+//Commands.h
+/**************************************************
+Classification : (will classify by UML class stero type)
+Function : 
+MVC : ?
+Author : Chan Hyung Kim
+Written Date : 2019.05
+Recently Updated : 2020.07.17
+**************************************************/
+
 #ifndef _COMMAND_H
 #define _COMMAND_H
 

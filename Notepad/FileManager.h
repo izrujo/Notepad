@@ -1,3 +1,13 @@
+//FileManager.h
+/**************************************************
+Classification : Control class
+Function : File process
+MVC : Control
+Author : Chan Hyung Kim
+Written Date : 2020.07.17
+Recently Updated : 2020.07.17
+**************************************************/
+
 #ifndef _FILEMANAGER_H
 #define _FILEMANAGER_H
 

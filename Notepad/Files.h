@@ -1,3 +1,13 @@
+//Files.h
+/**************************************************
+Classification : (will classify by UML class stero type)
+Function : Directly connect with files processed.
+MVC : ?
+Author : Chan Hyung Kim
+Written Date : 2019.05
+Recently Updated : 2019.05
+**************************************************/
+
 #ifndef _FILES_H
 #define _FILES_H
 

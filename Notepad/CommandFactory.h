@@ -1,3 +1,13 @@
+//CommandFactory.h
+/**************************************************
+Classification : (will classify by UML class stero type)
+Function : Create command object.
+MVC : ?
+Author : Chan Hyung Kim
+Written Date : 2019.05
+Recently Updated : 2019.05
+**************************************************/
+
 #ifndef _COMMANDFACTORY_H
 #define _COMMANDFACTORY_H
 

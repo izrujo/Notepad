@@ -1,3 +1,13 @@
+//Caret.h
+/**************************************************
+Classification : (will classify by UML class stero type)
+Function : Caret object of text editor.
+MVC : ?
+Author : Chan Hyung Kim
+Written Date : 2019.05
+Recently Updated : 2019.05
+**************************************************/
+
 #ifndef _CARET_H
 #define _CARET_H
 

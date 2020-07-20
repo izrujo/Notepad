@@ -1,3 +1,13 @@
+//FileDialog.h
+/**************************************************
+Classification : (will classify by UML class stero type)
+Function : Open or save file.
+MVC : ?
+Author : Chan Hyung Kim
+Written Date : 2020.07.16
+Recently Updated : 2020.07.17
+**************************************************/
+
 #ifndef _FILEDIALOG_H
 #define _FILEDIALOG_H
 

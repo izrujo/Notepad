@@ -22,7 +22,7 @@
     <ClInclude Include="Array.h" />
     <ClInclude Include="Caret.h" />
     <ClInclude Include="CaretController.h" />
-    <ClInclude Include="Character.h" />
+    <ClInclude Include="Characters.h" />
     <ClInclude Include="CharacterMetrics.h" />
     <ClInclude Include="Commands.h" />
     <ClInclude Include="CommandFactory.h" />
@@ -56,7 +56,7 @@
   <ItemGroup>
     <ClCompile Include="Caret.cpp" />
     <ClCompile Include="CaretController.cpp" />
-    <ClCompile Include="Character.cpp" />
+    <ClCompile Include="Characters.cpp" />
     <ClCompile Include="CharacterMetrics.cpp" />
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="CommandFactory.cpp" />

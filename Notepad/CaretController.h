@@ -1,3 +1,13 @@
+//CaretController.h
+/**************************************************
+Classification : (will classify by UML class stero type)
+Function : Control caret object.
+MVC : ?
+Author : Chan Hyung Kim
+Written Date : 2019.05
+Recently Updated : 2019.05
+**************************************************/
+
 #ifndef _CARETCONTROLLER_H
 #define _CARETCONTROLLER_H
 
