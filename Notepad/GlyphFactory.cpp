@@ -2,7 +2,7 @@
 #include "Glyph.h"
 #include "Note.h"
 #include "Line.h"
-#include "Character.h"
+#include "Characters.h"
 #include "CharacterMetrics.h"
 #include "DummyLine.h"
 
@@ -41,7 +41,7 @@ Glyph* GlyphFactory::Make(const char(*content)) {
 
 /*
 #include <iostream>
-#include "Character.h"
+#include "Characters.h"
 #include "Composite.h"
 
 int main(int argc, char *argv[]) {

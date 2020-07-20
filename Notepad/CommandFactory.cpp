@@ -38,6 +38,8 @@ Command* CommandFactory::Make(int uID) {
 	else if (uID == IDM_FILE_SAVEAS) {
 		command = new SaveAsCommand(this->notepadForm);
 	}
-
+	else if (uID == IDC_WRITE_CHAR) {
+		command = new WriteCharacterCommand(this->notepadForm);
+	}
 	return command;
 }

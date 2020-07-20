@@ -3,7 +3,7 @@
 #include "NotepadForm.h"
 #include "Glyph.h"
 #include "CharacterMetrics.h"
-#include "Character.h"
+#include "Characters.h"
 #include "Note.h"
 #include "Line.h"
 #include "Composite.h"

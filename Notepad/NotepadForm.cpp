@@ -34,7 +34,7 @@ BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_SETFOCUS()
 	ON_WM_KILLFOCUS()
 	ON_WM_LBUTTONDOWN()
-	ON_COMMAND_RANGE(IDM_FORMAT_FONT, IDM_FORMAT_WORDWRAPCANCEL, OnCommandRange)
+	ON_COMMAND_RANGE(IDM_FILE_NEW, IDC_WRITE_CHAR, OnCommandRange)
 	ON_WM_KEYDOWN()
 	ON_WM_HSCROLL()
 	ON_WM_VSCROLL()
@@ -68,7 +68,6 @@ int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 	this->menu.LoadMenuA(IDR_MENU1);
 	this->SetMenu(&menu);
-	this->menu.CheckMenuItem(IDM_FORMAT_WORDWRAP, MF_UNCHECKED | MF_BYCOMMAND);
 
 	this->document = new Document(this);
 
@@ -99,6 +98,11 @@ void NotepadForm::OnClose() {
 }
 
 void NotepadForm::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
+#if 0
+	WPARAM wParam = MAKEWPARAM(IDC_WRITE_CHAR, nChar);
+	this->SendMessage(WM_COMMAND, wParam);
+#endif
+
 	GlyphFactory glyphFactory;
 	TCHAR content[2];
 	Long index;
@@ -133,7 +137,7 @@ void NotepadForm::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	}
 	this->Notify();
 	this->Invalidate();
-	
+
 	if (this->document->GetIsDirty() == false &&
 		(nChar >= 32 || nChar == VK_TAB || nChar == VK_RETURN)) {
 		CString title;

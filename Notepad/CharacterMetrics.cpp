@@ -1,7 +1,7 @@
 #include "CharacterMetrics.h"
 #include "NotepadForm.h"
 #include "Glyph.h"
-#include "Character.h"
+#include "Characters.h"
 #include "Font.h"
 
 CharacterMetrics::CharacterMetrics(NotepadForm* notepadForm) {

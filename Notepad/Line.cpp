@@ -1,6 +1,6 @@
 #include "Line.h"
 #include "Glyph.h"
-#include "Character.h"
+#include "Characters.h"
 
 Line::Line(Long capacity)
 	: Composite(capacity) {

@@ -1,7 +1,7 @@
 #include "DummyLine.h"
 #include "Line.h"
 #include "Glyph.h"
-#include "Character.h"
+#include "Characters.h"
 
 DummyLine::DummyLine(Long capacity)
 	: Line(capacity) {
