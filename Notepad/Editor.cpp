@@ -158,6 +158,7 @@ void Editor::Copy() {
 }
 
 void Editor::Paste() {
+	//시스템 클립보드에서 복사된 문자열을 가져오다.
 	string clipBoard;
 	HANDLE handle;
 	LPSTR address = NULL;
@@ -172,6 +173,7 @@ void Editor::Paste() {
 			CloseClipboard();
 		}
 	}
+	//복사한 문자열을 임시 Note로 만들다.
 	Scanner scanner(clipBoard);
 	GlyphFactory glyphFactory;
 	Glyph *glyphClipBoard = glyphFactory.Make("");
@@ -191,22 +193,28 @@ void Editor::Paste() {
 	}
 
 	Long i = 0;
+	//현재 줄의 현재 위치에서 나누다.
 	Long current = this->notepadForm->current->GetCurrent();
 	Glyph *line = this->notepadForm->current->Divide(current);
+	//현재 줄의 현재 위치부터 복사한 노트의 첫 번째 줄의 글자를 하나씩 추가한다.
 	Glyph *copiedLine = glyphClipBoard->GetAt(i++);
 	Long j = 0;
 	while (j < copiedLine->GetLength()) {
 		this->notepadForm->current->Add(copiedLine->GetAt(j));
 		j++;
 	}
-
+	//복사한 노트의 줄 수만큼 반복한다.
 	while (i < glyphClipBoard->GetLength()) {
+		//복사한 노트의 현재 줄을 가져오다.
 		copiedLine = glyphClipBoard->GetAt(i);
+		//원래 노트의 현재 위치에 가져온 줄을 추가하다.
 		Long noteCurrent = this->notepadForm->note->GetCurrent();
 		this->notepadForm->note->Add(noteCurrent + 1, copiedLine);
 		i++;
 	}
+	//마지막으로 추가한 줄을 현재 줄로 한다.
 	this->notepadForm->current = this->notepadForm->note->GetAt(this->notepadForm->note->GetCurrent());
+	//마지막 줄에 아까 캐럿 위치에서 나눈 줄을 이어 붙이다.
 	this->notepadForm->current->Combine(line);
 }
 

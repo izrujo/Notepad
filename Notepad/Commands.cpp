@@ -1,5 +1,5 @@
 #include "Commands.h"
-//4#include "NotepadForm.h"
+#include "NotepadForm.h"
 #include "Font.h"
 #include "CharacterMetrics.h"
 #include "FileManager.h"
@@ -8,6 +8,9 @@
 #include "GlyphFactory.h"
 #include "Glyph.h"
 #include "ScrollController.h"
+#include "Editor.h"
+#include "Selector.h"
+#include "Highlight.h"
 
 #include <afxdlgs.h>
 #include <WinUser.h>
@@ -53,7 +56,7 @@ FontCommand& FontCommand::operator=(const FontCommand& source) {
 	return *this;
 }
 
-void FontCommand::Execute(WPARAM wParam) {
+void FontCommand::Execute() {
 	LOGFONT logFont = this->notepadForm->font->GetFont();
 	COLORREF color;
 	CFontDialog fontDialog(&logFont);
@@ -94,7 +97,7 @@ NewCommand& NewCommand::operator=(const NewCommand& source) {
 	return *this;
 }
 
-void NewCommand::Execute(WPARAM wParam) {
+void NewCommand::Execute() {
 	FileManager fileManager(this->notepadForm);
 	int message;
 	bool isDirty = this->notepadForm->document->GetIsDirty();
@@ -163,7 +166,7 @@ OpenCommand& OpenCommand::operator=(const OpenCommand& source) {
 	return *this;
 }
 
-void OpenCommand::Execute(WPARAM wParam) {
+void OpenCommand::Execute() {
 	FileManager fileManager(this->notepadForm);
 	int message;
 	bool isDirty = this->notepadForm->document->GetIsDirty();
@@ -238,7 +241,7 @@ SaveCommand& SaveCommand::operator=(const SaveCommand& source) {
 	return *this;
 }
 
-void SaveCommand::Execute(WPARAM wParam) {
+void SaveCommand::Execute() {
 	FileManager fileManager(this->notepadForm);
 	string fileName = this->notepadForm->document->GetPathName();
 
@@ -295,7 +298,7 @@ SaveAsCommand& SaveAsCommand::operator=(const SaveAsCommand& source) {
 	return *this;
 }
 
-void SaveAsCommand::Execute(WPARAM wParam) {
+void SaveAsCommand::Execute() {
 	FileManager fileManager(this->notepadForm);
 
 	FileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
@@ -341,35 +344,43 @@ CloseCommand& CloseCommand::operator=(const CloseCommand& source) {
 	return *this;
 }
 
-void CloseCommand::Execute(WPARAM wParam) {
+void CloseCommand::Execute() {
 	//this->notepadForm->OnClose();
 }
 
-//WriteCharacterCommand
-WriteCharacterCommand::WriteCharacterCommand(NotepadForm* notepadForm)
+//WriteCommand
+WriteCommand::WriteCommand(NotepadForm* notepadForm)
 	: Command(notepadForm) {
 }
 
-WriteCharacterCommand::WriteCharacterCommand(const WriteCharacterCommand& source)
+WriteCommand::WriteCommand(const WriteCommand& source)
 	: Command(source) {
 }
 
-WriteCharacterCommand::~WriteCharacterCommand() {
+WriteCommand::~WriteCommand() {
 
 }
 
-WriteCharacterCommand& WriteCharacterCommand::operator=(const WriteCharacterCommand& source) {
+WriteCommand& WriteCommand::operator=(const WriteCommand& source) {
 	Command::operator=(source);
 
 	return *this;
 }
 
-void WriteCharacterCommand::Execute(WPARAM wParam) {
-	UINT nChar = HIWORD(wParam);
+void WriteCommand::Execute() {
+	UINT nChar = this->notepadForm->GetCurrentCharacter();
 
 	GlyphFactory glyphFactory;
 	TCHAR content[2];
 	Long index;
+
+	SHORT isCtrl = GetKeyState(VK_CONTROL) & 0X8000;
+	SHORT isShift = GetKeyState(VK_SHIFT) & 0X8000;
+	SHORT isAlt = GetKeyState(VK_MENU) & 0X8000;
+
+	if (this->notepadForm->highlight != NULL && (!isCtrl && !isShift && !isAlt)) {
+		this->notepadForm->editor->Delete();
+	}
 
 	if (nChar >= 32 || nChar == VK_TAB) {
 		content[0] = nChar;
@@ -402,6 +413,7 @@ void WriteCharacterCommand::Execute(WPARAM wParam) {
 	this->notepadForm->Notify();
 	this->notepadForm->Invalidate();
 
+	//Document 처리
 	if (this->notepadForm->document->GetIsDirty() == false &&
 		(nChar >= 32 || nChar == VK_TAB || nChar == VK_RETURN)) {
 		CString title;
@@ -415,5 +427,337 @@ void WriteCharacterCommand::Execute(WPARAM wParam) {
 	Long x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current) + 1;
 	Long y = this->notepadForm->characterMetrics->GetY(this->notepadForm->note->GetCurrent() + 1); // 0베이스이므로 1더함
 	this->notepadForm->scrollController->SmartScrollToPoint(x, y);
+}
 
+//ImeCompositionCommand
+ImeCompositionCommand::ImeCompositionCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+ImeCompositionCommand::ImeCompositionCommand(const ImeCompositionCommand& source)
+	: Command(source) {
+}
+
+ImeCompositionCommand::~ImeCompositionCommand() {
+
+}
+
+ImeCompositionCommand& ImeCompositionCommand::operator=(const ImeCompositionCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void ImeCompositionCommand::Execute() {
+	TCHAR(*buffer) = new TCHAR[2];
+	buffer = this->notepadForm->GetCurrentBuffer();
+	
+	Long index;
+	if (this->notepadForm->highlight != NULL) {
+		this->notepadForm->editor->Delete();
+	}
+
+	if (this->notepadForm->GetIsComposing() == TRUE) {
+		index = this->notepadForm->current->GetCurrent();
+		this->notepadForm->current->Remove(index - 1);
+	}
+
+	if (buffer[0] != '\0') {
+		this->notepadForm->SetIsComposing(TRUE);
+		GlyphFactory glyphFactory;
+		Glyph* doubleByteCharacter = glyphFactory.Make(buffer);
+		index = this->notepadForm->current->GetCurrent();
+
+		if (index >= this->notepadForm->current->GetLength()) {
+			this->notepadForm->current->Add(doubleByteCharacter);
+		}
+		else {
+			this->notepadForm->current->Add(index, doubleByteCharacter);
+		}
+	}
+	else {
+		this->notepadForm->SetIsComposing(FALSE);
+	}
+	this->notepadForm->Notify();
+	this->notepadForm->Invalidate();
+
+	if (this->notepadForm->document->GetIsDirty() == false) {
+		CString title;
+		this->notepadForm->GetWindowText(title);
+		title.Insert(0, '*');
+		this->notepadForm->SetWindowTextA(title);
+		this->notepadForm->document->SetIsDirty(true);
+	}
+
+	//스마트스크롤 부분
+	Long x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current) + 1; // 
+	Long y = this->notepadForm->characterMetrics->GetY(this->notepadForm->note->GetCurrent() + 1); // 0베이스이므로 1더함
+	this->notepadForm->scrollController->SmartScrollToPoint(x, y);
+}
+
+//ImeCharCommand
+ImeCharCommand::ImeCharCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+ImeCharCommand::ImeCharCommand(const ImeCharCommand& source)
+	: Command(source) {
+}
+
+ImeCharCommand::~ImeCharCommand() {
+
+}
+
+ImeCharCommand& ImeCharCommand::operator=(const ImeCharCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void ImeCharCommand::Execute() {
+	TCHAR(*buffer) = new TCHAR[2];
+	buffer = this->notepadForm->GetCurrentBuffer();
+
+	Long index = this->notepadForm->current->GetCurrent();
+	this->notepadForm->current->Remove(index - 1);
+
+	if (this->notepadForm->highlight != NULL) {
+		this->notepadForm->editor->Delete();
+	}
+
+	GlyphFactory glyphFactory;
+	Glyph* glyph = glyphFactory.Make(buffer);
+
+	if (this->notepadForm->current->GetCurrent() >= this->notepadForm->current->GetLength()) {
+		this->notepadForm->current->Add(glyph);
+	}
+	else {
+		this->notepadForm->current->Add(this->notepadForm->current->GetCurrent(), glyph);
+	}
+
+	this->notepadForm->SetIsComposing(FALSE);
+	this->notepadForm->Notify();
+	this->notepadForm->Invalidate();
+
+	if (this->notepadForm->document->GetIsDirty() == false) {
+		CString title;
+		this->notepadForm->GetWindowText(title);
+		title.Insert(0, '*');
+		this->notepadForm->SetWindowTextA(title);
+		this->notepadForm->document->SetIsDirty(true);
+	}
+
+	//스마트스크롤 부분
+	Long x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current) + 1; // 
+	Long y = this->notepadForm->characterMetrics->GetY(this->notepadForm->note->GetCurrent() + 1); // 0베이스이므로 1더함
+	this->notepadForm->scrollController->SmartScrollToPoint(x, y);
+}
+
+//DeleteCommand
+DeleteCommand::DeleteCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+DeleteCommand::DeleteCommand(const DeleteCommand& source)
+	: Command(source) {
+}
+
+DeleteCommand::~DeleteCommand() {
+
+}
+
+DeleteCommand& DeleteCommand::operator=(const DeleteCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void DeleteCommand::Execute() {
+	Long column = this->notepadForm->current->GetCurrent();
+	Long lineLength = this->notepadForm->current->GetLength();
+	if (column < lineLength) {
+		this->notepadForm->current->Remove(column);
+	}
+	Long row = this->notepadForm->note->GetCurrent();
+	Long noteLength = this->notepadForm->note->GetLength();
+	if (column >= lineLength && row < noteLength - 1) {
+		Glyph* other = this->notepadForm->note->GetAt(row + 1);
+		this->notepadForm->current->Combine(other);
+		this->notepadForm->note->Remove(row + 1);
+	}
+}
+
+//BackspaceCommand
+BackspaceCommand::BackspaceCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+BackspaceCommand::BackspaceCommand(const BackspaceCommand& source)
+	: Command(source) {
+}
+
+BackspaceCommand::~BackspaceCommand() {
+
+}
+
+BackspaceCommand& BackspaceCommand::operator=(const BackspaceCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void BackspaceCommand::Execute() {
+	if (this->notepadForm->GetIsComposing() == FALSE) {
+		Long lineCurrent = this->notepadForm->current->GetCurrent();
+		Long noteCurrent = this->notepadForm->note->GetCurrent();
+		if (lineCurrent > 0) {
+			this->notepadForm->current->Remove(lineCurrent - 1);
+		}
+		else if (lineCurrent <= 0 && noteCurrent > 0) {
+			Glyph* previousLine = this->notepadForm->note->GetAt(noteCurrent - 1);
+			Long index = previousLine->GetLength();
+			this->notepadForm->current = previousLine->Combine(this->notepadForm->current);
+			this->notepadForm->note->Remove(noteCurrent);
+			this->notepadForm->current->Move(index);
+		}
+	}
+}
+
+//CopyCommand
+CopyCommand::CopyCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+CopyCommand::CopyCommand(const CopyCommand& source)
+	: Command(source) {
+}
+
+CopyCommand::~CopyCommand() {
+
+}
+
+CopyCommand& CopyCommand::operator=(const CopyCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void CopyCommand::Execute() {
+	if (this->notepadForm->highlight != NULL) {
+		this->notepadForm->editor->Copy();
+	}
+}
+
+//PasteCommand
+PasteCommand::PasteCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+PasteCommand::PasteCommand(const PasteCommand& source)
+	: Command(source) {
+}
+
+PasteCommand::~PasteCommand() {
+
+}
+
+PasteCommand& PasteCommand::operator=(const PasteCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void PasteCommand::Execute() {
+	this->notepadForm->editor->Paste();
+	if (this->notepadForm->highlight != NULL) {
+		delete this->notepadForm->highlight;
+		this->notepadForm->highlight = NULL;
+	}
+}
+
+//CutCommand
+CutCommand::CutCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+CutCommand::CutCommand(const CutCommand& source)
+	: Command(source) {
+}
+
+CutCommand::~CutCommand() {
+
+}
+
+CutCommand& CutCommand::operator=(const CutCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void CutCommand::Execute() {
+	this->notepadForm->editor->Copy();
+
+	this->notepadForm->editor->Delete();
+}
+
+//SelectAllCommand
+SelectAllCommand::SelectAllCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+SelectAllCommand::SelectAllCommand(const SelectAllCommand& source)
+	: Command(source) {
+}
+
+SelectAllCommand::~SelectAllCommand() {
+
+}
+
+SelectAllCommand& SelectAllCommand::operator=(const SelectAllCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void SelectAllCommand::Execute() {
+	if (this->notepadForm->highlight == NULL) {
+		this->notepadForm->highlight = new Highlight;
+		this->notepadForm->editor->selector = new Selector(this->notepadForm);
+
+		Long index = this->notepadForm->note->Last();
+		this->notepadForm->current = this->notepadForm->note->GetAt(index);
+		this->notepadForm->current->Last();
+
+		Long i = 0;
+		while (i <= index) {
+			Glyph* line = this->notepadForm->note->GetAt(i);
+			Long startColumn = 0;
+			Long endColumn = line->GetLength();
+			this->notepadForm->editor->selector->Right(i, startColumn, endColumn);
+			i++;
+		}
+	}
+}
+
+//DeleteSelectionCommand
+DeleteSelectionCommand::DeleteSelectionCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+DeleteSelectionCommand::DeleteSelectionCommand(const DeleteSelectionCommand& source)
+	: Command(source) {
+}
+
+DeleteSelectionCommand::~DeleteSelectionCommand() {
+
+}
+
+DeleteSelectionCommand& DeleteSelectionCommand::operator=(const DeleteSelectionCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void DeleteSelectionCommand::Execute() {
+	this->notepadForm->editor->Delete();
 }

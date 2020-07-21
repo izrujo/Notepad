@@ -38,7 +38,7 @@ BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_KILLFOCUS()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
-	ON_COMMAND_RANGE(IDM_FILE_NEW, IDC_WRITE_CHAR, OnCommandRange)
+	ON_COMMAND_RANGE(IDM_FILE_NEW, IDC_BACKSPACE_CHAR, OnCommandRange)
 	ON_WM_KEYDOWN()
 	ON_WM_HSCROLL()
 	ON_WM_VSCROLL()
@@ -53,11 +53,15 @@ NotepadForm::NotepadForm() {
 	this->caretController = NULL;
 	this->font = NULL;
 	this->characterMetrics = NULL;
-	this->isComposing = FALSE;
 	this->scrollController = NULL;
 	this->document = NULL;
 	this->highlight = NULL;
 	this->editor = NULL;
+
+	this->isComposing = FALSE;
+	this->currentCharacter = '\0';
+	this->currentBuffer[0] = '\0';
+	this->currentBuffer[1] = '\0';
 }
 
 int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
@@ -112,167 +116,30 @@ void NotepadForm::OnClose() {
 }
 
 void NotepadForm::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
-#if 0
-	WPARAM wParam = MAKEWPARAM(IDC_WRITE_CHAR, nChar);
-	this->SendMessage(WM_COMMAND, wParam);
-#endif
-
-	GlyphFactory glyphFactory;
-	TCHAR content[2];
-	Long index;
-
-	SHORT isCtrl = GetKeyState(VK_CONTROL) & 0X8000;
-	SHORT isShift = GetKeyState(VK_SHIFT) & 0X8000;
-	SHORT isAlt = GetKeyState(VK_MENU) & 0X8000;
-
-	if (this->highlight != NULL && (!isCtrl && !isShift && !isAlt)) {
-		this->editor->Delete();
-	}
-
-	if (nChar >= 32 || nChar == VK_TAB) {
-		content[0] = nChar;
-		Glyph* character = glyphFactory.Make(content);
-
-		index = this->current->GetCurrent();
-
-		if (index >= this->current->GetLength()) {
-			this->current->Add(character);
-		}
-		else {
-			this->current->Add(index, character);
-		}
-	}
-	else if (nChar == VK_RETURN) {
-		index = this->current->GetCurrent();
-
-		if (index < this->current->GetLength()) {
-			this->current = this->current->Divide(index);
-			index = this->note->GetCurrent();
-			this->note->Add(index + 1, this->current);
-			this->current->First();
-		}
-		else {
-			this->current = glyphFactory.Make("\r\n");
-			index = this->note->GetCurrent();
-			this->note->Add(index + 1, this->current);
-		}
-	}
-	this->Notify();
-	this->Invalidate();
-
-	//Document 처리
-	if (this->document->GetIsDirty() == false &&
-		(nChar >= 32 || nChar == VK_TAB || nChar == VK_RETURN)) {
-		CString title;
-		this->GetWindowText(title);
-		title.Insert(0, '*');
-		this->SetWindowTextA(title);
-		this->document->SetIsDirty(true);
-	}
-
-	//스마트스크롤 부분
-	Long x = this->characterMetrics->GetX(this->current) + 1;
-	Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
-	this->scrollController->SmartScrollToPoint(x, y);
+	this->currentCharacter = nChar;
+	this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_WRITE_CHAR, 0));
 }
 
 LRESULT NotepadForm::OnImeComposition(WPARAM wParam, LPARAM lParam) {
-	TCHAR buffer[2];
-	Long index;
-
-	if (this->highlight != NULL) {
-		this->editor->Delete();
-	}
-
 	if (lParam & GCS_COMPSTR) {
-		buffer[0] = (TCHAR)HIBYTE(LOWORD(wParam));
-		buffer[1] = (TCHAR)LOBYTE(LOWORD(wParam));
-
-		if (this->isComposing == TRUE) {
-			index = this->current->GetCurrent();
-			this->current->Remove(index - 1);
-		}
-
-		if (buffer[0] != '\0') {
-			this->isComposing = TRUE;
-			GlyphFactory glyphFactory;
-			Glyph* doubleByteCharacter = glyphFactory.Make(buffer);
-			index = this->current->GetCurrent();
-
-			if (index >= this->current->GetLength()) {
-				this->current->Add(doubleByteCharacter);
-			}
-			else {
-				this->current->Add(index, doubleByteCharacter);
-			}
-		}
-		else {
-			this->isComposing = FALSE;
-		}
-		this->Notify();
-		this->Invalidate();
-
-		if (this->document->GetIsDirty() == false) {
-			CString title;
-			this->GetWindowText(title);
-			title.Insert(0, '*');
-			this->SetWindowTextA(title);
-			this->document->SetIsDirty(true);
-		}
-
-		//스마트스크롤 부분
-		Long x = this->characterMetrics->GetX(this->current) + 1; // 
-		Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
-		this->scrollController->SmartScrollToPoint(x, y);
-
+		this->currentBuffer[0] = (TCHAR)HIBYTE(LOWORD(wParam));
+		this->currentBuffer[1] = (TCHAR)LOBYTE(LOWORD(wParam));
+		this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_IME_COMPOSITION, 0));
 	}
 
 	return ::DefWindowProc(this->m_hWnd, WM_IME_COMPOSITION, wParam, lParam);
 }
 
 LRESULT NotepadForm::OnImeChar(WPARAM wParam, LPARAM lParam) {
-	TCHAR buffer[2];
-	Long index = this->current->GetCurrent();
-	this->current->Remove(index - 1);
-	
-	if (this->highlight != NULL) {
-		this->editor->Delete();
-	}
-
 	if (IsDBCSLeadByte((BYTE)(wParam >> 8)) == TRUE) {
-		buffer[0] = (TCHAR)HIBYTE(LOWORD(wParam));
-		buffer[1] = (TCHAR)LOBYTE(LOWORD(wParam));
+		this->currentBuffer[0] = (TCHAR)HIBYTE(LOWORD(wParam));
+		this->currentBuffer[1] = (TCHAR)LOBYTE(LOWORD(wParam));
 	}
 	else {
-		buffer[0] = (TCHAR)wParam;
+		this->currentBuffer[0] = (TCHAR)wParam;
 	}
 
-	GlyphFactory glyphFactory;
-	Glyph* glyph = glyphFactory.Make(buffer);
-
-	if (this->current->GetCurrent() >= this->current->GetLength()) {
-		this->current->Add(glyph);
-	}
-	else {
-		this->current->Add(this->current->GetCurrent(), glyph);
-	}
-
-	this->isComposing = FALSE;
-	this->Notify();
-	this->Invalidate();
-
-	if (this->document->GetIsDirty() == false) {
-		CString title;
-		this->GetWindowText(title);
-		title.Insert(0, '*');
-		this->SetWindowTextA(title);
-		this->document->SetIsDirty(true);
-	}
-	
-	//스마트스크롤 부분
-	Long x = this->characterMetrics->GetX(this->current) + 1; // 
-	Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
-	this->scrollController->SmartScrollToPoint(x, y);
+	this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_IME_CHAR, 0));
 
 	return 0;
 }

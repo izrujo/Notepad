@@ -38,8 +38,36 @@ Command* CommandFactory::Make(int uID) {
 	else if (uID == IDM_FILE_SAVEAS) {
 		command = new SaveAsCommand(this->notepadForm);
 	}
-	else if (uID == IDC_WRITE_CHAR) {
-		command = new WriteCharacterCommand(this->notepadForm);
+	else if (uID == IDM_EDIT_COPY) {
+		command = new CopyCommand(this->notepadForm);
 	}
+	else if (uID == IDM_EDIT_PASTE) {
+		command = new PasteCommand(this->notepadForm);
+	}
+	else if (uID == IDM_EDIT_CUT) {
+		command = new CutCommand(this->notepadForm);
+	}
+	else if (uID == IDM_EDIT_SELECTALL) {
+		command = new SelectAllCommand(this->notepadForm);
+	}
+	else if (uID == IDM_EDIT_DELETE) {
+		command = new DeleteSelectionCommand(this->notepadForm);
+	}
+	else if (uID == IDC_WRITE_CHAR) {
+		command = new WriteCommand(this->notepadForm);
+	}
+	else if (uID == IDC_IME_COMPOSITION) {
+		command = new ImeCompositionCommand(this->notepadForm);
+	}
+	else if (uID == IDC_IME_CHAR) {
+		command = new ImeCharCommand(this->notepadForm);
+	}
+	else if (uID == IDC_DELETE_CHAR) {
+		command = new DeleteCommand(this->notepadForm);
+	}
+	else if (uID == IDC_BACKSPACE_CHAR) {
+		command = new BackspaceCommand(this->notepadForm);
+	}
+
 	return command;
 }

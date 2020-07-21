@@ -14,6 +14,8 @@
 #include "Editor.h"
 #include "Selector.h"
 
+#include "resource.h"
+
 #include <string>
 
 //KeyAction
@@ -399,21 +401,10 @@ DeleteKeyAction& DeleteKeyAction::operator=(const DeleteKeyAction& source) {
 
 void DeleteKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	if (this->notepadForm->highlight == NULL) {
-		Long column = this->notepadForm->current->GetCurrent();
-		Long lineLength = this->notepadForm->current->GetLength();
-		if (column < lineLength) {
-			this->notepadForm->current->Remove(column);
-		}
-		Long row = this->notepadForm->note->GetCurrent();
-		Long noteLength = this->notepadForm->note->GetLength();
-		if (column >= lineLength && row < noteLength - 1) {
-			Glyph* other = this->notepadForm->note->GetAt(row + 1);
-			this->notepadForm->current->Combine(other);
-			this->notepadForm->note->Remove(row + 1);
-		}
+		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_DELETE_CHAR, 0));
 	}
 	else {
-		this->notepadForm->editor->Delete();
+		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_DELETE, 0));
 	}
 }
 
@@ -438,23 +429,10 @@ BackSpaceKeyAction& BackSpaceKeyAction::operator=(const BackSpaceKeyAction& sour
 
 void BackSpaceKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	if (this->notepadForm->highlight == NULL) {
-		if (this->notepadForm->GetIsComposing() == FALSE) {
-			Long lineCurrent = this->notepadForm->current->GetCurrent();
-			Long noteCurrent = this->notepadForm->note->GetCurrent();
-			if (lineCurrent > 0) {
-				this->notepadForm->current->Remove(lineCurrent - 1);
-			}
-			else if (lineCurrent <= 0 && noteCurrent > 0) {
-				Glyph* previousLine = this->notepadForm->note->GetAt(noteCurrent - 1);
-				Long index = previousLine->GetLength();
-				this->notepadForm->current = previousLine->Combine(this->notepadForm->current);
-				this->notepadForm->note->Remove(noteCurrent);
-				this->notepadForm->current->Move(index);
-			}
-		}
+		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_BACKSPACE_CHAR, 0));
 	}
 	else {
-		this->notepadForm->editor->Delete();
+		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_DELETE, 0));
 	}
 }
 
@@ -973,23 +951,7 @@ CtrlAKeyAction::~CtrlAKeyAction() {
 }
 
 void CtrlAKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->highlight == NULL) {
-		this->notepadForm->highlight = new Highlight;
-		this->notepadForm->editor->selector = new Selector(this->notepadForm);
-
-		Long index = this->notepadForm->note->Last();
-		this->notepadForm->current = this->notepadForm->note->GetAt(index);
-		this->notepadForm->current->Last();
-
-		Long i = 0;
-		while (i <= index) {
-			Glyph* line = this->notepadForm->note->GetAt(i);
-			Long startColumn = 0;
-			Long endColumn = line->GetLength();
-			this->notepadForm->editor->selector->Right(i, startColumn, endColumn);
-			i++;
-		}
-	}
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_SELECTALL, 0));
 }
 
 CtrlAKeyAction& CtrlAKeyAction::operator =(const CtrlAKeyAction& source) {
@@ -1011,9 +973,7 @@ CtrlCKeyAction::~CtrlCKeyAction() {
 }
 
 void CtrlCKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->highlight != NULL) {
-		this->notepadForm->editor->Copy();
-	}
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_COPY, 0));
 }
 
 CtrlCKeyAction& CtrlCKeyAction::operator =(const CtrlCKeyAction& source) {
@@ -1035,11 +995,7 @@ CtrlVKeyAction::~CtrlVKeyAction() {
 }
 
 void CtrlVKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	this->notepadForm->editor->Paste();
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
-	}
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_PASTE, 0));
 }
 
 CtrlVKeyAction& CtrlVKeyAction::operator =(const CtrlVKeyAction& source) {
@@ -1061,9 +1017,7 @@ CtrlXKeyAction::~CtrlXKeyAction() {
 }
 
 void CtrlXKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	this->notepadForm->editor->Copy();
-
-	this->notepadForm->editor->Delete();
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_CUT, 0));
 }
 
 CtrlXKeyAction& CtrlXKeyAction::operator =(const CtrlXKeyAction& source) {

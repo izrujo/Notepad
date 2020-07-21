@@ -2,6 +2,8 @@
 #define _NOTEPADFORM_H
 
 #include <afxwin.h>
+#include <iostream>
+using namespace std;
 #include "Subject.h"
 
 class ScrollController;
@@ -26,6 +28,7 @@ public:
 	Document *document;
 	Glyph* highlight;
 	Editor* editor;
+
 protected:
 	afx_msg void OnClose();
 	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
@@ -45,15 +48,34 @@ protected:
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	//afx_msg void OnUpdateCommandUIRange(CCmdUI *pCmdUI);
 	DECLARE_MESSAGE_MAP()
+
 public:
 	BOOL GetIsComposing() const;
+	void SetIsComposing(BOOL isComposing);
+	char GetCurrentCharacter() const;
+	TCHAR* GetCurrentBuffer() const;
+
 private:
 	BOOL isComposing;
 	CMenu menu;
+	char currentCharacter;
+	TCHAR currentBuffer[2];
 };
 
 inline BOOL NotepadForm::GetIsComposing() const {
 	return this->isComposing;
+}
+
+inline void NotepadForm::SetIsComposing(BOOL isComposing) {
+	this->isComposing = isComposing;
+}
+
+inline char NotepadForm::GetCurrentCharacter() const {
+	return this->currentCharacter;
+}
+
+inline TCHAR* NotepadForm::GetCurrentBuffer() const {
+	return const_cast<TCHAR*>(this->currentBuffer);
 }
 
 #endif //_NOTEPADFORM_H
