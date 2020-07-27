@@ -11,7 +11,12 @@ Recently Updated : 2020.07.17
 #ifndef _COMMAND_H
 #define _COMMAND_H
 
+#include <iostream>
+using namespace std;
+typedef signed long int Long;
+
 class NotepadForm;
+class Glyph;
 
 //Command
 class Command {
@@ -22,6 +27,10 @@ public:
 	Command& operator=(const Command& source);
 
 	virtual void Execute() = 0;
+	virtual void Unexecute();
+	virtual string GetType() = 0;
+	virtual Command* Clone() = 0;
+
 protected:
 	NotepadForm* notepadForm;
 };
@@ -35,6 +44,8 @@ public:
 	FontCommand& operator=(const FontCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
 };
 
 //NewCommand
@@ -46,7 +57,8 @@ public:
 	NewCommand& operator=(const NewCommand& source);
 
 	virtual void Execute();
-
+	virtual string GetType();
+	virtual Command* Clone();
 };
 
 //OpenCommand
@@ -58,6 +70,8 @@ public:
 	OpenCommand& operator=(const OpenCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
 };
 
 //SaveCommand
@@ -69,6 +83,8 @@ public:
 	SaveCommand& operator=(const SaveCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
 };
 
 //SaveAsCommand
@@ -80,6 +96,8 @@ public:
 	SaveAsCommand& operator=(const SaveAsCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
 };
 
 //CloseCommand
@@ -91,6 +109,8 @@ public:
 	CloseCommand& operator=(const CloseCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
 };
 
 //WriteCommand
@@ -102,6 +122,14 @@ public:
 	WriteCommand& operator=(const WriteCommand& source);
 
 	virtual void Execute();
+	virtual void Unexecute();
+	virtual string GetType();
+	virtual Command* Clone();
+
+private:
+	int nChar;
+	Long column;
+	Long row;
 };
 
 //ImeCompositionCommand
@@ -113,6 +141,8 @@ public:
 	ImeCompositionCommand& operator=(const ImeCompositionCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
 };
 
 //ImeCharCommand
@@ -124,6 +154,8 @@ public:
 	ImeCharCommand& operator=(const ImeCharCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
 };
 
 //DeleteCommand
@@ -135,6 +167,13 @@ public:
 	DeleteCommand& operator=(const DeleteCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+
+private:
+	Long column;
+	Long row;
+	Glyph* highlight;
 };
 
 //BackspaceCommand
@@ -146,6 +185,13 @@ public:
 	BackspaceCommand& operator=(const BackspaceCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+
+private:
+	Long column;
+	Long row;
+	Glyph* highlight;
 };
 
 //CopyCommand
@@ -157,6 +203,8 @@ public:
 	CopyCommand& operator=(const CopyCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
 };
 
 //PasteCommand
@@ -168,6 +216,14 @@ public:
 	PasteCommand& operator=(const PasteCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+
+private:
+	Long startColumn;
+	Long startRow;
+	Long endColumn;
+	Long endRow;
 };
 
 //CutCommand
@@ -179,6 +235,13 @@ public:
 	CutCommand& operator=(const CutCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+
+private:
+	Long column;
+	Long row;
+	Glyph* highlight;
 };
 
 //SelectAllCommand
@@ -190,6 +253,8 @@ public:
 	SelectAllCommand& operator=(const SelectAllCommand& source);
 
 	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
 };
 
 //DeleteSelectionCommand
@@ -201,6 +266,27 @@ public:
 	DeleteSelectionCommand& operator=(const DeleteSelectionCommand& source);
 
 	virtual void Execute();
+	virtual void Unexecute();
+	virtual string GetType();
+	virtual Command* Clone();
+
+private:
+	Long column;
+	Long row;
+	Glyph* highlight;
+};
+
+//UndoCommand
+class UndoCommand : public Command {
+public:
+	UndoCommand(NotepadForm* notepadForm = 0);
+	UndoCommand(const UndoCommand& source);
+	virtual ~UndoCommand();
+	UndoCommand& operator=(const UndoCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
 };
 
 #endif //_COMMAND_H

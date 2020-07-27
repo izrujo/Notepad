@@ -13,9 +13,7 @@ public:
 
 	void UpSelect(Long noteCurrent, Long lineCurrent, Long row, Long column);
 	void DownSelect(Long noteCurrent, Long lineCurrent, Long row, Long column);
-	void Copy();
-	void Paste();
-	void Delete();
+	void Select(Long startRow, Long startColumn, Long rowLength, Long lastColumn);
 
 	Editor& operator=(const Editor& source);
 private:

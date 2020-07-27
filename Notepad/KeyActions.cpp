@@ -1025,3 +1025,25 @@ CtrlXKeyAction& CtrlXKeyAction::operator =(const CtrlXKeyAction& source) {
 
 	return *this;
 }
+
+//CtrlZKeyAction
+CtrlZKeyAction::CtrlZKeyAction(NotepadForm* notepadForm)
+	: KeyAction(notepadForm) {
+}
+
+CtrlZKeyAction::CtrlZKeyAction(const CtrlZKeyAction& source)
+	: KeyAction(source) {
+}
+
+CtrlZKeyAction::~CtrlZKeyAction() {
+}
+
+void CtrlZKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_UNDO, 0));
+}
+
+CtrlZKeyAction& CtrlZKeyAction::operator =(const CtrlZKeyAction& source) {
+	KeyAction::operator =(source);
+
+	return *this;
+}

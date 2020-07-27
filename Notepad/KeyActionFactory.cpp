@@ -84,6 +84,9 @@ KeyAction* KeyActionFactory::Make(UINT nChar) {
 	else if (isCtrl && nChar == 0x58) {
 		keyAction = new CtrlXKeyAction(this->notepadForm);
 	}
+	else if (isCtrl && nChar == 0x5A) {
+		keyAction = new CtrlZKeyAction(this->notepadForm);
+	}
 	//KEY
 	else if (nChar == VK_LEFT) {
 		keyAction = new LeftKeyAction(this->notepadForm);

@@ -24,6 +24,8 @@
 #include "Editor.h"
 #include "Selector.h"
 #include "Highlight.h"
+#include "History.h"
+#include "HistoryBook.h"
 
 BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_CREATE()
@@ -57,6 +59,8 @@ NotepadForm::NotepadForm() {
 	this->document = NULL;
 	this->highlight = NULL;
 	this->editor = NULL;
+	this->undoHistoryBook = NULL;
+	this->redoHistoryBook = NULL;
 
 	this->isComposing = FALSE;
 	this->currentCharacter = '\0';
@@ -82,6 +86,9 @@ int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	this->document = new Document(this);
 
 	this->editor = new Editor(this);
+
+	this->undoHistoryBook = new HistoryBook(10);
+	this->redoHistoryBook = new HistoryBook(10);
 
 	Long index = this->note->Move(0);
 	this->current = this->note->GetAt(index);
@@ -110,6 +117,12 @@ void NotepadForm::OnClose() {
 	}
 	if (this->editor != NULL) {
 		delete this->editor;
+	}
+	if (this->undoHistoryBook != NULL) {
+		delete this->undoHistoryBook;
+	}
+	if (this->redoHistoryBook != NULL) {
+		delete this->redoHistoryBook;
 	}
 
 	CFrameWnd::OnClose();
@@ -373,8 +386,49 @@ void NotepadForm::OnMouseMove(UINT nFlags, CPoint point) {
 void NotepadForm::OnCommandRange(UINT uID) {
 	CommandFactory commandFactory(this);
 	Command* command = commandFactory.Make(uID);
-	command->Execute();
 	if (command != NULL) {
+		command->Execute();
+
+		//========== 실행 취소 추가 ==========
+		string type = command->GetType();
+		BOOL condition1 = FALSE;
+		BOOL condition2 = FALSE;
+		History* history;
+		if (this->undoHistoryBook->GetLength() > 0) {
+			history = this->undoHistoryBook->OpenAt();
+			Command* previousCommand = history->Reveal();
+
+			//현재 커맨드가 Write이고 엔터키 입력이 아니거나 현재 커맨드가 ImeChar이고
+			//직전 커맨드가 Write이거나 ImeChar이면
+			//현재 히스토리에 커맨드를 넣는다.
+			if ((type == "Write" && this->currentCharacter != VK_RETURN)
+				|| type == "ImeChar") {
+				condition1 = TRUE;
+			}
+			if (previousCommand->GetType() == "Write" || previousCommand->GetType() == "ImeChar") {
+				condition2 = TRUE;
+			}
+
+			if (condition1 == TRUE && condition2 == TRUE) {
+				history->Happen(command->Clone());
+			}
+		}
+		//실행 취소 역사책이 비었거나
+		//비었을 때에도 현재 커맨드가 Write, ImeChar, Delete, Backspace, Paste, Cut, DeleteSelection 중에 하나여야 하고
+		//비어있지 않으면
+		//현재 커맨드가 Write나 ImeChar가 아니고
+		//Write나 ImeChar라 하더라도 Write인 경우 엔터키 입력이며 또 엔터키 입력이라 하더라도
+		//직전 커맨드가 Write나 ImeChar가 아니면
+		//새 히스토리를 만들어 쓴다.
+		if ((type == "Write" || type == "ImeChar" || type == "Delete" || type == "Backspace"
+			|| type == "Paste" || type == "Cut" || type == "DeleteSelection")
+			&& (condition1 == FALSE || condition2 == FALSE)) {
+			history = new History;
+			history->Happen(command->Clone());
+			this->undoHistoryBook->Write(history);
+		}
+		//========== 실행 취소 추가 ==========
+
 		delete command;
 	}
 	
@@ -382,9 +436,13 @@ void NotepadForm::OnCommandRange(UINT uID) {
 		delete this->scrollController;
 	}
 	this->scrollController = new ScrollController(this);
+	
 	this->Notify();
-
 	this->Invalidate();
+
+	Long x = this->characterMetrics->GetX(this->current) + 1; // 
+	Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
+	this->scrollController->SmartScrollToPoint(x, y);
 }
 
 void NotepadForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
@@ -393,14 +451,9 @@ void NotepadForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 
 	if (keyAction != 0) {
 		keyAction->OnKeyDown(nChar, nRepCnt, nFlags);
-		//스마트스크롤 부분
-		Long x = this->characterMetrics->GetX(this->current) + 1; // 
-		Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
-		this->scrollController->SmartScrollToPoint(x, y);
 
 		delete keyAction;
 	}
-
 	this->Notify();
 	this->Invalidate();
 }

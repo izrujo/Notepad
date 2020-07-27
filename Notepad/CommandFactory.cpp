@@ -53,6 +53,9 @@ Command* CommandFactory::Make(int uID) {
 	else if (uID == IDM_EDIT_DELETE) {
 		command = new DeleteSelectionCommand(this->notepadForm);
 	}
+	else if (uID == IDM_EDIT_UNDO) {
+		command = new UndoCommand(this->notepadForm);
+	}
 	else if (uID == IDC_WRITE_CHAR) {
 		command = new WriteCommand(this->notepadForm);
 	}

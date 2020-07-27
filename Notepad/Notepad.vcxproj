@@ -38,6 +38,8 @@
     <ClInclude Include="Glyph.h" />
     <ClInclude Include="GlyphFactory.h" />
     <ClInclude Include="Highlight.h" />
+    <ClInclude Include="History.h" />
+    <ClInclude Include="HistoryBook.h" />
     <ClInclude Include="HScrollActionFactory.h" />
     <ClInclude Include="HScrollActions.h" />
     <ClInclude Include="KeyActionFactory.h" />
@@ -52,6 +54,7 @@
     <ClInclude Include="Scroll.h" />
     <ClInclude Include="ScrollController.h" />
     <ClInclude Include="Selector.h" />
+    <ClInclude Include="Stack.h" />
     <ClInclude Include="Subject.h" />
     <ClInclude Include="VScrollActionFactory.h" />
     <ClInclude Include="VScrollActions.h" />
@@ -75,6 +78,8 @@
     <ClCompile Include="Glyph.cpp" />
     <ClCompile Include="GlyphFactory.cpp" />
     <ClCompile Include="Highlight.cpp" />
+    <ClCompile Include="History.cpp" />
+    <ClCompile Include="HistoryBook.cpp" />
     <ClCompile Include="HScrollActionFactory.cpp" />
     <ClCompile Include="HScrollActions.cpp" />
     <ClCompile Include="KeyActionFactory.cpp" />
@@ -88,6 +93,7 @@
     <ClCompile Include="Scroll.cpp" />
     <ClCompile Include="ScrollController.cpp" />
     <ClCompile Include="Selector.cpp" />
+    <ClCompile Include="Stack.cpp" />
     <ClCompile Include="Subject.cpp" />
     <ClCompile Include="VScrollActionFactory.cpp" />
     <ClCompile Include="VScrollActions.cpp" />

@@ -76,6 +76,8 @@ Long Glyph::GetCurrent() const {
 	return -1;
 }
 
+#if 0
+
 #include "Composite.h"
 #include "Note.h"
 #include "Line.h"
@@ -261,3 +263,4 @@ int main(int argc, char *argv[]) {
 	return 0;
 	
 }
+#endif

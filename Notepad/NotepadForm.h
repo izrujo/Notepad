@@ -13,6 +13,7 @@ class CharacterMetrics;
 class Glyph;
 class Document;
 class Editor;
+class HistoryBook;
 
 class NotepadForm : public CFrameWnd, public Subject {
 public:
@@ -28,6 +29,8 @@ public:
 	Document *document;
 	Glyph* highlight;
 	Editor* editor;
+	HistoryBook* undoHistoryBook;
+	HistoryBook* redoHistoryBook;
 
 protected:
 	afx_msg void OnClose();
