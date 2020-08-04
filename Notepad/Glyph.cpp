@@ -13,11 +13,11 @@ Glyph& Glyph::operator=(const Glyph& source) {
 	return *this;
 }
 
-Long Glyph::Add(Glyph *glyph) {
+Long Glyph::Add(Glyph* glyph) {
 	return -1;
 }
 
-Long Glyph::Add(Long index, Glyph *glyph) {
+Long Glyph::Add(Long index, Glyph* glyph) {
 	return -1;
 }
 
@@ -34,7 +34,7 @@ Glyph* Glyph::Divide(Long index) {
 	return 0;
 }
 
-Glyph* Glyph::Combine(Glyph *index) {
+Glyph* Glyph::Combine(Glyph* index) {
 	return 0;
 }
 
@@ -66,7 +66,19 @@ Long Glyph::MoveNextWord() {
 	return -1;
 }
 
-Long Glyph::GetCapacity () const {
+void Glyph::UnselectAll() {
+
+}
+
+bool Glyph::IsSelecting() {
+	return false;
+}
+
+void Glyph::Select(bool isSelected) {
+
+}
+
+Long Glyph::GetCapacity() const {
 	return -1;
 }
 Long Glyph::GetLength() const {
@@ -74,6 +86,10 @@ Long Glyph::GetLength() const {
 }
 Long Glyph::GetCurrent() const {
 	return -1;
+}
+
+bool Glyph::GetIsSelected() const {
+	return false;
 }
 
 #if 0
@@ -86,15 +102,15 @@ Long Glyph::GetCurrent() const {
 #include <iostream>
 using namespace std;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
 	GlyphFactory glyphFactory;
 
-	Glyph *note = glyphFactory.Make("");
-	
-	Glyph *line = glyphFactory.Make("\r\n");
+	Glyph* note = glyphFactory.Make("");
+
+	Glyph* line = glyphFactory.Make("\r\n");
 	note->Add(line);
-	
-	Glyph *character = glyphFactory.Make("a");
+
+	Glyph* character = glyphFactory.Make("a");
 	line->Add(character);
 
 	character = glyphFactory.Make("한");
@@ -230,7 +246,7 @@ int main(int argc, char *argv[]) {
 
 	// 3. 1번째 줄과 2번째 줄을 합친다. -Line::Combine
 	line = note->GetAt(0);
-	Glyph *otherLine = note->GetAt(1);
+	Glyph* otherLine = note->GetAt(1);
 	line->Combine(otherLine);
 	cout << line->GetContent() << endl;
 	cout << "=================================================" << endl;
@@ -261,6 +277,6 @@ int main(int argc, char *argv[]) {
 	}
 
 	return 0;
-	
+
 }
 #endif

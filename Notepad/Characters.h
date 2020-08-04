@@ -18,7 +18,19 @@ public:
 	Character();
 	Character(const Character& source);
 	virtual ~Character() = 0;
+	Character& operator=(const Character& source);
+
+	virtual void Select(bool isSelected);
+
+	virtual bool GetIsSelected() const;
+	virtual void Accept(Visitor* visitor);
+protected:
+	bool isSelected;
 };
+
+inline bool Character::GetIsSelected() const {
+	return this->isSelected;
+}
 
 class SingleByteCharacter : public Character {
 public:
@@ -27,18 +39,23 @@ public:
 	SingleByteCharacter(const SingleByteCharacter& source);
 	virtual ~SingleByteCharacter();
 	SingleByteCharacter& operator=(const SingleByteCharacter& source);
-	
+
 	bool IsEqual(const SingleByteCharacter& other);
 	bool IsNotEqual(const SingleByteCharacter& other);
-	
+
 	bool operator==(const SingleByteCharacter& other);
 	bool operator !=(const SingleByteCharacter& other);
 
 	virtual Glyph* Clone();
 	virtual string GetContent();
+	char GetChar() const;
 private:
 	char content;
 };
+
+inline char SingleByteCharacter::GetChar() const {
+	return this->content;
+}
 
 class DoubleByteCharacter : public Character {
 public:
@@ -47,10 +64,10 @@ public:
 	DoubleByteCharacter(const DoubleByteCharacter& source);
 	virtual ~DoubleByteCharacter();
 	DoubleByteCharacter& operator=(const DoubleByteCharacter& source);
-	
+
 	bool IsEqual(const DoubleByteCharacter& other);
 	bool IsNotEqual(const DoubleByteCharacter& other);
-	
+
 	bool operator==(const DoubleByteCharacter& other);
 	bool operator !=(const DoubleByteCharacter& other);
 

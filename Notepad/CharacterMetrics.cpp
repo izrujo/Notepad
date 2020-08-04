@@ -179,6 +179,41 @@ Long CharacterMetrics::GetColumn(Glyph* line, Long x) {
 	return index;
 }
 
+Long CharacterMetrics::GetColumnForDrawing(Glyph* line, Long x) {
+	Long index = 0;
+	Long currentX = 0;
+	Glyph* character;
+	string content;
+	Long asciiIndex;
+	Long width;
+
+	while (index < line->GetLength() && currentX < x) {
+		character = line->GetAt(index);
+		content = character->GetContent();
+
+		if (dynamic_cast<SingleByteCharacter*>(character)) {
+			if (content[1] == '\0') { // ÅÇÀÌ ¾Æ´Ò ¶§
+				asciiIndex = content[0];
+			}
+			else {
+				asciiIndex = 9;
+			}
+			width = this->widths[asciiIndex];
+		}
+		else if (dynamic_cast<DoubleByteCharacter*>(character)) {
+			width = this->widths[128];
+		}
+		currentX += width;
+		index++;
+	}
+
+	if (x < currentX) {
+		index--;
+	}
+
+	return index;
+}
+
 Long CharacterMetrics::GetRow(Long y) {
 	return y / this->height;
 }

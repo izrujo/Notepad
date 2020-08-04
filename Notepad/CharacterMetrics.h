@@ -21,16 +21,17 @@ class Glyph;
 
 class CharacterMetrics {
 public:
-	CharacterMetrics(NotepadForm *notepadForm = 0);
+	CharacterMetrics(NotepadForm* notepadForm = 0);
 	CharacterMetrics(const CharacterMetrics& source);
 	~CharacterMetrics();
-	Long GetX(Glyph *line);
-	Long GetX(Glyph *line, Long index);
+	Long GetX(Glyph* line);
+	Long GetX(Glyph* line, Long index);
 	Long GetX(const string& buffer);
 	Long GetY(Long index);
-	Long GetColumn(Glyph *line, Long x);
+	Long GetColumn(Glyph* line, Long x);
+	Long GetColumnForDrawing(Glyph* line, Long x);
 	Long GetRow(Long y);
-	Long GetNoteWidth(Glyph *note);
+	Long GetNoteWidth(Glyph* note);
 	Long GetWidthAverage();
 
 	CharacterMetrics& operator=(const CharacterMetrics& source);
@@ -39,7 +40,7 @@ public:
 	Long GetDoubleByteWidth() const;
 	Long GetHeight() const;
 private:
-	NotepadForm *notepadForm;
+	NotepadForm* notepadForm;
 	Long widths[129];
 	Long height;
 };

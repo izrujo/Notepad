@@ -21,11 +21,10 @@
 #include "HScrollActions.h"
 #include "Scroll.h"
 #include "Document.h"
-#include "Editor.h"
-#include "Selector.h"
-#include "Highlight.h"
 #include "History.h"
 #include "HistoryBook.h"
+#include "DrawingVisitor.h"
+#include "Selection.h"
 
 BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_CREATE()
@@ -57,10 +56,9 @@ NotepadForm::NotepadForm() {
 	this->characterMetrics = NULL;
 	this->scrollController = NULL;
 	this->document = NULL;
-	this->highlight = NULL;
-	this->editor = NULL;
 	this->undoHistoryBook = NULL;
 	this->redoHistoryBook = NULL;
+	this->selection = NULL;
 
 	this->isComposing = FALSE;
 	this->currentCharacter = '\0';
@@ -84,8 +82,6 @@ int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	this->SetMenu(&menu);
 
 	this->document = new Document(this);
-
-	this->editor = new Editor(this);
 
 	this->undoHistoryBook = new HistoryBook(10);
 	this->redoHistoryBook = new HistoryBook(10);
@@ -112,17 +108,14 @@ void NotepadForm::OnClose() {
 	if (this->document != NULL) {
 		delete this->document;
 	}
-	if (this->highlight != NULL) {
-		delete this->highlight;
-	}
-	if (this->editor != NULL) {
-		delete this->editor;
-	}
 	if (this->undoHistoryBook != NULL) {
 		delete this->undoHistoryBook;
 	}
 	if (this->redoHistoryBook != NULL) {
 		delete this->redoHistoryBook;
+	}
+	if (this->selection != NULL) {
+		delete this->selection;
 	}
 
 	CFrameWnd::OnClose();
@@ -162,83 +155,41 @@ LRESULT NotepadForm::OnImeStartComposition(WPARAM wParam, LPARAM lParam) {
 }
 
 void NotepadForm::OnPaint() {
-	Glyph* line;
-	string content;
 	CPaintDC dc(this);
+
+	CDC memDC;
+	memDC.CreateCompatibleDC(&dc);
+	CBitmap bitmap;
+
+	CRect rect;
+	this->GetClientRect(&rect);
+	bitmap.CreateCompatibleBitmap(&dc, rect.Width(), rect.Height());
+	CBitmap* oldBitmap = memDC.SelectObject(&bitmap);
+	memDC.FillSolidRect(&rect, RGB(255, 255, 255));
+
 	CFont* oldFont;
 	COLORREF oldColor;
 	CFont font;
 	this->font->Create(font);
-	oldFont = dc.SelectObject(&font);
-	oldColor = dc.SetTextColor(this->font->GetColor());
-	Long x = this->scrollController->GetHorizontalScroll()->GetPosition();
-	Long y = this->scrollController->GetVerticalScroll()->GetPosition();
+	oldFont = memDC.SelectObject(&font);
+	oldColor = memDC.SetTextColor(this->font->GetColor());
 
-	RECT rect;
-	this->GetClientRect(&rect);
-	Long clientTop = y;
-	Long clientBottom = (rect.bottom - rect.top) + y;
+	Visitor* drawingVisitor = new DrawingVisitor(&memDC, this->characterMetrics, this->scrollController, this->selection);
 
-	Long begin = this->characterMetrics->GetRow(y);
-	Long end = this->characterMetrics->GetRow(clientBottom);
+	this->note->Accept(drawingVisitor);
 
-	Long i = begin;
-	while (i < this->note->GetLength() && i < end) {
-		line = this->note->GetAt(i);
-		content = line->GetContent();
-		dc.TextOutA(-x, i * (this->characterMetrics->GetHeight()) - y, content.c_str());
-		i++;
+	if (drawingVisitor != NULL) {
+		delete drawingVisitor;
 	}
 
-	if (this->highlight != NULL) {
-		COLORREF oldBkColor = dc.SetBkColor(RGB(0, 0, 235));
-		oldColor = dc.SetTextColor(RGB(255, 255, 255));
+	dc.BitBlt(0, 0, rect.Width(), rect.Height(), &memDC, 0, 0, SRCCOPY);
 
-		Long noteStartPosition = this->editor->selector->GetNoteStartPosition();
-		Long noteEndPosition = this->editor->selector->GetNoteEndPosition();
-		Long height = this->characterMetrics->GetHeight();
+	memDC.SelectObject(oldFont);
+	memDC.SetTextColor(oldColor);
 
-		Long lineStartPosition = this->editor->selector->GetLineStartPosition();
-		Glyph* startLine = this->note->GetAt(noteStartPosition);
-		Long startLineX = this->characterMetrics->GetX(startLine, lineStartPosition);
-
-		Long lineEndPosition = this->editor->selector->GetLineEndPosition();
-		Glyph* endLine = this->note->GetAt(noteEndPosition);
-		Long endX = this->characterMetrics->GetX(endLine, lineEndPosition);
-
-		Long x;
-		Long y = noteStartPosition * height;
-		if (noteStartPosition < noteEndPosition) {
-			x = startLineX;
-		}
-		else if (noteStartPosition > noteEndPosition) {
-			y = noteEndPosition * height;
-			x = endX;
-		}
-		else {
-			if (lineStartPosition <= lineEndPosition) {
-				x = startLineX;
-			}
-			else {
-				x = endX;
-			}
-		}
-
-		i = 0;
-		while (i < this->highlight->GetLength()) {
-			Glyph* highlight = this->highlight->GetAt(i);
-			string content = highlight->GetContent();
-			dc.TextOutA(x, y, content.c_str());
-			y += height;
-			x = 0;
-			i++;
-		}
-
-		dc.SetBkColor(oldBkColor);
-	}
-
-	dc.SelectObject(oldFont);
-	dc.SetTextColor(oldColor);
+	memDC.SelectObject(oldBitmap);
+	memDC.DeleteDC();
+	bitmap.DeleteObject();
 }
 
 void NotepadForm::OnSize(UINT nType, int cs, int cy) {
@@ -268,7 +219,7 @@ void NotepadForm::OnKillFocus(CWnd* pNewWnd) {
 void NotepadForm::OnLButtonDown(UINT nFlag, CPoint point) {
 	Long noteCurrent = this->note->GetCurrent();
 	Long lineCurrent = this->current->GetCurrent();
-	
+
 	Long row = this->characterMetrics->GetRow(this->scrollController->GetVerticalScroll()->GetPosition() + point.y);
 	if (row >= this->note->GetLength()) {
 		row = this->note->GetLength() - 1;
@@ -280,48 +231,66 @@ void NotepadForm::OnLButtonDown(UINT nFlag, CPoint point) {
 
 	//선택하다 추가
 	if (nFlag != 5) {
-		if (this->highlight != NULL) {
-			delete this->highlight;
-			this->highlight = NULL;
+		if (this->selection != NULL) {
+			this->note->UnselectAll();
+			delete this->selection;
+			this->selection = NULL;
 		}
 	}
 
 	if (nFlag == 5) {
-		if (this->highlight == NULL) {
-			this->highlight = new Highlight;
-			this->editor->selector = new Selector(this, noteCurrent, lineCurrent, noteCurrent, lineCurrent);
+		Long startRow = noteCurrent;
+		Long endRow = index;
+		Long startColumn = lineCurrent;
+		Long endColumn = lineIndex;
+		if (noteCurrent > index) {
+			startRow = index;
+			endRow = noteCurrent;
+			startColumn = lineIndex;
+			endColumn = lineCurrent;
 		}
-		if (noteCurrent == index && lineCurrent > lineIndex) {
-			Long endColumn = column;
-			Long startColumn = lineCurrent;
-			Long noteStartPosition = this->editor->selector->GetNoteStartPosition();
-			Long noteEndPosition = this->editor->selector->GetNoteEndPosition();
-			Long lineStartPosition = this->editor->selector->GetLineStartPosition();
-			Long lineEndPosition = this->editor->selector->GetLineEndPosition();
-			if (noteStartPosition < noteEndPosition || (noteStartPosition == noteEndPosition && lineStartPosition < lineEndPosition)) {
-				startColumn = endColumn;
+		else if (noteCurrent == index) {
+			if (lineCurrent > lineIndex) {
+				startColumn = lineIndex;
+				endColumn = lineCurrent;
 			}
-			this->editor->selector->Left(noteCurrent, startColumn, endColumn);
 		}
-		else if (noteCurrent == index && lineCurrent < lineIndex) {
-			Long endColumn = column;
-			Long startColumn = lineCurrent;
-			Long noteStartPosition = this->editor->selector->GetNoteStartPosition();
-			Long noteEndPosition = this->editor->selector->GetNoteEndPosition();
-			Long lineStartPosition = this->editor->selector->GetLineStartPosition();
-			Long lineEndPosition = this->editor->selector->GetLineEndPosition();
-			if (noteStartPosition > noteEndPosition || (noteStartPosition == noteEndPosition && lineStartPosition > lineEndPosition)) {
-				startColumn = endColumn;
+		Glyph* line;
+		Glyph* character;
+		Long length;
+		Long j;
+		Long i = startRow;
+		while (i <= endRow) {
+			line = this->note->GetAt(i);
+
+			length = line->GetLength();
+			if (i == endRow) {
+				length = endColumn;
 			}
-			this->editor->selector->Right(noteCurrent, startColumn, endColumn);
+
+			j = 0;
+			if (i == startRow) {
+				j = startColumn;
+			}
+
+			while (j < length) {
+				character = line->GetAt(j);
+				if (!character->GetIsSelected()) {
+					character->Select(true);
+				}
+				else {
+					character->Select(false);
+				}
+				j++;
+			}
+			i++;
 		}
 
-		if (index < noteCurrent) {
-			this->editor->UpSelect(noteCurrent, lineCurrent, index, lineIndex);
+		if (this->selection != NULL) {
+			delete this->selection;
+			this->selection = NULL;
 		}
-		else if (index > noteCurrent) {
-			this->editor->DownSelect(noteCurrent, lineCurrent, index, lineIndex);
-		}
+		this->selection = new Selection(startRow, endRow);
 	}
 
 	this->Notify();
@@ -330,53 +299,7 @@ void NotepadForm::OnLButtonDown(UINT nFlag, CPoint point) {
 
 void NotepadForm::OnMouseMove(UINT nFlags, CPoint point) {
 	if (nFlags == MK_LBUTTON) {
-		Long noteCurrent = this->note->GetCurrent();
-		Long lineCurrent = this->current->GetCurrent();
-		if (this->highlight == NULL) {
-			this->highlight = new Highlight;
-			this->editor->selector = new Selector(this, noteCurrent, lineCurrent, noteCurrent, lineCurrent);
-		}
 
-		Long row = this->characterMetrics->GetRow(point.y);
-		if (row >= this->note->GetLength()) {
-			row = this->note->GetLength() - 1;
-		}
-		Long index = this->note->Move(row);
-		this->current = this->note->GetAt(index);
-		Long column = this->characterMetrics->GetColumn(this->current, point.x);
-		Long lineIndex = this->current->Move(column);
-
-		if (noteCurrent == index && lineCurrent > lineIndex) {
-			Long endColumn = column;
-			Long startColumn = lineCurrent;
-			Long noteStartPosition = this->editor->selector->GetNoteStartPosition();
-			Long noteEndPosition = this->editor->selector->GetNoteEndPosition();
-			Long lineStartPosition = this->editor->selector->GetLineStartPosition();
-			Long lineEndPosition = this->editor->selector->GetLineEndPosition();
-			if (noteStartPosition < noteEndPosition || (noteStartPosition == noteEndPosition && lineStartPosition < lineEndPosition)) {
-				startColumn = endColumn;
-			}
-			this->editor->selector->Left(noteCurrent, startColumn, endColumn);
-		}
-		else if (noteCurrent == index && lineCurrent < lineIndex) {
-			Long endColumn = column;
-			Long startColumn = lineCurrent;
-			Long noteStartPosition = this->editor->selector->GetNoteStartPosition();
-			Long noteEndPosition = this->editor->selector->GetNoteEndPosition();
-			Long lineStartPosition = this->editor->selector->GetLineStartPosition();
-			Long lineEndPosition = this->editor->selector->GetLineEndPosition();
-			if (noteStartPosition > noteEndPosition || (noteStartPosition == noteEndPosition && lineStartPosition > lineEndPosition)) {
-				startColumn = endColumn;
-			}
-			this->editor->selector->Right(noteCurrent, startColumn, endColumn);
-		}
-
-		if (index < noteCurrent) {
-			this->editor->UpSelect(noteCurrent, lineCurrent, index, lineIndex);
-		}
-		else if (index > noteCurrent) {
-			this->editor->DownSelect(noteCurrent, lineCurrent, index, lineIndex);
-		}
 
 		this->Notify();
 		this->Invalidate();
@@ -431,12 +354,12 @@ void NotepadForm::OnCommandRange(UINT uID) {
 
 		delete command;
 	}
-	
+
 	if (this->scrollController != NULL) {
 		delete this->scrollController;
 	}
 	this->scrollController = new ScrollController(this);
-	
+
 	this->Notify();
 	this->Invalidate();
 
@@ -451,7 +374,9 @@ void NotepadForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 
 	if (keyAction != 0) {
 		keyAction->OnKeyDown(nChar, nRepCnt, nFlags);
-
+		Long x = this->characterMetrics->GetX(this->current) + 1; // 
+		Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
+		this->scrollController->SmartScrollToPoint(x, y);
 		delete keyAction;
 	}
 	this->Notify();

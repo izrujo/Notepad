@@ -8,12 +8,11 @@
 #include "GlyphFactory.h"
 #include "Glyph.h"
 #include "ScrollController.h"
-#include "Editor.h"
-#include "Selector.h"
-#include "Highlight.h"
 #include "HistoryBook.h"
 #include "History.h"
 #include "Scanner.h"
+#include "Selection.h"
+
 #include "resource.h"
 
 #include <afxdlgs.h>
@@ -444,7 +443,7 @@ void WriteCommand::Execute() {
 	SHORT isShift = GetKeyState(VK_SHIFT) & 0X8000;
 	SHORT isAlt = GetKeyState(VK_MENU) & 0X8000;
 
-	if (this->notepadForm->highlight != NULL && (!isCtrl && !isShift && !isAlt)) {
+	if (this->notepadForm->selection != NULL && (!isCtrl && !isShift && !isAlt)) {
 		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_DELETE, 0));
 	}
 
@@ -538,7 +537,7 @@ void ImeCompositionCommand::Execute() {
 	buffer = this->notepadForm->GetCurrentBuffer();
 
 	Long index;
-	if (this->notepadForm->highlight != NULL) {
+	if (this->notepadForm->note->IsSelecting()) {
 		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_DELETE, 0));
 	}
 
@@ -732,12 +731,26 @@ CopyCommand& CopyCommand::operator=(const CopyCommand& source) {
 }
 
 void CopyCommand::Execute() {
-	if (this->notepadForm->highlight != NULL) {
+	if (this->notepadForm->selection != NULL) {
+		Long start = this->notepadForm->selection->GetStart();
+		Long end = this->notepadForm->selection->GetEnd();
 		CString clipBoard;
-		Long i = 0;
-		while (i < this->notepadForm->highlight->GetLength()) {
-			Glyph* line = this->notepadForm->highlight->GetAt(i);
-			string content = line->GetContent();
+		string content;
+		Glyph* line;
+		Glyph* character;
+		Long j;
+		Long i = start;
+		while (i <= end) {
+			content = "";
+			line = this->notepadForm->note->GetAt(i);
+			j = 0;
+			while (j < line->GetLength()) {
+				character = line->GetAt(j);
+				if (character->GetIsSelected()) {
+					content += character->GetContent();
+				}
+				j++;
+			}
 			content.append("\r\n");
 			clipBoard.Append(content.c_str());
 			i++;
@@ -758,6 +771,7 @@ void CopyCommand::Execute() {
 		}
 		::GlobalUnlock(handle);
 	}
+
 }
 
 string CopyCommand::GetType() {
@@ -846,11 +860,6 @@ void PasteCommand::Execute() {
 	this->notepadForm->current = this->notepadForm->note->GetAt(this->notepadForm->note->GetCurrent());
 	//마지막 줄에 아까 캐럿 위치에서 나눈 줄을 이어 붙이다.
 	this->notepadForm->current->Combine(line);
-
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
-	}
 }
 
 string PasteCommand::GetType() {
@@ -913,23 +922,26 @@ SelectAllCommand& SelectAllCommand::operator=(const SelectAllCommand& source) {
 }
 
 void SelectAllCommand::Execute() {
-	if (this->notepadForm->highlight == NULL) {
-		this->notepadForm->highlight = new Highlight;
-		this->notepadForm->editor->selector = new Selector(this->notepadForm);
-
-		Long index = this->notepadForm->note->Last();
-		this->notepadForm->current = this->notepadForm->note->GetAt(index);
-		this->notepadForm->current->Last();
-
-		Long i = 0;
-		while (i <= index) {
-			Glyph* line = this->notepadForm->note->GetAt(i);
-			Long startColumn = 0;
-			Long endColumn = line->GetLength();
-			this->notepadForm->editor->selector->Right(i, startColumn, endColumn);
-			i++;
+	Glyph* line;
+	Long j;
+	Long i = 0;
+	while (i < this->notepadForm->note->GetLength()) {
+		line = this->notepadForm->note->GetAt(i);
+		j = 0;
+		while (j < line->GetLength()) {
+			line->GetAt(j)->Select(true);
+			j++;
 		}
+		i++;
 	}
+	Long index = this->notepadForm->note->Last();
+	this->notepadForm->current = this->notepadForm->note->GetAt(index);
+	this->notepadForm->current->Last();
+
+	if (this->notepadForm->selection != NULL) {
+		delete this->notepadForm->selection;
+	}
+	this->notepadForm->selection = new Selection(0, this->notepadForm->note->GetLength() - 1);
 }
 
 string SelectAllCommand::GetType() {
@@ -945,98 +957,66 @@ DeleteSelectionCommand::DeleteSelectionCommand(NotepadForm* notepadForm)
 	: Command(notepadForm) {
 	this->column = -1;
 	this->row = -1;
-	this->highlight = new Highlight(10);
 }
 
 DeleteSelectionCommand::DeleteSelectionCommand(const DeleteSelectionCommand& source)
 	: Command(source) {
 	this->column = source.column;
 	this->row = source.row;
-	this->highlight = new Highlight(*dynamic_cast<Highlight*>(source.highlight));
 }
 
 DeleteSelectionCommand::~DeleteSelectionCommand() {
-	if (this->highlight != NULL) {
-		delete this->highlight;
-	}
+
 }
 
 DeleteSelectionCommand& DeleteSelectionCommand::operator=(const DeleteSelectionCommand& source) {
 	Command::operator=(source);
 	this->column = source.column;
 	this->row = source.row;
-	this->highlight = dynamic_cast<Highlight*>(source.highlight);
 
 	return *this;
 }
 
 void DeleteSelectionCommand::Execute() {
-	Long start;
-	Long end;
-	Long noteStart = this->notepadForm->editor->selector->GetNoteStartPosition();
-	Long noteEnd = this->notepadForm->editor->selector->GetNoteEndPosition();
-	if (noteStart < noteEnd) {
-		start = this->notepadForm->editor->selector->GetLineStartPosition();
-		end = this->notepadForm->editor->selector->GetLineEndPosition();
-	}
-	else if (noteStart > noteEnd) {
-		noteStart = this->notepadForm->editor->selector->GetNoteEndPosition();
-		noteEnd = this->notepadForm->editor->selector->GetNoteStartPosition();
-		start = this->notepadForm->editor->selector->GetLineEndPosition();
-		end = this->notepadForm->editor->selector->GetLineStartPosition();
-	}
-	else {
-		if (this->notepadForm->editor->selector->GetLineStartPosition() < this->notepadForm->editor->selector->GetLineEndPosition()) {
-			start = this->notepadForm->editor->selector->GetLineStartPosition();
-			end = this->notepadForm->editor->selector->GetLineEndPosition();
-		}
-		else {
-			start = this->notepadForm->editor->selector->GetLineEndPosition();
-			end = this->notepadForm->editor->selector->GetLineStartPosition();
-		}
-	}
+	Long start = this->notepadForm->selection->GetStart();
+	Long end = this->notepadForm->selection->GetEnd();
 
-	this->column = start;
-	this->row = noteStart;
-
-	Glyph* line = this->notepadForm->note->GetAt(noteStart);
-	Long noteRepeatCount = noteEnd - noteStart + 1;
-	Long i = 0;
-	while (i < noteRepeatCount) {
-		Long lineEnd = end;
-		if (noteRepeatCount > 1) {
-			if (i == noteRepeatCount - 1) {
-				lineEnd = end + start;
+	Long lineCurrent = this->notepadForm->current->GetCurrent();
+	Glyph* character;
+	Glyph* line;
+	Long j;
+	Long i = start;
+	while (i <= end) {
+		line = this->notepadForm->note->GetAt(i);
+		j = 0;
+		while (j < line->GetLength()) {
+			character = line->GetAt(j);
+			if (character->GetIsSelected()) {
+				line->Remove(j--);
 			}
-			else {
-				lineEnd = line->GetLength();
-			}
-		}
-		Long repeatCount = lineEnd - start;
-		Long j = 0;
-		while (j < repeatCount) {
-			line->Remove(start);
 			j++;
 		}
-		if (i < noteRepeatCount - 1) {
-			Glyph* nextLine = this->notepadForm->note->GetAt(noteStart + 1);
-			line->Combine(nextLine);
-			this->notepadForm->note->Remove(noteStart + 1);
+		if (i < end) {
+			this->notepadForm->current = line->Combine(this->notepadForm->note->GetAt(i + 1));
+			this->notepadForm->note->Remove(i + 1);
+			i--;
+			end--;
 		}
 		i++;
 	}
-	this->notepadForm->current = this->notepadForm->note->GetAt(noteStart);
-	if (this->notepadForm->highlight != NULL) {
-		this->highlight = this->notepadForm->highlight->Clone();
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
+
+	if (this->notepadForm->selection != NULL) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
+	this->notepadForm->note->UnselectAll();
 }
 
 void DeleteSelectionCommand::Unexecute() {
+#if 0
 	if (this->highlight != NULL) {
-		if (this->notepadForm->highlight != NULL) {
-			delete this->notepadForm->highlight;
+		if (this->notepadForm->selector != NULL) {
+			delete this->notepadForm->selector;
 		}
 
 		this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
@@ -1062,6 +1042,7 @@ void DeleteSelectionCommand::Unexecute() {
 
 		this->notepadForm->editor->Select(this->row, this->column, this->highlight->GetLength() - 1, lastColumn);
 	}
+#endif
 }
 
 string DeleteSelectionCommand::GetType() {

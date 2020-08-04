@@ -1,6 +1,7 @@
 #include "Line.h"
 #include "Glyph.h"
 #include "Characters.h"
+#include "Visitor.h"
 
 Line::Line(Long capacity)
 	: Composite(capacity) {
@@ -8,7 +9,7 @@ Line::Line(Long capacity)
 }
 
 Line::Line(const Line& source)
-	: Composite(source){
+	: Composite(source) {
 
 }
 
@@ -82,6 +83,29 @@ Long Line::MoveNextWord() {
 	return this->current;
 }
 
+void Line::UnselectAll() {
+	Glyph* character;
+	Long i = 0;
+	while (i < this->length) {
+		character = this->glyphs[i];
+		character->Select(false);
+		i++;
+	}
+}
+
+bool Line::IsSelecting() {
+	bool isSelecting = false;
+	Glyph* character;
+	Long j = 0;
+	while (j < this->length && isSelecting == false) {
+		character = this->glyphs[j];
+		isSelecting = character->GetIsSelected();
+		j++;
+	}
+
+	return isSelecting;
+}
+
 Glyph* Line::Clone() {
 	return new Line(*this);
 }
@@ -94,4 +118,8 @@ string Line::GetContent() {
 		i++;
 	}
 	return content;
+}
+
+void Line::Accept(Visitor* visitor) {
+	visitor->Visit(this);
 }

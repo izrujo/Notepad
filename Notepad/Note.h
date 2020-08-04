@@ -8,6 +8,7 @@ typedef signed long int Long;
 using namespace std;
 
 class Glyph;
+class Visitor;
 
 class Note : public Composite {
 public:
@@ -16,8 +17,8 @@ public:
 	virtual ~Note();
 	Note& operator=(const Note& source);
 
-	virtual Long Add(Glyph *glyph);
-	virtual Long Add(Long index, Glyph *glyph);
+	virtual Long Add(Glyph* glyph);
+	virtual Long Add(Long index, Glyph* glyph);
 	virtual Long Remove(Long index);
 
 	virtual Long Next();
@@ -25,8 +26,12 @@ public:
 	virtual Long MovePreviousWord();
 	virtual Long MoveNextWord();
 
+	virtual void UnselectAll();
+	virtual bool IsSelecting();
+
 	virtual Glyph* Clone();
 	virtual string GetContent();
+	virtual void Accept(Visitor* visitor);
 };
 
 #endif //_NOTE_H

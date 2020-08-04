@@ -10,9 +10,7 @@
 #include "ScrollController.h"
 #include "CaretController.h"
 #include "Scroll.h"
-#include "Highlight.h"
-#include "Editor.h"
-#include "Selector.h"
+#include "Selection.h"
 
 #include "resource.h"
 
@@ -58,22 +56,10 @@ LeftKeyAction& LeftKeyAction::operator=(const LeftKeyAction& source) {
 }
 
 void LeftKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
-
-		Long noteStartPosition = this->notepadForm->editor->selector->GetNoteStartPosition();
-		Long lineStartPosition = this->notepadForm->editor->selector->GetLineStartPosition();
-		Long noteEndPosition = this->notepadForm->editor->selector->GetNoteEndPosition();
-		Long lineEndPosition = this->notepadForm->editor->selector->GetLineEndPosition();
-		//시작지점이 끝지점보다 작으면 시작지점으로 이동한다.
-		if (noteStartPosition < noteEndPosition ||
-			(noteStartPosition == noteEndPosition && lineStartPosition < lineEndPosition)) {
-			this->notepadForm->note->Move(noteStartPosition);
-			this->notepadForm->current = this->notepadForm->note->GetAt(noteStartPosition);
-			this->notepadForm->current->Move(lineStartPosition);
-		}
-		//시작지점이 끝지점보다 크면 이동하지 않는다.
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
 	else {
 		if (this->notepadForm->current->GetCurrent() > 0) {
@@ -106,22 +92,10 @@ RightKeyAction& RightKeyAction::operator=(const RightKeyAction& source) {
 }
 
 void RightKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
-
-		Long noteStartPosition = this->notepadForm->editor->selector->GetNoteStartPosition();
-		Long lineStartPosition = this->notepadForm->editor->selector->GetLineStartPosition();
-		Long noteEndPosition = this->notepadForm->editor->selector->GetNoteEndPosition();
-		Long lineEndPosition = this->notepadForm->editor->selector->GetLineEndPosition();
-		//시작지점이 끝지점보다 크면 시작지점으로 이동한다.
-		if (noteStartPosition > noteEndPosition ||
-			(noteStartPosition == noteEndPosition && lineStartPosition > lineEndPosition)) {
-			this->notepadForm->note->Move(noteStartPosition);
-			this->notepadForm->current = this->notepadForm->note->GetAt(noteStartPosition);
-			this->notepadForm->current->Move(lineStartPosition);
-		}
-		//시작지점이 끝지점보다 작으면 이동하지 않는다.
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
 	else {
 		if (this->notepadForm->current->GetCurrent() < this->notepadForm->current->GetLength()) {
@@ -156,17 +130,17 @@ UpKeyAction& UpKeyAction::operator=(const UpKeyAction& source) {
 }
 
 void UpKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
 	if (this->notepadForm->note->GetCurrent() > 0) {
 		Long x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current);
 		Long index = this->notepadForm->note->Previous();
 		this->notepadForm->current = this->notepadForm->note->GetAt(index);
 		Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
 		this->notepadForm->current->Move(column);
-	}
-
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
 	}
 }
 
@@ -192,17 +166,17 @@ DownKeyAction& DownKeyAction::operator=(const DownKeyAction& source) {
 }
 
 void DownKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
 	if (this->notepadForm->note->GetCurrent() < this->notepadForm->note->GetLength() - 1) {
 		Long x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current);
 		Long index = this->notepadForm->note->Next();
 		this->notepadForm->current = this->notepadForm->note->GetAt(index);
 		Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
 		this->notepadForm->current->Move(column);
-	}
-
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
 	}
 }
 
@@ -226,11 +200,11 @@ HomeKeyAction& HomeKeyAction::operator=(const HomeKeyAction& source) {
 }
 
 void HomeKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
-
 	this->notepadForm->current->First();
 }
 
@@ -254,11 +228,11 @@ EndKeyAction& EndKeyAction::operator=(const EndKeyAction& source) {
 }
 
 void EndKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
-
 	this->notepadForm->current->Last();
 }
 
@@ -282,11 +256,11 @@ CtrlLeftKeyAction& CtrlLeftKeyAction::operator=(const CtrlLeftKeyAction& source)
 }
 
 void CtrlLeftKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
-
 	Long index = this->notepadForm->note->MovePreviousWord();
 	this->notepadForm->current = this->notepadForm->note->GetAt(index);
 }
@@ -311,11 +285,11 @@ CtrlRightKeyAction& CtrlRightKeyAction::operator=(const CtrlRightKeyAction& sour
 }
 
 void CtrlRightKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
-
 	Long index = this->notepadForm->note->MoveNextWord();
 	this->notepadForm->current = this->notepadForm->note->GetAt(index);
 }
@@ -340,11 +314,11 @@ CtrlHomeKeyAction& CtrlHomeKeyAction::operator=(const CtrlHomeKeyAction& source)
 }
 
 void CtrlHomeKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
-
 	Long index = this->notepadForm->note->First();
 	this->notepadForm->current = this->notepadForm->note->GetAt(index);
 	this->notepadForm->current->First();
@@ -370,11 +344,11 @@ CtrlEndKeyAction& CtrlEndKeyAction::operator=(const CtrlEndKeyAction& source) {
 }
 
 void CtrlEndKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
-
 	Long index = this->notepadForm->note->Last();
 	this->notepadForm->current = this->notepadForm->note->GetAt(index);
 	this->notepadForm->current->Last();
@@ -400,7 +374,7 @@ DeleteKeyAction& DeleteKeyAction::operator=(const DeleteKeyAction& source) {
 }
 
 void DeleteKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->highlight == NULL) {
+	if (!this->notepadForm->selection == NULL) {
 		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_DELETE_CHAR, 0));
 	}
 	else {
@@ -428,7 +402,7 @@ BackSpaceKeyAction& BackSpaceKeyAction::operator=(const BackSpaceKeyAction& sour
 }
 
 void BackSpaceKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->highlight == NULL) {
+	if (this->notepadForm->selection == NULL) {
 		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_BACKSPACE_CHAR, 0));
 	}
 	else {
@@ -457,11 +431,6 @@ PageUpKeyAction& PageUpKeyAction::operator=(const PageUpKeyAction& source) {
 }
 
 void PageUpKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
-	}
-
 	Long position = this->notepadForm->scrollController->PageUp();
 	Long previous = this->notepadForm->SetScrollPos(SB_VERT, position, TRUE);
 	position = this->notepadForm->GetScrollPos(SB_VERT);
@@ -503,11 +472,6 @@ PageDownKeyAction& PageDownKeyAction::operator=(const PageDownKeyAction& source)
 }
 
 void PageDownKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->highlight != NULL) {
-		delete this->notepadForm->highlight;
-		this->notepadForm->highlight = NULL;
-	}
-
 	Long position = this->notepadForm->scrollController->PageDown();
 	Long previous = this->notepadForm->SetScrollPos(SB_VERT, position, TRUE);
 	this->notepadForm->ScrollWindow(0, previous - position);
@@ -540,29 +504,43 @@ ShiftLeftKeyAction::~ShiftLeftKeyAction() {
 }
 
 void ShiftLeftKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
+	Glyph* character;
+	Long column;
 	Long noteCurrent = this->notepadForm->note->GetCurrent();
+	Long row = noteCurrent;
 	Long lineCurrent = this->notepadForm->current->GetCurrent();
-	if (this->notepadForm->highlight == NULL) {
-		this->notepadForm->highlight = new Highlight;
-		this->notepadForm->editor->selector = new Selector(this->notepadForm, noteCurrent, lineCurrent, noteCurrent, lineCurrent);
-	}
 	if (lineCurrent > 0) {
-		Long endColumn = this->notepadForm->current->Previous();
-		Long startColumn = lineCurrent;
-		Long noteStartPosition = this->notepadForm->editor->selector->GetNoteStartPosition();
-		Long noteEndPosition = this->notepadForm->editor->selector->GetNoteEndPosition();
-		Long lineStartPosition = this->notepadForm->editor->selector->GetLineStartPosition();
-		Long lineEndPosition = this->notepadForm->editor->selector->GetLineEndPosition();
-		if (noteStartPosition < noteEndPosition || (noteStartPosition == noteEndPosition && lineStartPosition < lineEndPosition)) {
-			startColumn = endColumn;
-		}
-		this->notepadForm->editor->selector->Left(noteCurrent, startColumn, endColumn);
+		column = this->notepadForm->current->Previous();
+		character = this->notepadForm->current->GetAt(column);
+		(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
 	}
 	else if (noteCurrent > 0) {
-		Long index = this->notepadForm->note->Previous();
-		this->notepadForm->current = this->notepadForm->note->GetAt(index);
-		Long endColumn = this->notepadForm->current->Last();
-		this->notepadForm->editor->selector->Left(index, endColumn, endColumn);
+		row = this->notepadForm->note->Previous();
+		this->notepadForm->current = this->notepadForm->note->GetAt(row);
+		this->notepadForm->current->Last();
+	}
+
+	Long start = row;
+	Long end = noteCurrent;
+	if (this->notepadForm->selection != NULL) {
+		Long originStart = this->notepadForm->selection->GetStart();
+		Long originEnd = this->notepadForm->selection->GetEnd();
+		if (originStart == noteCurrent) { //선택할 때
+			start = row;
+			end = originEnd;
+		}
+		else if (originEnd == noteCurrent) { //선택 해제할 때
+			end = row;
+			start = originStart;
+		}
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	this->notepadForm->selection = new Selection(start, end);
+
+	if (start == end && this->notepadForm->note->IsSelecting() == false) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
 }
 
@@ -584,32 +562,43 @@ ShiftRightKeyAction::~ShiftRightKeyAction() {
 }
 
 void ShiftRightKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
+	Glyph* character;
+	Long column;
 	Long noteCurrent = this->notepadForm->note->GetCurrent();
+	Long row = noteCurrent;
 	Long lineCurrent = this->notepadForm->current->GetCurrent();
-	if (this->notepadForm->highlight == NULL) {
-		this->notepadForm->highlight = new Highlight;
-		this->notepadForm->editor->selector = new Selector(this->notepadForm, noteCurrent, lineCurrent, noteCurrent, lineCurrent);
-	}
-
 	if (lineCurrent < this->notepadForm->current->GetLength()) {
-		Long endColumn = this->notepadForm->current->Next();
-
-		Long startColumn = lineCurrent;
-		Long noteStartPosition = this->notepadForm->editor->selector->GetNoteStartPosition();
-		Long noteEndPosition = this->notepadForm->editor->selector->GetNoteEndPosition();
-		Long lineStartPosition = this->notepadForm->editor->selector->GetLineStartPosition();
-		Long lineEndPosition = this->notepadForm->editor->selector->GetLineEndPosition();
-		if (noteStartPosition > noteEndPosition || (noteStartPosition == noteEndPosition && lineStartPosition > lineEndPosition)) {
-			startColumn = endColumn;
-		}
-		this->notepadForm->editor->selector->Right(noteCurrent, startColumn, endColumn);
+		column = this->notepadForm->current->Next();
+		character = this->notepadForm->current->GetAt(column - 1);
+		(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
 	}
 	else if (noteCurrent < this->notepadForm->note->GetLength() - 1) {
-		Long index = this->notepadForm->note->Next();
-		this->notepadForm->current = this->notepadForm->note->GetAt(index);
-		Long endColumn = this->notepadForm->current->First();
+		row = this->notepadForm->note->Next();
+		this->notepadForm->current = this->notepadForm->note->GetAt(row);
+		this->notepadForm->current->First();
+	}
 
-		this->notepadForm->editor->selector->Right(index, endColumn, endColumn);
+	Long start = noteCurrent;
+	Long end = row;
+	if (this->notepadForm->selection != NULL) {
+		Long originStart = this->notepadForm->selection->GetStart();
+		Long originEnd = this->notepadForm->selection->GetEnd();
+		if (originEnd == noteCurrent) { //선택할 때
+			start = originStart;
+			end = row;
+		}
+		else if (originStart == noteCurrent) { //선택 해제할 때
+			end = originEnd;
+			start = row;
+		}
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	this->notepadForm->selection = new Selection(start, end);
+
+	if (start == end && this->notepadForm->note->IsSelecting() == false) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
 }
 
@@ -634,21 +623,53 @@ ShiftUpKeyAction::~ShiftUpKeyAction() {
 }
 
 void ShiftUpKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
-	Long noteCurrent = this->notepadForm->note->GetCurrent();
+	Glyph* character;
 	Long lineCurrent = this->notepadForm->current->GetCurrent();
+	Long noteCurrent = this->notepadForm->note->GetCurrent();
+	Long row = noteCurrent;
 	if (noteCurrent > 0) {
-		if (this->notepadForm->highlight == NULL) {
-			this->notepadForm->highlight = new Highlight;
-			this->notepadForm->editor->selector = new Selector(this->notepadForm, noteCurrent, lineCurrent, noteCurrent, lineCurrent);
+		Long i = lineCurrent;
+		while (i > 0) {
+			character = this->notepadForm->current->GetAt(i - 1);
+			(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+			i--;
 		}
 
 		Long x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current);
-		Long index = this->notepadForm->note->Previous();
-		this->notepadForm->current = this->notepadForm->note->GetAt(index);
+		row = this->notepadForm->note->Previous();
+		this->notepadForm->current = this->notepadForm->note->GetAt(row);
 		Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
 		this->notepadForm->current->Move(column);
 
-		this->notepadForm->editor->UpSelect(noteCurrent, lineCurrent, index, column);
+		i = this->notepadForm->current->GetLength();
+		while (i > column) {
+			character = this->notepadForm->current->GetAt(i - 1);
+			(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+			i--;
+		}
+	}
+
+	Long start = row;
+	Long end = noteCurrent;
+	if (this->notepadForm->selection != NULL) {
+		Long originStart = this->notepadForm->selection->GetStart();
+		Long originEnd = this->notepadForm->selection->GetEnd();
+		if (originStart == noteCurrent) { //선택할 때
+			start = row;
+			end = originEnd;
+		}
+		else if (originEnd == noteCurrent) { //선택 해제할 때
+			end = row;
+			start = originStart;
+		}
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	this->notepadForm->selection = new Selection(start, end);
+
+	if (start == end && this->notepadForm->note->IsSelecting() == false) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
 }
 
@@ -673,21 +694,53 @@ ShiftDownKeyAction::~ShiftDownKeyAction() {
 }
 
 void ShiftDownKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
-	Long noteCurrent = this->notepadForm->note->GetCurrent();
+	Glyph* character;
 	Long lineCurrent = this->notepadForm->current->GetCurrent();
+	Long noteCurrent = this->notepadForm->note->GetCurrent();
+	Long row = noteCurrent;
 	if (noteCurrent < this->notepadForm->note->GetLength() - 1) {
-		if (this->notepadForm->highlight == NULL) {
-			this->notepadForm->highlight = new Highlight;
-			this->notepadForm->editor->selector = new Selector(this->notepadForm, noteCurrent, lineCurrent, noteCurrent, lineCurrent);
+		Long i = lineCurrent;
+		while (i < this->notepadForm->current->GetLength()) {
+			character = this->notepadForm->current->GetAt(i);
+			(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+			i++;
 		}
 
 		Long x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current);
-		Long index = this->notepadForm->note->Next();
-		this->notepadForm->current = this->notepadForm->note->GetAt(index);
+		row = this->notepadForm->note->Next();
+		this->notepadForm->current = this->notepadForm->note->GetAt(row);
 		Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
 		this->notepadForm->current->Move(column);
 
-		this->notepadForm->editor->DownSelect(noteCurrent, lineCurrent, index, column);
+		i = 0;
+		while (i < column) {
+			character = this->notepadForm->current->GetAt(i);
+			(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+			i++;
+		}
+	}
+
+	Long start = noteCurrent;
+	Long end = row;
+	if (this->notepadForm->selection != NULL) {
+		Long originStart = this->notepadForm->selection->GetStart();
+		Long originEnd = this->notepadForm->selection->GetEnd();
+		if (originEnd == noteCurrent) { //선택할 때
+			start = originStart;
+			end = row;
+		}
+		else if (originStart == noteCurrent) { //선택 해제할 때
+			end = originEnd;
+			start = row;
+		}
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	this->notepadForm->selection = new Selection(start, end);
+
+	if (start == end && this->notepadForm->note->IsSelecting() == false) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
 }
 
@@ -709,27 +762,40 @@ ShiftHomeKeyAction::~ShiftHomeKeyAction() {
 }
 
 void ShiftHomeKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	Glyph* character;
 	Long noteCurrent = this->notepadForm->note->GetCurrent();
+	Long row = noteCurrent;
 	Long lineCurrent = this->notepadForm->current->GetCurrent();
-	if (this->notepadForm->highlight == NULL) {
-		this->notepadForm->highlight = new Highlight;
-		this->notepadForm->editor->selector = new Selector(this->notepadForm, noteCurrent, lineCurrent, noteCurrent, lineCurrent);
+	Long index = this->notepadForm->current->First();
+	Long i = lineCurrent;
+	while (i > index) {
+		character = this->notepadForm->current->GetAt(i - 1);
+		(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+		i--;
 	}
 
-	Long endColumn = this->notepadForm->current->First();
+	Long start = row;
+	Long end = noteCurrent;
+	if (this->notepadForm->selection != NULL) {
+		Long originStart = this->notepadForm->selection->GetStart();
+		Long originEnd = this->notepadForm->selection->GetEnd();
+		if (originStart == noteCurrent) { //선택할 때
+			start = row;
+			end = originEnd;
+		}
+		else if (originEnd == noteCurrent) { //선택 해제할 때
+			end = row;
+			start = originStart;
+		}
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	this->notepadForm->selection = new Selection(start, end);
 
-	Long noteStartPosition = this->notepadForm->editor->selector->GetNoteStartPosition();
-	Long noteEndPosition = this->notepadForm->editor->selector->GetNoteEndPosition();
-	Long lineStartPosition = this->notepadForm->editor->selector->GetLineStartPosition();
-	Long lineEndPosition = this->notepadForm->editor->selector->GetLineEndPosition();
-	Long startColumn = lineEndPosition;
-	if (noteStartPosition == noteEndPosition && lineStartPosition < lineEndPosition) {
-		startColumn = lineStartPosition;
+	if (start == end && this->notepadForm->note->IsSelecting() == false) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
-	else if (noteStartPosition < noteEndPosition) {
-		startColumn = 0;
-	}
-	this->notepadForm->editor->selector->Left(noteCurrent, startColumn, endColumn);
 }
 
 ShiftHomeKeyAction& ShiftHomeKeyAction::operator =(const ShiftHomeKeyAction& source) {
@@ -751,27 +817,40 @@ ShiftEndKeyAction::~ShiftEndKeyAction() {
 }
 
 void ShiftEndKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	Glyph* character;
 	Long noteCurrent = this->notepadForm->note->GetCurrent();
+	Long row = noteCurrent;
 	Long lineCurrent = this->notepadForm->current->GetCurrent();
-	if (this->notepadForm->highlight == NULL) {
-		this->notepadForm->highlight = new Highlight;
-		this->notepadForm->editor->selector = new Selector(this->notepadForm, noteCurrent, lineCurrent, noteCurrent, lineCurrent);
+	Long index = this->notepadForm->current->Last();
+	Long i = lineCurrent;
+	while (i < index) {
+		character = this->notepadForm->current->GetAt(i);
+		(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+		i++;
 	}
 
-	Long endColumn = this->notepadForm->current->Last();
+	Long start = noteCurrent;
+	Long end = row;
+	if (this->notepadForm->selection != NULL) {
+		Long originStart = this->notepadForm->selection->GetStart();
+		Long originEnd = this->notepadForm->selection->GetEnd();
+		if (originEnd == noteCurrent) { //선택할 때
+			start = originStart;
+			end = row;
+		}
+		else if (originStart == noteCurrent) { //선택 해제할 때
+			end = originEnd;
+			start = row;
+		}
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	this->notepadForm->selection = new Selection(start, end);
 
-	Long noteStartPosition = this->notepadForm->editor->selector->GetNoteStartPosition();
-	Long noteEndPosition = this->notepadForm->editor->selector->GetNoteEndPosition();
-	Long lineStartPosition = this->notepadForm->editor->selector->GetLineStartPosition();
-	Long lineEndPosition = this->notepadForm->editor->selector->GetLineEndPosition();
-	Long startColumn = lineEndPosition;
-	if (noteStartPosition == noteEndPosition && lineStartPosition > lineEndPosition) {
-		startColumn = lineStartPosition;
+	if (start == end && this->notepadForm->note->IsSelecting() == false) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
-	else if (noteStartPosition > noteEndPosition) {
-		startColumn = this->notepadForm->current->GetLength();
-	}
-	this->notepadForm->editor->selector->Right(noteCurrent, startColumn, endColumn);
 }
 
 ShiftEndKeyAction& ShiftEndKeyAction::operator =(const ShiftEndKeyAction& source) {
@@ -793,31 +872,45 @@ ShiftCtrlLeftKeyAction::~ShiftCtrlLeftKeyAction() {
 }
 
 void ShiftCtrlLeftKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	Glyph* character;
 	Long noteCurrent = this->notepadForm->note->GetCurrent();
+	Long row = noteCurrent;
+
 	Long lineCurrent = this->notepadForm->current->GetCurrent();
-	if (this->notepadForm->highlight == NULL) {
-		this->notepadForm->highlight = new Highlight;
-		this->notepadForm->editor->selector = new Selector(this->notepadForm, noteCurrent, lineCurrent, noteCurrent, lineCurrent);
+
+	row = this->notepadForm->note->MovePreviousWord();
+	this->notepadForm->current = this->notepadForm->note->GetAt(row);
+
+	Long lineNext = this->notepadForm->current->GetCurrent();
+	Long i = lineCurrent;
+	while (i > lineNext) {
+		character = this->notepadForm->current->GetAt(i - 1);
+		(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+		i--;
 	}
 
-	Long index = this->notepadForm->note->MovePreviousWord();
-	this->notepadForm->current = this->notepadForm->note->GetAt(index);
-
-	Long endColumn = this->notepadForm->current->GetCurrent();
-	Long startColumn = lineCurrent;
-	Long noteStartPosition = this->notepadForm->editor->selector->GetNoteStartPosition();
-	Long noteEndPosition = this->notepadForm->editor->selector->GetNoteEndPosition();
-	Long lineStartPosition = this->notepadForm->editor->selector->GetLineStartPosition();
-	Long lineEndPosition = this->notepadForm->editor->selector->GetLineEndPosition();
-	if (noteCurrent > index || noteStartPosition < noteEndPosition || (noteStartPosition == noteEndPosition && lineStartPosition < lineEndPosition)) {
-		if (noteStartPosition == index && endColumn < lineStartPosition) {
-			startColumn = lineStartPosition;
+	Long start = row;
+	Long end = noteCurrent;
+	if (this->notepadForm->selection != NULL) {
+		Long originStart = this->notepadForm->selection->GetStart();
+		Long originEnd = this->notepadForm->selection->GetEnd();
+		if (originStart == noteCurrent) { //선택할 때
+			start = row;
+			end = originEnd;
 		}
-		else {
-			startColumn = endColumn;
+		else if (originEnd == noteCurrent) { //선택 해제할 때
+			end = row;
+			start = originStart;
 		}
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
-	this->notepadForm->editor->selector->Left(index, startColumn, endColumn);
+	this->notepadForm->selection = new Selection(start, end);
+
+	if (start == end && this->notepadForm->note->IsSelecting() == false) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
 }
 
 ShiftCtrlLeftKeyAction& ShiftCtrlLeftKeyAction::operator =(const ShiftCtrlLeftKeyAction& source) {
@@ -839,31 +932,45 @@ ShiftCtrlRightKeyAction::~ShiftCtrlRightKeyAction() {
 }
 
 void ShiftCtrlRightKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	Glyph* character;
 	Long noteCurrent = this->notepadForm->note->GetCurrent();
+	Long row = noteCurrent;
+
 	Long lineCurrent = this->notepadForm->current->GetCurrent();
-	if (this->notepadForm->highlight == NULL) {
-		this->notepadForm->highlight = new Highlight;
-		this->notepadForm->editor->selector = new Selector(this->notepadForm, noteCurrent, lineCurrent, noteCurrent, lineCurrent);
+
+	row = this->notepadForm->note->MoveNextWord();
+	this->notepadForm->current = this->notepadForm->note->GetAt(row);
+
+	Long lineNext = this->notepadForm->current->GetCurrent();
+	Long i = lineCurrent;
+	while (i < lineNext) {
+		character = this->notepadForm->current->GetAt(i);
+		(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+		i++;
 	}
 
-	Long index = this->notepadForm->note->MoveNextWord();
-	this->notepadForm->current = this->notepadForm->note->GetAt(index);
-
-	Long endColumn = this->notepadForm->current->GetCurrent();
-	Long startColumn = lineCurrent;
-	Long noteStartPosition = this->notepadForm->editor->selector->GetNoteStartPosition();
-	Long noteEndPosition = this->notepadForm->editor->selector->GetNoteEndPosition();
-	Long lineStartPosition = this->notepadForm->editor->selector->GetLineStartPosition();
-	Long lineEndPosition = this->notepadForm->editor->selector->GetLineEndPosition();
-	if (noteCurrent < index || noteStartPosition > noteEndPosition || (noteStartPosition == noteEndPosition && lineStartPosition > lineEndPosition)) {
-		if (noteStartPosition == index && endColumn > lineStartPosition) {
-			startColumn = lineStartPosition;
+	Long start = noteCurrent;
+	Long end = row;
+	if (this->notepadForm->selection != NULL) {
+		Long originStart = this->notepadForm->selection->GetStart();
+		Long originEnd = this->notepadForm->selection->GetEnd();
+		if (originEnd == noteCurrent) { //선택할 때
+			start = originStart;
+			end = row;
 		}
-		else {
-			startColumn = endColumn;
+		else if (originStart == noteCurrent) { //선택 해제할 때
+			end = originEnd;
+			start = row;
 		}
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
 	}
-	this->notepadForm->editor->selector->Right(index, startColumn, endColumn);
+	this->notepadForm->selection = new Selection(start, end);
+
+	if (start == end && this->notepadForm->note->IsSelecting() == false) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
 }
 
 ShiftCtrlRightKeyAction& ShiftCtrlRightKeyAction::operator =(const ShiftCtrlRightKeyAction& source) {
@@ -885,18 +992,53 @@ ShiftCtrlHomeKeyAction::~ShiftCtrlHomeKeyAction() {
 }
 
 void ShiftCtrlHomeKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	Glyph* character;
+	Glyph* line;
 	Long noteCurrent = this->notepadForm->note->GetCurrent();
 	Long lineCurrent = this->notepadForm->current->GetCurrent();
-	if (this->notepadForm->highlight == NULL) {
-		this->notepadForm->highlight = new Highlight;
-		this->notepadForm->editor->selector = new Selector(this->notepadForm, noteCurrent, lineCurrent, noteCurrent, lineCurrent);
+
+	Long row = this->notepadForm->note->First();
+	this->notepadForm->current = this->notepadForm->note->GetAt(row);
+	this->notepadForm->current->First();
+
+	Long j;
+	Long i = noteCurrent;
+	while (i >= row) {
+		line = this->notepadForm->note->GetAt(i);
+		j = line->GetLength();
+		if (i == noteCurrent) {
+			j = lineCurrent;
+		}
+		while (j > 0) {
+			character = line->GetAt(j - 1);
+			(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+			j--;
+		}
+		i--;
 	}
 
-	Long index = this->notepadForm->note->First();
-	this->notepadForm->current = this->notepadForm->note->GetAt(index);
-	Long column = this->notepadForm->current->First();
+	Long start = row;
+	Long end = noteCurrent;
+	if (this->notepadForm->selection != NULL) {
+		Long originStart = this->notepadForm->selection->GetStart();
+		Long originEnd = this->notepadForm->selection->GetEnd();
+		if (originStart == noteCurrent) { //선택할 때
+			start = row;
+			end = originEnd;
+		}
+		else if (originEnd == noteCurrent) { //선택 해제할 때
+			end = row;
+			start = originStart;
+		}
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	this->notepadForm->selection = new Selection(start, end);
 
-	this->notepadForm->editor->UpSelect(noteCurrent, lineCurrent, index, column);
+	if (start == end && this->notepadForm->note->IsSelecting() == false) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
 }
 
 ShiftCtrlHomeKeyAction& ShiftCtrlHomeKeyAction::operator =(const ShiftCtrlHomeKeyAction& source) {
@@ -918,18 +1060,53 @@ ShiftCtrlEndKeyAction::~ShiftCtrlEndKeyAction() {
 }
 
 void ShiftCtrlEndKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	Glyph* character;
+	Glyph* line;
 	Long noteCurrent = this->notepadForm->note->GetCurrent();
 	Long lineCurrent = this->notepadForm->current->GetCurrent();
-	if (this->notepadForm->highlight == NULL) {
-		this->notepadForm->highlight = new Highlight;
-		this->notepadForm->editor->selector = new Selector(this->notepadForm, noteCurrent, lineCurrent, noteCurrent, lineCurrent);
+
+	Long row = this->notepadForm->note->Last();
+	this->notepadForm->current = this->notepadForm->note->GetAt(row);
+	this->notepadForm->current->Last();
+
+	Long j;
+	Long i = noteCurrent;
+	while (i <= row) {
+		line = this->notepadForm->note->GetAt(i);
+		j = 0;
+		if (i == noteCurrent) {
+			j = lineCurrent;
+		}
+		while (j < line->GetLength()) {
+			character = line->GetAt(j);
+			(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+			j++;
+		}
+		i++;
 	}
 
-	Long index = this->notepadForm->note->Last();
-	this->notepadForm->current = this->notepadForm->note->GetAt(index);
-	Long column = this->notepadForm->current->Last();
+	Long start = noteCurrent;
+	Long end = row;
+	if (this->notepadForm->selection != NULL) {
+		Long originStart = this->notepadForm->selection->GetStart();
+		Long originEnd = this->notepadForm->selection->GetEnd();
+		if (originEnd == noteCurrent) { //선택할 때
+			start = originStart;
+			end = row;
+		}
+		else if (originStart == noteCurrent) { //선택 해제할 때
+			end = originEnd;
+			start = row;
+		}
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	this->notepadForm->selection = new Selection(start, end);
 
-	this->notepadForm->editor->DownSelect(noteCurrent, lineCurrent, index, column);
+	if (start == end && this->notepadForm->note->IsSelecting() == false) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
 }
 
 ShiftCtrlEndKeyAction& ShiftCtrlEndKeyAction::operator =(const ShiftCtrlEndKeyAction& source) {

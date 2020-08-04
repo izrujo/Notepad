@@ -8,8 +8,9 @@ typedef signed long int Long;
 using namespace std;
 
 class Glyph;
+class Visitor;
 
-class Line : public Composite{
+class Line : public Composite {
 public:
 	Line(Long capacity = 256);
 	Line(const Line& source);
@@ -17,13 +18,17 @@ public:
 	Line& operator=(const Line& source);
 
 	virtual Glyph* Divide(Long index);
-	virtual Glyph* Combine(Glyph *other);
+	virtual Glyph* Combine(Glyph* other);
 
 	virtual Long MovePreviousWord();
 	virtual Long MoveNextWord();
 
+	virtual void UnselectAll();
+	virtual bool IsSelecting();
+
 	virtual Glyph* Clone();
 	virtual string GetContent();
+	virtual void Accept(Visitor* visitor);
 };
 
 #endif //_LINE_H

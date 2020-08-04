@@ -1,4 +1,5 @@
 #include "Note.h"
+#include "Visitor.h"
 
 Note::Note(Long capacity)
 	: Composite(capacity) {
@@ -20,14 +21,14 @@ Note& Note::operator=(const Note& source) {
 	return *this;
 }
 
-Long Note::Add(Glyph *glyph) {
+Long Note::Add(Glyph* glyph) {
 	Long index = Composite::Add(glyph);
 	this->current = index;
 
 	return index;
 }
 
-Long Note::Add(Long index, Glyph *glyph) {
+Long Note::Add(Long index, Glyph* glyph) {
 	Composite::Add(index, glyph);
 	this->current = index;
 
@@ -56,7 +57,7 @@ Long Note::Last() {
 }
 
 Long Note::MovePreviousWord() {
-	Glyph *line;
+	Glyph* line;
 	line = this->glyphs.GetAt(this->current);
 	if (line->GetCurrent() >= 1) {
 		line->MovePreviousWord();
@@ -73,7 +74,7 @@ Long Note::MovePreviousWord() {
 }
 
 Long Note::MoveNextWord() {
-	Glyph *line;
+	Glyph* line;
 	line = this->glyphs.GetAt(this->current);
 	if (line->GetCurrent() < line->GetLength()) {
 		line->MoveNextWord();
@@ -89,6 +90,29 @@ Long Note::MoveNextWord() {
 	return this->current;
 }
 
+void Note::UnselectAll() {
+	Glyph* line;
+	Long i = 0;
+	while (i < this->length) {
+		line = this->glyphs[i];
+		line->UnselectAll();
+		i++;
+	}
+}
+
+bool Note::IsSelecting() {
+	bool isSelecting = false;
+	Glyph* line;
+	Long i = 0;
+	while (i < this->length && isSelecting == false) {
+		line = this->glyphs[i];
+		isSelecting = line->IsSelecting();
+		i++;
+	}
+
+	return isSelecting;
+}
+
 Glyph* Note::Clone() {
 	return new Note(*this);
 }
@@ -96,8 +120,8 @@ Glyph* Note::Clone() {
 string Note::GetContent() {
 	string content = "";
 	string characterString;
-	Glyph *line;
-	Glyph *character;
+	Glyph* line;
+	Glyph* character;
 	Long j;
 	Long i = 0;
 
@@ -129,4 +153,8 @@ string Note::GetContent() {
 	}
 	return content;
 	*/
+}
+
+void Note::Accept(Visitor* visitor) {
+	visitor->Visit(this);
 }
