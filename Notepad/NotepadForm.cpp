@@ -45,6 +45,7 @@ BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_VSCROLL()
 	ON_WM_MOUSEWHEEL()
 	ON_WM_MENUSELECT()
+	ON_WM_ERASEBKGND()
 	//ON_UPDATE_COMMAND_UI_RANGE(IDM_FORMAT_WORDWRAP, IDM_FORMAT_WORDWRAP, OnUpdateCommandUIRange)
 END_MESSAGE_MAP()
 
@@ -286,11 +287,28 @@ void NotepadForm::OnLButtonDown(UINT nFlag, CPoint point) {
 			i++;
 		}
 
+		Long start = startRow;
+		Long end = endRow;
 		if (this->selection != NULL) {
+			Long originStart = this->selection->GetStart();
+			Long originEnd = this->selection->GetEnd();
+			if (originEnd == noteCurrent) { //선택할 때
+				start = originStart;
+				end = row;
+			}
+			else if (originStart == noteCurrent) { //선택 해제할 때
+				end = originEnd;
+				start = row;
+			}
 			delete this->selection;
 			this->selection = NULL;
 		}
-		this->selection = new Selection(startRow, endRow);
+		this->selection = new Selection(start, end);
+
+		if (start == end && this->note->IsSelecting() == false) {
+			delete this->selection;
+			this->selection = NULL;
+		}
 	}
 
 	this->Notify();
@@ -299,7 +317,87 @@ void NotepadForm::OnLButtonDown(UINT nFlag, CPoint point) {
 
 void NotepadForm::OnMouseMove(UINT nFlags, CPoint point) {
 	if (nFlags == MK_LBUTTON) {
+		Long noteCurrent = this->note->GetCurrent();
+		Long lineCurrent = this->current->GetCurrent();
 
+		Long row = this->characterMetrics->GetRow(this->scrollController->GetVerticalScroll()->GetPosition() + point.y);
+		if (row >= this->note->GetLength()) {
+			row = this->note->GetLength() - 1;
+		}
+		Long index = this->note->Move(row);
+		this->current = this->note->GetAt(index);
+		Long column = this->characterMetrics->GetColumn(this->current, this->scrollController->GetHorizontalScroll()->GetPosition() + point.x);
+		Long lineIndex = this->current->Move(column);
+
+		Long startRow = noteCurrent;
+		Long endRow = index;
+		Long startColumn = lineCurrent;
+		Long endColumn = lineIndex;
+		if (noteCurrent > index) {
+			startRow = index;
+			endRow = noteCurrent;
+			startColumn = lineIndex;
+			endColumn = lineCurrent;
+		}
+		else if (noteCurrent == index) {
+			if (lineCurrent > lineIndex) {
+				startColumn = lineIndex;
+				endColumn = lineCurrent;
+			}
+		}
+		Glyph* line;
+		Glyph* character;
+		Long length;
+		Long j;
+		Long i = startRow;
+		while (i <= endRow) {
+			line = this->note->GetAt(i);
+
+			length = line->GetLength();
+			if (i == endRow) {
+				length = endColumn;
+			}
+
+			j = 0;
+			if (i == startRow) {
+				j = startColumn;
+			}
+
+			while (j < length) {
+				character = line->GetAt(j);
+				if (!character->GetIsSelected()) {
+					character->Select(true);
+				}
+				else {
+					character->Select(false);
+				}
+				j++;
+			}
+			i++;
+		}
+
+		Long start = startRow;
+		Long end = endRow;
+		if (this->selection != NULL) {
+			Long originStart = this->selection->GetStart();
+			Long originEnd = this->selection->GetEnd();
+			if (originEnd == noteCurrent) { //선택할 때
+				start = originStart;
+				end = row;
+			}
+			else if (originStart == noteCurrent) { //선택 해제할 때
+				end = originEnd;
+				start = row;
+			}
+			delete this->selection;
+			this->selection = NULL;
+		}
+		this->selection = new Selection(start, end);
+
+		if (start == end && this->note->IsSelecting() == false) {
+			delete this->selection;
+			this->selection = NULL;
+		}
 
 		this->Notify();
 		this->Invalidate();
@@ -417,5 +515,9 @@ BOOL NotepadForm::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) {
 		this->ScrollWindow(0, previousPosition - position);
 		this->Notify();
 	}
+	return TRUE;
+}
+
+BOOL NotepadForm::OnEraseBkgnd(CDC* pDC) {
 	return TRUE;
 }
