@@ -37,7 +37,6 @@
     <ClInclude Include="Font.h" />
     <ClInclude Include="Glyph.h" />
     <ClInclude Include="GlyphFactory.h" />
-    <ClInclude Include="History.h" />
     <ClInclude Include="HistoryBook.h" />
     <ClInclude Include="HScrollActionFactory.h" />
     <ClInclude Include="HScrollActions.h" />
@@ -77,7 +76,6 @@
     <ClCompile Include="Font.cpp" />
     <ClCompile Include="Glyph.cpp" />
     <ClCompile Include="GlyphFactory.cpp" />
-    <ClCompile Include="History.cpp" />
     <ClCompile Include="HistoryBook.cpp" />
     <ClCompile Include="HScrollActionFactory.cpp" />
     <ClCompile Include="HScrollActions.cpp" />

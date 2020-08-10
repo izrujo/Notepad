@@ -21,7 +21,6 @@
 #include "HScrollActions.h"
 #include "Scroll.h"
 #include "Document.h"
-#include "History.h"
 #include "HistoryBook.h"
 #include "DrawingVisitor.h"
 #include "Selection.h"
@@ -39,7 +38,8 @@ BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_KILLFOCUS()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
-	ON_COMMAND_RANGE(IDM_FILE_NEW, IDC_BACKSPACE_CHAR, OnCommandRange)
+	ON_COMMAND_RANGE(IDM_FILE_NEW, IDC_MOVE_RIGHT, OnCommandRange)
+	ON_COMMAND_RANGE(IDC_WRITE_CHAR, IDM_EDIT_SELECTALL, OnEditCommandRange)
 	ON_WM_KEYDOWN()
 	ON_WM_HSCROLL()
 	ON_WM_VSCROLL()
@@ -123,8 +123,10 @@ void NotepadForm::OnClose() {
 }
 
 void NotepadForm::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	this->currentCharacter = nChar;
-	this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_WRITE_CHAR, 0));
+	if (nChar >= 32 || nChar == VK_TAB || nChar == VK_RETURN) {
+		this->currentCharacter = nChar;
+		this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_WRITE_CHAR, 0));
+	}
 }
 
 LRESULT NotepadForm::OnImeComposition(WPARAM wParam, LPARAM lParam) {
@@ -409,45 +411,35 @@ void NotepadForm::OnCommandRange(UINT uID) {
 	Command* command = commandFactory.Make(uID);
 	if (command != NULL) {
 		command->Execute();
+		delete command;
+	}
+
+	if (this->scrollController != NULL) {
+		delete this->scrollController;
+	}
+	this->scrollController = new ScrollController(this);
+
+	this->Notify();
+	this->Invalidate();
+
+	Long x = this->characterMetrics->GetX(this->current) + 1; // 
+	Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
+	this->scrollController->SmartScrollToPoint(x, y);
+}
+
+void NotepadForm::OnEditCommandRange(UINT uID) {
+	CommandFactory commandFactory(this);
+	Command* command = commandFactory.Make(uID);
+	if (command != NULL) {
+		command->Execute();
 
 		//========== 실행 취소 추가 ==========
-		string type = command->GetType();
-		BOOL condition1 = FALSE;
-		BOOL condition2 = FALSE;
-		History* history;
-		if (this->undoHistoryBook->GetLength() > 0) {
-			history = this->undoHistoryBook->OpenAt();
-			Command* previousCommand = history->Reveal();
+		//if (this->undoHistoryBook->GetLength() > 0) {
+		if (command->GetType() == "Paste" || command->GetType() == "DeleteSelection") {
+			this->undoHistoryBook->Write(command->Clone());
 
-			//현재 커맨드가 Write이고 엔터키 입력이 아니거나 현재 커맨드가 ImeChar이고
-			//직전 커맨드가 Write이거나 ImeChar이면
-			//현재 히스토리에 커맨드를 넣는다.
-			if ((type == "Write" && this->currentCharacter != VK_RETURN)
-				|| type == "ImeChar") {
-				condition1 = TRUE;
-			}
-			if (previousCommand->GetType() == "Write" || previousCommand->GetType() == "ImeChar") {
-				condition2 = TRUE;
-			}
-
-			if (condition1 == TRUE && condition2 == TRUE) {
-				history->Happen(command->Clone());
-			}
 		}
-		//실행 취소 역사책이 비었거나
-		//비었을 때에도 현재 커맨드가 Write, ImeChar, Delete, Backspace, Paste, Cut, DeleteSelection 중에 하나여야 하고
-		//비어있지 않으면
-		//현재 커맨드가 Write나 ImeChar가 아니고
-		//Write나 ImeChar라 하더라도 Write인 경우 엔터키 입력이며 또 엔터키 입력이라 하더라도
-		//직전 커맨드가 Write나 ImeChar가 아니면
-		//새 히스토리를 만들어 쓴다.
-		if ((type == "Write" || type == "ImeChar" || type == "Delete" || type == "Backspace"
-			|| type == "Paste" || type == "Cut" || type == "DeleteSelection")
-			&& (condition1 == FALSE || condition2 == FALSE)) {
-			history = new History;
-			history->Happen(command->Clone());
-			this->undoHistoryBook->Write(history);
-		}
+		//}
 		//========== 실행 취소 추가 ==========
 
 		delete command;

@@ -292,4 +292,13 @@ public:
 	CtrlZKeyAction& operator =(const CtrlZKeyAction& source);
 };
 
+class CtrlYKeyAction : public KeyAction {
+public:
+	CtrlYKeyAction(NotepadForm* notepadForm = 0);
+	CtrlYKeyAction(const CtrlYKeyAction& source);
+	virtual ~CtrlYKeyAction();
+	virtual void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	CtrlYKeyAction& operator =(const CtrlYKeyAction& source);
+};
+
 #endif //_KEYACTIONS_H

@@ -1,18 +1,18 @@
 #include "HistoryBook.h"
-#include "History.h"
+#include "Commands.h"
 
 HistoryBook::HistoryBook(Long capacity)
-	: historys(capacity) {
+	: commands(capacity) {
 	this->capacity = capacity;
 	this->length = 0;
 	this->top = 0;
 }
 
 HistoryBook::HistoryBook(const HistoryBook& source)
-	: historys(source.capacity) {
+	: commands(source.capacity) {
 	
-	Stack<History*> tempForSource(source.historys);
-	Stack<History*> temp(source.capacity);
+	Stack<Command*> tempForSource(source.commands);
+	Stack<Command*> temp(source.capacity);
 	Long i = 0;
 	while (i < source.length) {
 		temp.Push(tempForSource.Top()->Clone());
@@ -22,7 +22,7 @@ HistoryBook::HistoryBook(const HistoryBook& source)
 
 	i = 0;
 	while (i < source.length) {
-		this->historys.Push(temp.Top());
+		this->commands.Push(temp.Top());
 		temp.Pop();
 		i++;
 	}
@@ -35,9 +35,9 @@ HistoryBook::HistoryBook(const HistoryBook& source)
 HistoryBook::~HistoryBook() {
 	Long i = 0;
 	while (i < this->length) {
-		if (this->historys.Top() != 0) {
-			delete this->historys.Top();
-			this->historys.Pop();
+		if (this->commands.Top() != 0) {
+			delete this->commands.Top();
+			this->commands.Pop();
 		}
 		i++;
 	}
@@ -46,26 +46,26 @@ HistoryBook::~HistoryBook() {
 HistoryBook& HistoryBook::operator=(const HistoryBook& source) {
 	Long i = 0;
 	while (i < this->length) {
-		if (this->historys.Top() != 0) {
-			delete this->historys.Top();
-			this->historys.Pop();
+		if (this->commands.Top() != 0) {
+			delete this->commands.Top();
+			this->commands.Pop();
 		}
 		i++;
 	}
 
-	this->historys = source.historys;
+	this->commands = source.commands;
 
-	Stack<History*> temp(source.capacity);
+	Stack<Command*> temp(source.capacity);
 	i = 0;
 	while (i < source.length) {
-		temp.Push(this->historys.Top()->Clone());
-		this->historys.Pop();
+		temp.Push(this->commands.Top()->Clone());
+		this->commands.Pop();
 		i++;
 	}
 
 	i = 0;
 	while (i < source.length) {
-		this->historys.Push(temp.Top());
+		this->commands.Push(temp.Top());
 		temp.Pop();
 		i++;
 	}
@@ -77,8 +77,8 @@ HistoryBook& HistoryBook::operator=(const HistoryBook& source) {
 	return *this;
 }
 
-Long HistoryBook::Write(History* command) {
-	this->top = this->historys.Push(command);
+Long HistoryBook::Write(Command* command) {
+	this->top = this->commands.Push(command);
 	if (this->length >= this->capacity) {
 		this->capacity++;
 	}
@@ -88,27 +88,27 @@ Long HistoryBook::Write(History* command) {
 }
 
 Long HistoryBook::Erase() {
-	if (this->historys.Top() != 0) {
-		delete this->historys.Top();
+	if (this->commands.Top() != 0) {
+		delete this->commands.Top();
 	}
 
-	this->historys.Pop();
+	this->commands.Pop();
 	this->length--;
 	this->top--;
 
 	return -1;
 }
 
-History* HistoryBook::OpenAt() {
-	return this->historys.Top();
+Command* HistoryBook::OpenAt() {
+	return this->commands.Top();
 }
 
 void HistoryBook::Empty() {
 	Long i = 0;
 	while (i < this->length) {
-		if (this->historys.Top() != 0) {
-			delete this->historys.Top();
-			this->historys.Pop();
+		if (this->commands.Top() != 0) {
+			delete this->commands.Top();
+			this->commands.Pop();
 		}
 		i++;
 	}
@@ -117,5 +117,5 @@ void HistoryBook::Empty() {
 }
 
 bool HistoryBook::IsEmpty() {
-	return this->historys.IsEmpty();
+	return this->commands.IsEmpty();
 }

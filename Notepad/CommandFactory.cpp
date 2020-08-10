@@ -56,6 +56,9 @@ Command* CommandFactory::Make(int uID) {
 	else if (uID == IDM_EDIT_UNDO) {
 		command = new UndoCommand(this->notepadForm);
 	}
+	else if (uID == IDM_EDIT_REDO) {
+		command = new RedoCommand(this->notepadForm);
+	}
 	else if (uID == IDC_WRITE_CHAR) {
 		command = new WriteCommand(this->notepadForm);
 	}
@@ -68,8 +71,11 @@ Command* CommandFactory::Make(int uID) {
 	else if (uID == IDC_DELETE_CHAR) {
 		command = new DeleteCommand(this->notepadForm);
 	}
-	else if (uID == IDC_BACKSPACE_CHAR) {
-		command = new BackspaceCommand(this->notepadForm);
+	else if (uID == IDC_MOVE_LEFT) {
+		command = new LeftCommand(this->notepadForm);
+	}
+	else if (uID == IDC_MOVE_RIGHT) {
+		command = new RightCommand(this->notepadForm);
 	}
 
 	return command;

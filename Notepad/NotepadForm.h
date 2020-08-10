@@ -44,6 +44,7 @@ protected:
 	afx_msg void OnLButtonDown(UINT nFlag, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlag, CPoint point);
 	afx_msg void OnCommandRange(UINT uID);
+	afx_msg void OnEditCommandRange(UINT uID);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
@@ -56,7 +57,9 @@ public:
 	BOOL GetIsComposing() const;
 	void SetIsComposing(BOOL isComposing);
 	char GetCurrentCharacter() const;
+	void SetCurrentCharacter(char currentCharacter);
 	TCHAR* GetCurrentBuffer() const;
+	void SetCurrentBuffer(TCHAR(*currentBuffer));
 
 private:
 	BOOL isComposing;
@@ -77,8 +80,17 @@ inline char NotepadForm::GetCurrentCharacter() const {
 	return this->currentCharacter;
 }
 
+inline void NotepadForm::SetCurrentCharacter(char currentCharacter) {
+	this->currentCharacter = currentCharacter;
+}
+
 inline TCHAR* NotepadForm::GetCurrentBuffer() const {
 	return const_cast<TCHAR*>(this->currentBuffer);
+}
+
+inline void NotepadForm::SetCurrentBuffer(TCHAR(*currentBuffer)) {
+	this->currentBuffer[0] = currentBuffer[0];
+	this->currentBuffer[2] = currentBuffer[1];
 }
 
 #endif //_NOTEPADFORM_H

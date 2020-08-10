@@ -56,21 +56,7 @@ LeftKeyAction& LeftKeyAction::operator=(const LeftKeyAction& source) {
 }
 
 void LeftKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
-	if (this->notepadForm->selection != NULL) {
-		this->notepadForm->note->UnselectAll();
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	else {
-		if (this->notepadForm->current->GetCurrent() > 0) {
-			this->notepadForm->current->Previous();
-		}
-		else if (this->notepadForm->note->GetCurrent() > 0) {
-			Long index = this->notepadForm->note->Previous();
-			this->notepadForm->current = this->notepadForm->note->GetAt(index);
-			this->notepadForm->current->Last();
-		}
-	}
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_LEFT, 0));
 }
 
 //RightKeyAction
@@ -92,21 +78,7 @@ RightKeyAction& RightKeyAction::operator=(const RightKeyAction& source) {
 }
 
 void RightKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
-	if (this->notepadForm->selection != NULL) {
-		this->notepadForm->note->UnselectAll();
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	else {
-		if (this->notepadForm->current->GetCurrent() < this->notepadForm->current->GetLength()) {
-			this->notepadForm->current->Next();
-		}
-		else if (this->notepadForm->note->GetCurrent() < this->notepadForm->note->GetLength() - 1) {
-			Long index = this->notepadForm->note->Next();
-			this->notepadForm->current = this->notepadForm->note->GetAt(index);
-			this->notepadForm->current->First();
-		}
-	}
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_RIGHT, 0));
 }
 
 //UpKeyAction
@@ -374,7 +346,7 @@ DeleteKeyAction& DeleteKeyAction::operator=(const DeleteKeyAction& source) {
 }
 
 void DeleteKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (!this->notepadForm->selection == NULL) {
+	if (this->notepadForm->selection == NULL) {
 		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_DELETE_CHAR, 0));
 	}
 	else {
@@ -403,7 +375,8 @@ BackSpaceKeyAction& BackSpaceKeyAction::operator=(const BackSpaceKeyAction& sour
 
 void BackSpaceKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	if (this->notepadForm->selection == NULL) {
-		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_BACKSPACE_CHAR, 0));
+		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_LEFT, 0));
+		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_DELETE_CHAR, 0));
 	}
 	else {
 		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_DELETE, 0));
@@ -1220,6 +1193,28 @@ void CtrlZKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 }
 
 CtrlZKeyAction& CtrlZKeyAction::operator =(const CtrlZKeyAction& source) {
+	KeyAction::operator =(source);
+
+	return *this;
+}
+
+//CtrlYKeyAction
+CtrlYKeyAction::CtrlYKeyAction(NotepadForm* notepadForm)
+	: KeyAction(notepadForm) {
+}
+
+CtrlYKeyAction::CtrlYKeyAction(const CtrlYKeyAction& source)
+	: KeyAction(source) {
+}
+
+CtrlYKeyAction::~CtrlYKeyAction() {
+}
+
+void CtrlYKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_REDO, 0));
+}
+
+CtrlYKeyAction& CtrlYKeyAction::operator =(const CtrlYKeyAction& source) {
 	KeyAction::operator =(source);
 
 	return *this;

@@ -11,12 +11,14 @@ Recently Updated : 2020.07.17
 #ifndef _COMMAND_H
 #define _COMMAND_H
 
+#include <afxwin.h>
 #include <iostream>
+#include "Array.h"
 using namespace std;
-typedef signed long int Long;
 
 class NotepadForm;
 class Glyph;
+class Note;
 
 //Command
 class Command {
@@ -28,12 +30,58 @@ public:
 
 	virtual void Execute() = 0;
 	virtual void Unexecute();
+
 	virtual string GetType() = 0;
 	virtual Command* Clone() = 0;
+
+	//MacroCommand
+	virtual Long Add(Command* command);
+	virtual Long Remove(Long index);
+	virtual Command* GetAt(Long index);
+
+	virtual Long GetCapacity() const;
+	virtual Long GetLength() const;
 
 protected:
 	NotepadForm* notepadForm;
 };
+
+/////////////////Composite////////////////////////
+//MacroCommand
+class MacroCommand : public Command {
+public:
+	MacroCommand(NotepadForm* notepadForm = 0, Long capacity = 10);
+	MacroCommand(const MacroCommand& source);
+	virtual ~MacroCommand();
+	MacroCommand& operator=(const MacroCommand& source);
+
+	virtual void Execute();
+	virtual void Unexecute();
+
+	virtual Long Add(Command* command);
+	virtual Long Remove(Long index);
+	virtual Command* GetAt(Long index);
+
+	virtual string GetType();
+	virtual Command* Clone();
+
+	virtual Long GetCapacity() const;
+	virtual Long GetLength() const;
+
+protected:
+	Array<Command*> commands;
+	Long capacity;
+	Long length;
+};
+
+inline Long MacroCommand::GetCapacity() const {
+	return this->capacity;
+}
+
+inline Long MacroCommand::GetLength() const {
+	return this->length;
+}
+/////////////////Composite////////////////////////
 
 //FontCommand
 class FontCommand : public Command {
@@ -128,8 +176,8 @@ public:
 
 private:
 	int nChar;
-	Long column;
 	Long row;
+	Long column;
 };
 
 //ImeCompositionCommand
@@ -141,6 +189,7 @@ public:
 	ImeCompositionCommand& operator=(const ImeCompositionCommand& source);
 
 	virtual void Execute();
+	virtual void Unexecute(); //임시?
 	virtual string GetType();
 	virtual Command* Clone();
 };
@@ -154,8 +203,14 @@ public:
 	ImeCharCommand& operator=(const ImeCharCommand& source);
 
 	virtual void Execute();
+	virtual void Unexecute(); //임시?
 	virtual string GetType();
 	virtual Command* Clone();
+
+private:
+	TCHAR(*buffer);
+	Long row;
+	Long column;
 };
 
 //DeleteCommand
@@ -167,15 +222,18 @@ public:
 	DeleteCommand& operator=(const DeleteCommand& source);
 
 	virtual void Execute();
+	virtual void Unexecute();
 	virtual string GetType();
 	virtual Command* Clone();
 
 private:
-	Long column;
 	Long row;
-	Glyph* highlight;
+	Long noteLength;
+	Long column;
+	Long lineLength;
+	Glyph* character;
 };
-
+#if 0
 //BackspaceCommand
 class BackspaceCommand : public Command {
 public:
@@ -185,15 +243,17 @@ public:
 	BackspaceCommand& operator=(const BackspaceCommand& source);
 
 	virtual void Execute();
+	virtual void Unexecute();
 	virtual string GetType();
 	virtual Command* Clone();
 
 private:
-	Long column;
 	Long row;
-	Glyph* highlight;
+	Long column;
+	Long preLineLength;
+	Glyph* character;
 };
-
+#endif
 //CopyCommand
 class CopyCommand : public Command {
 public:
@@ -203,6 +263,7 @@ public:
 	CopyCommand& operator=(const CopyCommand& source);
 
 	virtual void Execute();
+	virtual void Unexecute(); //임시?
 	virtual string GetType();
 	virtual Command* Clone();
 };
@@ -216,14 +277,12 @@ public:
 	PasteCommand& operator=(const PasteCommand& source);
 
 	virtual void Execute();
+	virtual void Unexecute(); //임시?
 	virtual string GetType();
 	virtual Command* Clone();
 
 private:
-	Long startColumn;
-	Long startRow;
-	Long endColumn;
-	Long endRow;
+	MacroCommand* macroCommand;
 };
 
 //CutCommand
@@ -235,13 +294,12 @@ public:
 	CutCommand& operator=(const CutCommand& source);
 
 	virtual void Execute();
+	virtual void Unexecute();
 	virtual string GetType();
 	virtual Command* Clone();
 
 private:
-	Long column;
-	Long row;
-	Glyph* highlight;
+	MacroCommand* macroCommand;
 };
 
 //SelectAllCommand
@@ -271,9 +329,7 @@ public:
 	virtual Command* Clone();
 
 private:
-	Long column;
-	Long row;
-	Glyph* highlight;
+	MacroCommand* macroCommand;
 };
 
 //UndoCommand
@@ -283,6 +339,45 @@ public:
 	UndoCommand(const UndoCommand& source);
 	virtual ~UndoCommand();
 	UndoCommand& operator=(const UndoCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//RedoCommand
+class RedoCommand : public Command {
+public:
+	RedoCommand(NotepadForm* notepadForm = 0);
+	RedoCommand(const RedoCommand& source);
+	virtual ~RedoCommand();
+	RedoCommand& operator=(const RedoCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//LeftCommand
+class LeftCommand : public Command {
+public:
+	LeftCommand(NotepadForm* notepadForm = 0);
+	LeftCommand(const LeftCommand& source);
+	virtual ~LeftCommand();
+	LeftCommand& operator=(const LeftCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//RightCommand
+class RightCommand : public Command {
+public:
+	RightCommand(NotepadForm* notepadForm = 0);
+	RightCommand(const RightCommand& source);
+	virtual ~RightCommand();
+	RightCommand& operator=(const RightCommand& source);
 
 	virtual void Execute();
 	virtual string GetType();
