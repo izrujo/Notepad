@@ -38,8 +38,9 @@ BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_KILLFOCUS()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
-	ON_COMMAND_RANGE(IDM_FILE_NEW, IDC_MOVE_RIGHT, OnCommandRange)
+	ON_COMMAND_RANGE(IDM_FILE_NEW, IDM_FORMAT_FONT, OnCommandRange)
 	ON_COMMAND_RANGE(IDC_WRITE_CHAR, IDM_EDIT_SELECTALL, OnEditCommandRange)
+	ON_COMMAND_RANGE(IDC_MOVE_LEFT, IDC_MOVE_PAGEDOWN, OnMoveCommandRange)
 	ON_WM_KEYDOWN()
 	ON_WM_HSCROLL()
 	ON_WM_VSCROLL()
@@ -65,6 +66,8 @@ NotepadForm::NotepadForm() {
 	this->currentCharacter = '\0';
 	this->currentBuffer[0] = '\0';
 	this->currentBuffer[1] = '\0';
+	this->wasUndo = FALSE;
+	this->wasMove = FALSE;
 }
 
 int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
@@ -125,7 +128,12 @@ void NotepadForm::OnClose() {
 void NotepadForm::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	if (nChar >= 32 || nChar == VK_TAB || nChar == VK_RETURN) {
 		this->currentCharacter = nChar;
-		this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_WRITE_CHAR, 0));
+		if (this->selection != NULL) {
+			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_WRITE_AFTER_DELETE, 0));
+		}
+		else {
+			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_WRITE_CHAR, 0));
+		}
 	}
 }
 
@@ -133,7 +141,12 @@ LRESULT NotepadForm::OnImeComposition(WPARAM wParam, LPARAM lParam) {
 	if (lParam & GCS_COMPSTR) {
 		this->currentBuffer[0] = (TCHAR)HIBYTE(LOWORD(wParam));
 		this->currentBuffer[1] = (TCHAR)LOBYTE(LOWORD(wParam));
-		this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_IME_COMPOSITION, 0));
+		if (this->selection != NULL) {
+			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_IME_AFTER_DELETE, 0));
+		}
+		else {
+			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_IME_COMPOSITION, 0));
+		}
 	}
 
 	return ::DefWindowProc(this->m_hWnd, WM_IME_COMPOSITION, wParam, lParam);
@@ -231,6 +244,8 @@ void NotepadForm::OnLButtonDown(UINT nFlag, CPoint point) {
 	this->current = this->note->GetAt(index);
 	Long column = this->characterMetrics->GetColumn(this->current, this->scrollController->GetHorizontalScroll()->GetPosition() + point.x);
 	Long lineIndex = this->current->Move(column);
+
+	this->wasMove = TRUE;
 
 	//선택하다 추가
 	if (nFlag != 5) {
@@ -432,14 +447,35 @@ void NotepadForm::OnEditCommandRange(UINT uID) {
 	Command* command = commandFactory.Make(uID);
 	if (command != NULL) {
 		command->Execute();
-
+		
 		//========== 실행 취소 추가 ==========
-		//if (this->undoHistoryBook->GetLength() > 0) {
-		if (command->GetType() == "Paste" || command->GetType() == "DeleteSelection") {
-			this->undoHistoryBook->Write(command->Clone());
-
+		string type = command->GetType();
+		if (type != "ImeComposition" && type != "Undo" && type != "Redo" && type != "Copy" && type != "SelectAll") {
+			if ((type == "Write" && this->currentCharacter != VK_RETURN)
+				|| type == "ImeChar"
+				|| type == "WriteAfterDelete" && this->currentCharacter != VK_RETURN
+				|| type == "ImeAfterDelete") {
+				Command* history;
+				if (this->undoHistoryBook->GetLength() > 0 && this->undoHistoryBook->OpenAt()->GetType() == "Macro" 
+					&& (this->wasUndo == FALSE && this->wasMove == FALSE)) {
+					history = this->undoHistoryBook->OpenAt();
+					history->Add(command->Clone());
+				}
+				else {
+					history = new MacroCommand(this);
+					history->Add(command->Clone());
+					this->undoHistoryBook->Write(history);
+					this->wasUndo = FALSE;
+					this->wasMove = FALSE;
+				}
+			}
+			else {
+				this->undoHistoryBook->Write(command->Clone());
+			}
 		}
-		//}
+		if (type == "Undo") {
+			this->wasUndo = TRUE;
+		}
 		//========== 실행 취소 추가 ==========
 
 		delete command;
@@ -456,6 +492,23 @@ void NotepadForm::OnEditCommandRange(UINT uID) {
 	Long x = this->characterMetrics->GetX(this->current) + 1; // 
 	Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
 	this->scrollController->SmartScrollToPoint(x, y);
+}
+
+void NotepadForm::OnMoveCommandRange(UINT uID) {
+	CommandFactory commandFactory(this);
+	Command* command = commandFactory.Make(uID);
+	if (command != NULL) {
+		command->Execute();
+		this->wasMove = TRUE;
+
+		Long x = this->characterMetrics->GetX(this->current) + 1; // 
+		Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함
+		this->scrollController->SmartScrollToPoint(x, y);
+
+		delete command;
+	}
+	this->Notify();
+	this->Invalidate();
 }
 
 void NotepadForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {

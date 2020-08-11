@@ -45,6 +45,7 @@ protected:
 	afx_msg void OnMouseMove(UINT nFlag, CPoint point);
 	afx_msg void OnCommandRange(UINT uID);
 	afx_msg void OnEditCommandRange(UINT uID);
+	afx_msg void OnMoveCommandRange(UINT uID);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
@@ -66,6 +67,8 @@ private:
 	CMenu menu;
 	char currentCharacter;
 	TCHAR currentBuffer[2];
+	BOOL wasUndo;
+	BOOL wasMove;
 };
 
 inline BOOL NotepadForm::GetIsComposing() const {
@@ -90,7 +93,7 @@ inline TCHAR* NotepadForm::GetCurrentBuffer() const {
 
 inline void NotepadForm::SetCurrentBuffer(TCHAR(*currentBuffer)) {
 	this->currentBuffer[0] = currentBuffer[0];
-	this->currentBuffer[2] = currentBuffer[1];
+	this->currentBuffer[1] = currentBuffer[1];
 }
 
 #endif //_NOTEPADFORM_H

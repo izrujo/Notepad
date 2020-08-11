@@ -102,18 +102,7 @@ UpKeyAction& UpKeyAction::operator=(const UpKeyAction& source) {
 }
 
 void UpKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
-	if (this->notepadForm->selection != NULL) {
-		this->notepadForm->note->UnselectAll();
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	if (this->notepadForm->note->GetCurrent() > 0) {
-		Long x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current);
-		Long index = this->notepadForm->note->Previous();
-		this->notepadForm->current = this->notepadForm->note->GetAt(index);
-		Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
-		this->notepadForm->current->Move(column);
-	}
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_UP, 0));
 }
 
 //DownKeyAction
@@ -138,18 +127,7 @@ DownKeyAction& DownKeyAction::operator=(const DownKeyAction& source) {
 }
 
 void DownKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
-	if (this->notepadForm->selection != NULL) {
-		this->notepadForm->note->UnselectAll();
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	if (this->notepadForm->note->GetCurrent() < this->notepadForm->note->GetLength() - 1) {
-		Long x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current);
-		Long index = this->notepadForm->note->Next();
-		this->notepadForm->current = this->notepadForm->note->GetAt(index);
-		Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
-		this->notepadForm->current->Move(column);
-	}
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_DOWN, 0));
 }
 
 //HomeKeyAction
@@ -172,12 +150,7 @@ HomeKeyAction& HomeKeyAction::operator=(const HomeKeyAction& source) {
 }
 
 void HomeKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->selection != NULL) {
-		this->notepadForm->note->UnselectAll();
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	this->notepadForm->current->First();
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_HOME, 0));
 }
 
 //EndKeyAction
@@ -200,12 +173,7 @@ EndKeyAction& EndKeyAction::operator=(const EndKeyAction& source) {
 }
 
 void EndKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->selection != NULL) {
-		this->notepadForm->note->UnselectAll();
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	this->notepadForm->current->Last();
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_END, 0));
 }
 
 //CtrlLeftKeyAction
@@ -228,13 +196,7 @@ CtrlLeftKeyAction& CtrlLeftKeyAction::operator=(const CtrlLeftKeyAction& source)
 }
 
 void CtrlLeftKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->selection != NULL) {
-		this->notepadForm->note->UnselectAll();
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	Long index = this->notepadForm->note->MovePreviousWord();
-	this->notepadForm->current = this->notepadForm->note->GetAt(index);
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_CTRLLEFT, 0));
 }
 
 //CtrlRightKeyAction
@@ -257,13 +219,7 @@ CtrlRightKeyAction& CtrlRightKeyAction::operator=(const CtrlRightKeyAction& sour
 }
 
 void CtrlRightKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->selection != NULL) {
-		this->notepadForm->note->UnselectAll();
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	Long index = this->notepadForm->note->MoveNextWord();
-	this->notepadForm->current = this->notepadForm->note->GetAt(index);
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_CTRLRIGHT, 0));
 }
 
 //CtrlHomeKeyAction
@@ -286,14 +242,7 @@ CtrlHomeKeyAction& CtrlHomeKeyAction::operator=(const CtrlHomeKeyAction& source)
 }
 
 void CtrlHomeKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->selection != NULL) {
-		this->notepadForm->note->UnselectAll();
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	Long index = this->notepadForm->note->First();
-	this->notepadForm->current = this->notepadForm->note->GetAt(index);
-	this->notepadForm->current->First();
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_CTRLHOME, 0));
 }
 
 //CtrlEndKeyAction
@@ -316,14 +265,7 @@ CtrlEndKeyAction& CtrlEndKeyAction::operator=(const CtrlEndKeyAction& source) {
 }
 
 void CtrlEndKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	if (this->notepadForm->selection != NULL) {
-		this->notepadForm->note->UnselectAll();
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	Long index = this->notepadForm->note->Last();
-	this->notepadForm->current = this->notepadForm->note->GetAt(index);
-	this->notepadForm->current->Last();
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_CTRLEND, 0));
 }
 
 //DeleteKeyAction
@@ -404,25 +346,7 @@ PageUpKeyAction& PageUpKeyAction::operator=(const PageUpKeyAction& source) {
 }
 
 void PageUpKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	Long position = this->notepadForm->scrollController->PageUp();
-	Long previous = this->notepadForm->SetScrollPos(SB_VERT, position, TRUE);
-	position = this->notepadForm->GetScrollPos(SB_VERT);
-	this->notepadForm->scrollController->MoveVerticalScroll(position);
-	this->notepadForm->ScrollWindow(0, previous - position);
-	// Caret의 x값은 노트의 위치에 스크롤 위치를 뺀 상태에 값이 들어가 있다. 따라서 현재 x값을 다시 더한다.
-	Long x = this->notepadForm->caretController->GetCaretX() +
-		this->notepadForm->scrollController->GetHorizontalScroll()->GetPosition();
-	// Caret의 x값은 노트의 위치에 스크롤 위치를 뺀 상태에 값이 들어가 있다.따라서 이전 y값을 다시 더한다.
-	Long y = this->notepadForm->caretController->GetCaretY() + previous;
-
-	Long row = this->notepadForm->characterMetrics->GetRow(y - (previous - position));
-	if (row < 0) {
-		row = 0;
-	}
-	Long index = this->notepadForm->note->Move(row); // row가 벗어나는 경우는 없나?
-	this->notepadForm->current = this->notepadForm->note->GetAt(index);
-	Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
-	this->notepadForm->current->Move(column);
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_PAGEUP, 0));
 }
 
 //PageDownKeyAction
@@ -445,20 +369,7 @@ PageDownKeyAction& PageDownKeyAction::operator=(const PageDownKeyAction& source)
 }
 
 void PageDownKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	Long position = this->notepadForm->scrollController->PageDown();
-	Long previous = this->notepadForm->SetScrollPos(SB_VERT, position, TRUE);
-	this->notepadForm->ScrollWindow(0, previous - position);
-	Long x = this->notepadForm->caretController->GetCaretX() +
-		this->notepadForm->scrollController->GetHorizontalScroll()->GetPosition();
-	Long y = this->notepadForm->caretController->GetCaretY() + previous;
-	Long row = this->notepadForm->characterMetrics->GetRow(y - (previous - position));
-	if (row > this->notepadForm->note->GetLength() - 1) {
-		row = this->notepadForm->note->GetLength() - 1;
-	}
-	Long index = this->notepadForm->note->Move(row);
-	this->notepadForm->current = this->notepadForm->note->GetAt(index);
-	Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
-	this->notepadForm->current->Move(column);
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_PAGEDOWN, 0));
 }
 
 //ShiftLeftKeyAction
@@ -1167,7 +1078,9 @@ CtrlXKeyAction::~CtrlXKeyAction() {
 }
 
 void CtrlXKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_CUT, 0));
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_CUT, 0));
+	}
 }
 
 CtrlXKeyAction& CtrlXKeyAction::operator =(const CtrlXKeyAction& source) {

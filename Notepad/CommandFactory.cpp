@@ -71,11 +71,47 @@ Command* CommandFactory::Make(int uID) {
 	else if (uID == IDC_DELETE_CHAR) {
 		command = new DeleteCommand(this->notepadForm);
 	}
+	else if (uID == IDC_WRITE_AFTER_DELETE) {
+		command = new WriteAfterDeleteCommand(this->notepadForm);
+	}
+	else if (uID == IDC_IME_AFTER_DELETE) {
+		command = new ImeAfterDeleteCommand(this->notepadForm);
+	}
 	else if (uID == IDC_MOVE_LEFT) {
 		command = new LeftCommand(this->notepadForm);
 	}
 	else if (uID == IDC_MOVE_RIGHT) {
 		command = new RightCommand(this->notepadForm);
+	}
+	else if (uID == IDC_MOVE_UP) {
+		command = new UpCommand(this->notepadForm);
+	}
+	else if (uID == IDC_MOVE_DOWN) {
+		command = new DownCommand(this->notepadForm);
+	}
+	else if (uID == IDC_MOVE_HOME) {
+		command = new HomeCommand(this->notepadForm);
+	}
+	else if (uID == IDC_MOVE_END) {
+		command = new EndCommand(this->notepadForm);
+	}
+	else if (uID == IDC_MOVE_CTRLLEFT) {
+		command = new CtrlLeftCommand(this->notepadForm);
+	}
+	else if (uID == IDC_MOVE_CTRLRIGHT) {
+		command = new CtrlRightCommand(this->notepadForm);
+	}
+	else if (uID == IDC_MOVE_CTRLHOME) {
+		command = new CtrlHomeCommand(this->notepadForm);
+	}
+	else if (uID == IDC_MOVE_CTRLEND) {
+		command = new CtrlEndCommand(this->notepadForm);
+	}
+	else if (uID == IDC_MOVE_PAGEUP) {
+		command = new PageUpCommand(this->notepadForm);
+	}
+	else if (uID == IDC_MOVE_PAGEDOWN) {
+		command = new PageDownCommand(this->notepadForm);
 	}
 
 	return command;

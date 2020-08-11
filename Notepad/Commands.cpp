@@ -13,6 +13,9 @@
 #include "Selection.h"
 #include "GlyphFactory.h"
 #include "Note.h"
+#include "CaretController.h"
+#include "ScrollController.h"
+#include "Scroll.h"
 
 #include "resource.h"
 
@@ -156,6 +159,15 @@ Long MacroCommand::Remove(Long index) {
 	index = this->commands.Delete(index);
 	this->capacity--;
 	this->length--;
+
+	return index;
+}
+
+Long MacroCommand::Modify(Long index, Command* command) {
+	if (this->commands[index] != 0) {
+		delete this->commands[index];
+	}
+	this->commands[index] = command;
 
 	return index;
 }
@@ -570,14 +582,9 @@ void WriteCommand::Execute() {
 	GlyphFactory glyphFactory;
 	TCHAR content[2];
 
-	//User event intended to OnKeyDown should call this.
-	SHORT isCtrl = GetKeyState(VK_CONTROL) & 0X8000;
-	SHORT isShift = GetKeyState(VK_SHIFT) & 0X8000;
-	SHORT isAlt = GetKeyState(VK_MENU) & 0X8000;
-
-	if (this->notepadForm->selection != NULL && (!isCtrl && !isShift && !isAlt)) {
-		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_DELETE, 0));
-	}
+	this->notepadForm->note->Move(this->row);
+	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
+	this->notepadForm->current->Move(this->column);
 
 	if (this->nChar >= 32 || this->nChar == VK_TAB) {
 		content[0] = this->nChar;
@@ -646,47 +653,63 @@ Command* WriteCommand::Clone() {
 //ImeCompositionCommand
 ImeCompositionCommand::ImeCompositionCommand(NotepadForm* notepadForm)
 	: Command(notepadForm) {
+	this->buffer = new TCHAR[2];
+	this->buffer[0] = '\0';
+	this->buffer[1] = '\0';
+	this->row = -1;
+	this->column = -1;
 }
 
 ImeCompositionCommand::ImeCompositionCommand(const ImeCompositionCommand& source)
 	: Command(source) {
+	this->buffer = new TCHAR[2];
+	this->buffer[0] = source.buffer[0];
+	this->buffer[1] = source.buffer[1];
+	this->row = source.row;
+	this->column = source.column;
 }
 
 ImeCompositionCommand::~ImeCompositionCommand() {
-
+	if (this->buffer != 0) {
+		delete[] this->buffer;
+	}
 }
 
 ImeCompositionCommand& ImeCompositionCommand::operator=(const ImeCompositionCommand& source) {
 	Command::operator=(source);
+	if (this->buffer != 0) {
+		delete[] this->buffer;
+	}
+	this->buffer = new TCHAR[2];
+	this->buffer[0] = source.buffer[0];
+	this->buffer[1] = source.buffer[1];
+	this->row = source.row;
+	this->column = source.column;
 
 	return *this;
 }
 
 void ImeCompositionCommand::Execute() {
-	TCHAR(*buffer) = new TCHAR[2];
-	buffer = this->notepadForm->GetCurrentBuffer();
-
-	Long index;
-	if (this->notepadForm->note->IsSelecting()) {
-		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_DELETE, 0));
+	if (this->buffer[0] == '\0' && this->row == -1 && this->column == -1) {
+		this->buffer[0] = this->notepadForm->GetCurrentBuffer()[0];
+		this->buffer[1] = this->notepadForm->GetCurrentBuffer()[1];
+		this->row = this->notepadForm->note->GetCurrent();
+		this->column = this->notepadForm->current->GetCurrent();
+		if (this->notepadForm->GetIsComposing() == TRUE) {
+			this->notepadForm->current->Remove(--this->column);
+		}
 	}
 
-	if (this->notepadForm->GetIsComposing() == TRUE) {
-		index = this->notepadForm->current->GetCurrent();
-		this->notepadForm->current->Remove(index - 1);
-	}
-
-	if (buffer[0] != '\0') {
+	if (this->buffer[0] != '\0') {
 		this->notepadForm->SetIsComposing(TRUE);
 		GlyphFactory glyphFactory;
-		Glyph* doubleByteCharacter = glyphFactory.Make(buffer);
-		index = this->notepadForm->current->GetCurrent();
+		Glyph* doubleByteCharacter = glyphFactory.Make(this->buffer);
 
-		if (index >= this->notepadForm->current->GetLength()) {
+		if (this->column >= this->notepadForm->current->GetLength()) {
 			this->notepadForm->current->Add(doubleByteCharacter);
 		}
 		else {
-			this->notepadForm->current->Add(index, doubleByteCharacter);
+			this->notepadForm->current->Add(this->column, doubleByteCharacter);
 		}
 	}
 	else {
@@ -703,7 +726,10 @@ void ImeCompositionCommand::Execute() {
 }
 
 void ImeCompositionCommand::Unexecute() {
-
+	//only call by ImeAfterDelete
+	this->notepadForm->note->Move(this->row);
+	this->notepadForm->current = this->notepadForm->note->GetAt(this->notepadForm->note->GetCurrent());
+	this->notepadForm->current->Remove(this->column);
 }
 
 string ImeCompositionCommand::GetType() {
@@ -717,25 +743,36 @@ Command* ImeCompositionCommand::Clone() {
 //ImeCharCommand
 ImeCharCommand::ImeCharCommand(NotepadForm* notepadForm)
 	: Command(notepadForm) {
-	this->buffer = 0;
+	this->buffer = new TCHAR[2];
+	this->buffer[0] = '\0';
+	this->buffer[1] = '\0';
 	this->row = -1;
 	this->column = -1;
 }
 
 ImeCharCommand::ImeCharCommand(const ImeCharCommand& source)
 	: Command(source) {
-	this->buffer = source.buffer;
+	this->buffer = new TCHAR[2];
+	this->buffer[0] = source.buffer[0];
+	this->buffer[1] = source.buffer[1];
 	this->row = source.row;
 	this->column = source.column;
 }
 
 ImeCharCommand::~ImeCharCommand() {
-
+	if (this->buffer != 0) {
+		delete[] this->buffer;
+	}
 }
 
 ImeCharCommand& ImeCharCommand::operator=(const ImeCharCommand& source) {
 	Command::operator=(source);
-	this->buffer = source.buffer;
+	if (this->buffer != 0) {
+		delete[] this->buffer;
+	}
+	this->buffer = new TCHAR[2];
+	this->buffer[0] = source.buffer[0];
+	this->buffer[1] = source.buffer[1];
 	this->row = source.row;
 	this->column = source.column;
 
@@ -743,9 +780,9 @@ ImeCharCommand& ImeCharCommand::operator=(const ImeCharCommand& source) {
 }
 
 void ImeCharCommand::Execute() {
-	if (this->buffer == 0 && this->row == -1 && this->column == -1) {
-		this->buffer = new TCHAR[2];
-		buffer = this->notepadForm->GetCurrentBuffer();
+	if (this->buffer[0] == '\0' && this->row == -1 && this->column == -1) {
+		this->buffer[0] = this->notepadForm->GetCurrentBuffer()[0];
+		this->buffer[1] = this->notepadForm->GetCurrentBuffer()[1];
 		this->row = this->notepadForm->note->GetCurrent();
 		this->column = this->notepadForm->current->GetCurrent();
 		if (this->notepadForm->GetIsComposing() == TRUE) {
@@ -859,6 +896,7 @@ void DeleteCommand::Unexecute() {
 
 	Glyph* line;
 	if (this->column < this->lineLength) {
+		this->character->Select(false);
 		this->notepadForm->current->Add(this->column, this->character->Clone());
 	}
 	else if (this->column >= this->lineLength && this->row < this->noteLength - 1) {
@@ -982,16 +1020,13 @@ PasteCommand& PasteCommand::operator=(const PasteCommand& source) {
 void PasteCommand::Execute() {
 	Command* command = 0;
 
-	if (this->notepadForm->selection != NULL) {
-		command = new DeleteSelectionCommand(this->notepadForm);
-		command->Execute();
-		//this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_DELETE, 0));
-	}
-
-	Long count = 0;
-	Long i;
-	char* (*tokens);
 	if (this->macroCommand->GetLength() <= 0) {
+		if (this->notepadForm->selection != NULL) {
+			command = new DeleteSelectionCommand(this->notepadForm);
+			this->macroCommand->Add(command);
+			command->Execute();
+		}
+
 		//시스템 클립보드에서 복사된 문자열을 가져오다.
 		string clipBoard;
 		HANDLE handle;
@@ -1008,7 +1043,6 @@ void PasteCommand::Execute() {
 			}
 		}
 
-		i = 0;
 		//복사한 문자열을 임시 Note로 만들다.
 		Scanner scanner(clipBoard);
 		while (scanner.IsEnd() == FALSE) {
@@ -1092,7 +1126,6 @@ CutCommand& CutCommand::operator=(const CutCommand& source) {
 void CutCommand::Execute() {
 	Command* command;
 
-	Long i;
 	if (this->macroCommand->GetLength() <= 0) { //없으면 만들기
 		command = new CopyCommand(this->notepadForm);
 		this->macroCommand->Add(command);
@@ -1234,134 +1267,155 @@ void DeleteSelectionCommand::Execute() {
 	}
 
 	this->macroCommand->Execute();
+
+	if (this->notepadForm->selection != NULL) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+		this->notepadForm->note->UnselectAll();
+	}
 }
 
 void DeleteSelectionCommand::Unexecute() {
 	this->macroCommand->Unexecute();
 }
 
-#if 0
-void DeleteSelectionCommand::Execute() {
-	GlyphFactory factory;
-	Glyph* clipboardLine;
-
-	Long start = this->notepadForm->selection->GetStart();
-	Long end = this->notepadForm->selection->GetEnd();
-
-	this->row = start; //undo
-
-	Long index;
-	Glyph* character;
-	Glyph* line;
-	Long j;
-	Long i = start;
-	while (i <= end) {
-		line = this->notepadForm->note->GetAt(i);
-		clipboardLine = factory.Make("\r\n"); //undo
-		index = this->clipboard->Add(clipboardLine); //undo
-		j = 0;
-		while (j < line->GetLength()) {
-			character = line->GetAt(j);
-			if (character->GetIsSelected()) {
-				clipboardLine->Add(character->Clone()); //undo
-				line->Remove(j--);
-			}
-			j++;
-		}
-
-		//undo
-		if (index == 0) {
-			this->column = j;
-		}
-
-		if (i < end) {
-			this->notepadForm->current = line->Combine(this->notepadForm->note->GetAt(i + 1));
-			this->notepadForm->note->Remove(i + 1);
-			i--;
-			end--;
-		}
-		i++;
-	}
-
-	if (this->notepadForm->selection != NULL) {
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	//this->notepadForm->note->UnselectAll();
-}
-
-void DeleteSelectionCommand::Unexecute() {
-	Glyph* line = this->notepadForm->note->GetAt(this->row);
-	Glyph* newLine;
-
-	Glyph* clipboardCharacter;
-	Glyph* clipboardLine;
-
-	Long j;
-	Long i = this->clipboard->GetLength() - 1;
-	while (i >= 0) {
-		clipboardLine = this->clipboard->GetAt(i);
-		j = clipboardLine->GetLength() - 1;
-		while (j >= 0) {
-			clipboardCharacter = clipboardLine->GetAt(j);
-			line->Add(this->column, clipboardCharacter->Clone());
-			j--;
-		}
-		if (i > 0) {
-			newLine = line->Divide(this->column);
-			this->notepadForm->note->Add(this->row + 1, newLine);
-		}
-		i--;
-	}
-	Long index = this->notepadForm->note->Move(this->row);
-	this->notepadForm->current = this->notepadForm->note->GetAt(index);
-	this->notepadForm->current->Move(this->column);
-
-	Long start = this->row;
-	Long end = start + this->clipboard->GetLength() - 1;
-	if (this->notepadForm->selection != NULL) {
-		delete this->notepadForm->selection;
-	}
-	this->notepadForm->selection = new Selection(start, end);
-}
-
-void DeleteSelectionCommand::Reexecute() {
-	GlyphFactory factory;
-
-	Long start = this->row;
-	Long end = start + this->clipboard->GetLength() - 1;
-
-	Glyph* line;
-	Long j;
-	Long i = start;
-	while (i <= end) {
-		line = this->notepadForm->note->GetAt(i);
-		j = this->column;
-		while (j < line->GetLength()) {
-			line->Remove(j);
-		}
-
-		if (i < end) {
-			this->notepadForm->current = line->Combine(this->notepadForm->note->GetAt(i + 1));
-			this->notepadForm->note->Remove(i + 1);
-			i--;
-			end--;
-		}
-		i++;
-	}
-
-	if (this->notepadForm->selection != NULL) {
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-}
-#endif
 string DeleteSelectionCommand::GetType() {
 	return "DeleteSelection";
 }
 
 Command* DeleteSelectionCommand::Clone() {
 	return new DeleteSelectionCommand(*this);
+}
+
+//WriteAfterDeleteCommand
+WriteAfterDeleteCommand::WriteAfterDeleteCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+	this->macroCommand = new MacroCommand(notepadForm);
+}
+
+WriteAfterDeleteCommand::WriteAfterDeleteCommand(const WriteAfterDeleteCommand& source)
+	: Command(source) {
+	this->macroCommand = new MacroCommand(*const_cast<WriteAfterDeleteCommand&>(source).macroCommand);
+}
+
+WriteAfterDeleteCommand::~WriteAfterDeleteCommand() {
+	if (this->macroCommand != 0) {
+		delete this->macroCommand;
+	}
+}
+
+WriteAfterDeleteCommand& WriteAfterDeleteCommand::operator=(const WriteAfterDeleteCommand& source) {
+	Command::operator=(source);
+	if (this->macroCommand != 0) {
+		delete this->macroCommand;
+	}
+	this->macroCommand = source.macroCommand;
+
+	return *this;
+}
+
+void WriteAfterDeleteCommand::Execute() {
+	Command* command = 0;
+
+	if (this->macroCommand->GetLength() <= 0) {
+		if (this->notepadForm->selection != NULL) {
+			command = new DeleteSelectionCommand(this->notepadForm);
+			this->macroCommand->Add(command);
+		}
+
+		command = new WriteCommand(this->notepadForm);
+		this->macroCommand->Add(command);
+	}
+
+	this->macroCommand->Execute();
+}
+
+void WriteAfterDeleteCommand::Unexecute() {
+	this->macroCommand->Unexecute();
+}
+
+string WriteAfterDeleteCommand::GetType() {
+	return "WriteAfterDelete";
+}
+
+Command* WriteAfterDeleteCommand::Clone() {
+	return new WriteAfterDeleteCommand(*this);
+}
+
+//ImeAfterDeleteCommand
+ImeAfterDeleteCommand::ImeAfterDeleteCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+	this->macroCommand = new MacroCommand(notepadForm);
+	this->buffer = new TCHAR[2];
+	this->buffer[0] = '\0';
+	this->buffer[1] = '\0';
+}
+
+ImeAfterDeleteCommand::ImeAfterDeleteCommand(const ImeAfterDeleteCommand& source)
+	: Command(source) {
+	this->macroCommand = new MacroCommand(*const_cast<ImeAfterDeleteCommand&>(source).macroCommand);
+	this->buffer = new TCHAR[2];
+	this->buffer[0] = source.buffer[0];
+	this->buffer[1] = source.buffer[1];
+}
+
+ImeAfterDeleteCommand::~ImeAfterDeleteCommand() {
+	if (this->macroCommand != 0) {
+		delete this->macroCommand;
+	}
+	if (this->buffer != 0) {
+		delete[] this->buffer;
+	}
+}
+
+ImeAfterDeleteCommand& ImeAfterDeleteCommand::operator=(const ImeAfterDeleteCommand& source) {
+	Command::operator=(source);
+	if (this->macroCommand != 0) {
+		delete this->macroCommand;
+	}
+	if (this->buffer != 0) {
+		delete[] this->buffer;
+	}
+
+	this->macroCommand = source.macroCommand;
+	this->buffer = new TCHAR[2];
+	this->buffer[0] = source.buffer[0];
+	this->buffer[1] = source.buffer[1];
+
+	return *this;
+}
+
+void ImeAfterDeleteCommand::Execute() {
+	Command* command = 0;
+
+	if (this->macroCommand->GetLength() <= 0) {
+		if (this->notepadForm->selection != NULL) {
+			command = new DeleteSelectionCommand(this->notepadForm);
+			this->macroCommand->Add(command);
+		}
+		this->buffer[0] = this->notepadForm->GetCurrentBuffer()[0];
+		this->buffer[1] = this->notepadForm->GetCurrentBuffer()[1];
+		command = new ImeCompositionCommand(this->notepadForm);
+		this->macroCommand->Add(command);
+	}
+	else {
+		this->notepadForm->SetCurrentBuffer(this->buffer);
+		this->macroCommand->Modify(1, new ImeCharCommand(this->notepadForm));
+	}
+
+	this->macroCommand->Execute();
+}
+
+void ImeAfterDeleteCommand::Unexecute() {
+	this->macroCommand->Unexecute();
+}
+
+string ImeAfterDeleteCommand::GetType() {
+	return "ImeAfterDelete";
+}
+
+Command* ImeAfterDeleteCommand::Clone() {
+	return new ImeAfterDeleteCommand(*this);
 }
 
 //UndoCommand
@@ -1526,4 +1580,403 @@ string RightCommand::GetType() {
 
 Command* RightCommand::Clone() {
 	return new RightCommand(*this);
+}
+
+//UpCommand
+UpCommand::UpCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+UpCommand::UpCommand(const UpCommand& source)
+	: Command(source) {
+}
+
+UpCommand::~UpCommand() {
+
+}
+
+UpCommand& UpCommand::operator=(const UpCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void UpCommand::Execute() {
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	if (this->notepadForm->note->GetCurrent() > 0) {
+		Long x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current);
+		Long index = this->notepadForm->note->Previous();
+		this->notepadForm->current = this->notepadForm->note->GetAt(index);
+		Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
+		this->notepadForm->current->Move(column);
+	}
+}
+
+string UpCommand::GetType() {
+	return "Up";
+}
+
+Command* UpCommand::Clone() {
+	return new UpCommand(*this);
+}
+
+//DownCommand
+DownCommand::DownCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+DownCommand::DownCommand(const DownCommand& source)
+	: Command(source) {
+}
+
+DownCommand::~DownCommand() {
+
+}
+
+DownCommand& DownCommand::operator=(const DownCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void DownCommand::Execute() {
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	if (this->notepadForm->note->GetCurrent() < this->notepadForm->note->GetLength() - 1) {
+		Long x = this->notepadForm->characterMetrics->GetX(this->notepadForm->current);
+		Long index = this->notepadForm->note->Next();
+		this->notepadForm->current = this->notepadForm->note->GetAt(index);
+		Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
+		this->notepadForm->current->Move(column);
+	}
+}
+
+string DownCommand::GetType() {
+	return "Down";
+}
+
+Command* DownCommand::Clone() {
+	return new DownCommand(*this);
+}
+
+//HomeCommand
+HomeCommand::HomeCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+HomeCommand::HomeCommand(const HomeCommand& source)
+	: Command(source) {
+}
+
+HomeCommand::~HomeCommand() {
+
+}
+
+HomeCommand& HomeCommand::operator=(const HomeCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void HomeCommand::Execute() {
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	this->notepadForm->current->First();
+}
+
+string HomeCommand::GetType() {
+	return "Home";
+}
+
+Command* HomeCommand::Clone() {
+	return new HomeCommand(*this);
+}
+
+//EndCommand
+EndCommand::EndCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+EndCommand::EndCommand(const EndCommand& source)
+	: Command(source) {
+}
+
+EndCommand::~EndCommand() {
+
+}
+
+EndCommand& EndCommand::operator=(const EndCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void EndCommand::Execute() {
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	this->notepadForm->current->Last();
+}
+
+string EndCommand::GetType() {
+	return "End";
+}
+
+Command* EndCommand::Clone() {
+	return new EndCommand(*this);
+}
+
+//CtrlLeftCommand
+CtrlLeftCommand::CtrlLeftCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+CtrlLeftCommand::CtrlLeftCommand(const CtrlLeftCommand& source)
+	: Command(source) {
+}
+
+CtrlLeftCommand::~CtrlLeftCommand() {
+
+}
+
+CtrlLeftCommand& CtrlLeftCommand::operator=(const CtrlLeftCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void CtrlLeftCommand::Execute() {
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	Long index = this->notepadForm->note->MovePreviousWord();
+	this->notepadForm->current = this->notepadForm->note->GetAt(index);
+}
+
+string CtrlLeftCommand::GetType() {
+	return "CtrlLeft";
+}
+
+Command* CtrlLeftCommand::Clone() {
+	return new CtrlLeftCommand(*this);
+}
+
+//CtrlRightCommand
+CtrlRightCommand::CtrlRightCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+CtrlRightCommand::CtrlRightCommand(const CtrlRightCommand& source)
+	: Command(source) {
+}
+
+CtrlRightCommand::~CtrlRightCommand() {
+
+}
+
+CtrlRightCommand& CtrlRightCommand::operator=(const CtrlRightCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void CtrlRightCommand::Execute() {
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	Long index = this->notepadForm->note->MoveNextWord();
+	this->notepadForm->current = this->notepadForm->note->GetAt(index);
+}
+
+string CtrlRightCommand::GetType() {
+	return "CtrlRight";
+}
+
+Command* CtrlRightCommand::Clone() {
+	return new CtrlRightCommand(*this);
+}
+
+//CtrlHomeCommand
+CtrlHomeCommand::CtrlHomeCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+CtrlHomeCommand::CtrlHomeCommand(const CtrlHomeCommand& source)
+	: Command(source) {
+}
+
+CtrlHomeCommand::~CtrlHomeCommand() {
+
+}
+
+CtrlHomeCommand& CtrlHomeCommand::operator=(const CtrlHomeCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void CtrlHomeCommand::Execute() {
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	Long index = this->notepadForm->note->First();
+	this->notepadForm->current = this->notepadForm->note->GetAt(index);
+	this->notepadForm->current->First();
+}
+
+string CtrlHomeCommand::GetType() {
+	return "CtrlHome";
+}
+
+Command* CtrlHomeCommand::Clone() {
+	return new CtrlHomeCommand(*this);
+}
+
+//CtrlEndCommand
+CtrlEndCommand::CtrlEndCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+CtrlEndCommand::CtrlEndCommand(const CtrlEndCommand& source)
+	: Command(source) {
+}
+
+CtrlEndCommand::~CtrlEndCommand() {
+
+}
+
+CtrlEndCommand& CtrlEndCommand::operator=(const CtrlEndCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void CtrlEndCommand::Execute() {
+	if (this->notepadForm->selection != NULL) {
+		this->notepadForm->note->UnselectAll();
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	Long index = this->notepadForm->note->Last();
+	this->notepadForm->current = this->notepadForm->note->GetAt(index);
+	this->notepadForm->current->Last();
+}
+
+string CtrlEndCommand::GetType() {
+	return "CtrlEnd";
+}
+
+Command* CtrlEndCommand::Clone() {
+	return new CtrlEndCommand(*this);
+}
+
+//PageUpCommand
+PageUpCommand::PageUpCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+PageUpCommand::PageUpCommand(const PageUpCommand& source)
+	: Command(source) {
+}
+
+PageUpCommand::~PageUpCommand() {
+
+}
+
+PageUpCommand& PageUpCommand::operator=(const PageUpCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void PageUpCommand::Execute() {
+	Long position = this->notepadForm->scrollController->PageUp();
+	Long previous = this->notepadForm->SetScrollPos(SB_VERT, position, TRUE);
+	position = this->notepadForm->GetScrollPos(SB_VERT);
+	this->notepadForm->scrollController->MoveVerticalScroll(position);
+	this->notepadForm->ScrollWindow(0, previous - position);
+	// Caret의 x값은 노트의 위치에 스크롤 위치를 뺀 상태에 값이 들어가 있다. 따라서 현재 x값을 다시 더한다.
+	Long x = this->notepadForm->caretController->GetCaretX() +
+		this->notepadForm->scrollController->GetHorizontalScroll()->GetPosition();
+	// Caret의 x값은 노트의 위치에 스크롤 위치를 뺀 상태에 값이 들어가 있다.따라서 이전 y값을 다시 더한다.
+	Long y = this->notepadForm->caretController->GetCaretY() + previous;
+
+	Long row = this->notepadForm->characterMetrics->GetRow(y - (previous - position));
+	if (row < 0) {
+		row = 0;
+	}
+	Long index = this->notepadForm->note->Move(row); // row가 벗어나는 경우는 없나?
+	this->notepadForm->current = this->notepadForm->note->GetAt(index);
+	Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
+	this->notepadForm->current->Move(column);
+}
+
+string PageUpCommand::GetType() {
+	return "PageUp";
+}
+
+Command* PageUpCommand::Clone() {
+	return new PageUpCommand(*this);
+}
+
+//PageDownCommand
+PageDownCommand::PageDownCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+PageDownCommand::PageDownCommand(const PageDownCommand& source)
+	: Command(source) {
+}
+
+PageDownCommand::~PageDownCommand() {
+
+}
+
+PageDownCommand& PageDownCommand::operator=(const PageDownCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void PageDownCommand::Execute() {
+	Long position = this->notepadForm->scrollController->PageDown();
+	Long previous = this->notepadForm->SetScrollPos(SB_VERT, position, TRUE);
+	this->notepadForm->ScrollWindow(0, previous - position);
+	Long x = this->notepadForm->caretController->GetCaretX() +
+		this->notepadForm->scrollController->GetHorizontalScroll()->GetPosition();
+	Long y = this->notepadForm->caretController->GetCaretY() + previous;
+	Long row = this->notepadForm->characterMetrics->GetRow(y - (previous - position));
+	if (row > this->notepadForm->note->GetLength() - 1) {
+		row = this->notepadForm->note->GetLength() - 1;
+	}
+	Long index = this->notepadForm->note->Move(row);
+	this->notepadForm->current = this->notepadForm->note->GetAt(index);
+	Long column = this->notepadForm->characterMetrics->GetColumn(this->notepadForm->current, x);
+	this->notepadForm->current->Move(column);
+}
+
+string PageDownCommand::GetType() {
+	return "PageDown";
+}
+
+Command* PageDownCommand::Clone() {
+	return new PageDownCommand(*this);
 }

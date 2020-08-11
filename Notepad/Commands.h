@@ -60,6 +60,7 @@ public:
 
 	virtual Long Add(Command* command);
 	virtual Long Remove(Long index);
+	virtual Long Modify(Long index, Command* command);
 	virtual Command* GetAt(Long index);
 
 	virtual string GetType();
@@ -192,6 +193,11 @@ public:
 	virtual void Unexecute(); //юс╫ц?
 	virtual string GetType();
 	virtual Command* Clone();
+
+private:
+	TCHAR(*buffer);
+	Long row;
+	Long column;
 };
 
 //ImeCharCommand
@@ -332,6 +338,41 @@ private:
 	MacroCommand* macroCommand;
 };
 
+//WriteAfterDeleteCommand
+class WriteAfterDeleteCommand : public Command {
+public:
+	WriteAfterDeleteCommand(NotepadForm* notepadForm = 0);
+	WriteAfterDeleteCommand(const WriteAfterDeleteCommand& source);
+	virtual ~WriteAfterDeleteCommand();
+	WriteAfterDeleteCommand& operator=(const WriteAfterDeleteCommand& source);
+
+	virtual void Execute();
+	virtual void Unexecute();
+	virtual string GetType();
+	virtual Command* Clone();
+
+private:
+	MacroCommand* macroCommand;
+};
+
+//ImeAfterDeleteCommand
+class ImeAfterDeleteCommand : public Command {
+public:
+	ImeAfterDeleteCommand(NotepadForm* notepadForm = 0);
+	ImeAfterDeleteCommand(const ImeAfterDeleteCommand& source);
+	virtual ~ImeAfterDeleteCommand();
+	ImeAfterDeleteCommand& operator=(const ImeAfterDeleteCommand& source);
+
+	virtual void Execute();
+	virtual void Unexecute();
+	virtual string GetType();
+	virtual Command* Clone();
+
+private:
+	MacroCommand* macroCommand;
+	TCHAR(*buffer);
+};
+
 //UndoCommand
 class UndoCommand : public Command {
 public:
@@ -378,6 +419,136 @@ public:
 	RightCommand(const RightCommand& source);
 	virtual ~RightCommand();
 	RightCommand& operator=(const RightCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//UpCommand
+class UpCommand : public Command {
+public:
+	UpCommand(NotepadForm* notepadForm = 0);
+	UpCommand(const UpCommand& source);
+	virtual ~UpCommand();
+	UpCommand& operator=(const UpCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//DownCommand
+class DownCommand : public Command {
+public:
+	DownCommand(NotepadForm* notepadForm = 0);
+	DownCommand(const DownCommand& source);
+	virtual ~DownCommand();
+	DownCommand& operator=(const DownCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//HomeCommand
+class HomeCommand : public Command {
+public:
+	HomeCommand(NotepadForm* notepadForm = 0);
+	HomeCommand(const HomeCommand& source);
+	virtual ~HomeCommand();
+	HomeCommand& operator=(const HomeCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//EndCommand
+class EndCommand : public Command {
+public:
+	EndCommand(NotepadForm* notepadForm = 0);
+	EndCommand(const EndCommand& source);
+	virtual ~EndCommand();
+	EndCommand& operator=(const EndCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//CtrlLeftCommand
+class CtrlLeftCommand : public Command {
+public:
+	CtrlLeftCommand(NotepadForm* notepadForm = 0);
+	CtrlLeftCommand(const CtrlLeftCommand& source);
+	virtual ~CtrlLeftCommand();
+	CtrlLeftCommand& operator=(const CtrlLeftCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//CtrlRightCommand
+class CtrlRightCommand : public Command {
+public:
+	CtrlRightCommand(NotepadForm* notepadForm = 0);
+	CtrlRightCommand(const CtrlRightCommand& source);
+	virtual ~CtrlRightCommand();
+	CtrlRightCommand& operator=(const CtrlRightCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//CtrlHomeCommand
+class CtrlHomeCommand : public Command {
+public:
+	CtrlHomeCommand(NotepadForm* notepadForm = 0);
+	CtrlHomeCommand(const CtrlHomeCommand& source);
+	virtual ~CtrlHomeCommand();
+	CtrlHomeCommand& operator=(const CtrlHomeCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//CtrlEndCommand
+class CtrlEndCommand : public Command {
+public:
+	CtrlEndCommand(NotepadForm* notepadForm = 0);
+	CtrlEndCommand(const CtrlEndCommand& source);
+	virtual ~CtrlEndCommand();
+	CtrlEndCommand& operator=(const CtrlEndCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//PageUpCommand
+class PageUpCommand : public Command {
+public:
+	PageUpCommand(NotepadForm* notepadForm = 0);
+	PageUpCommand(const PageUpCommand& source);
+	virtual ~PageUpCommand();
+	PageUpCommand& operator=(const PageUpCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//PageDownCommand
+class PageDownCommand : public Command {
+public:
+	PageDownCommand(NotepadForm* notepadForm = 0);
+	PageDownCommand(const PageDownCommand& source);
+	virtual ~PageDownCommand();
+	PageDownCommand& operator=(const PageDownCommand& source);
 
 	virtual void Execute();
 	virtual string GetType();

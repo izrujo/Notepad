@@ -9,14 +9,13 @@
 #define IDM_FILE_SAVE                   40013
 #define IDM_FILE_SAVEAS                 40014
 #define IDM_FORMAT_FONT                 40021
-#define IDC_MOVE_LEFT					40051
-#define IDC_MOVE_RIGHT					40052
 
 #define IDC_WRITE_CHAR                  50011
 #define IDC_IME_COMPOSITION             50012
 #define IDC_IME_CHAR                    50013
 #define IDC_DELETE_CHAR                 50014
-#define IDC_BACKSPACE_CHAR              50015
+#define IDC_WRITE_AFTER_DELETE          50015
+#define IDC_IME_AFTER_DELETE            50016
 #define IDM_EDIT_UNDO                   50021
 #define IDM_EDIT_REDO                   50022
 #define IDM_EDIT_CUT                    50023
@@ -24,6 +23,19 @@
 #define IDM_EDIT_PASTE                  50025
 #define IDM_EDIT_DELETE                 50026
 #define IDM_EDIT_SELECTALL              50027
+
+#define IDC_MOVE_LEFT					60011
+#define IDC_MOVE_RIGHT					60012
+#define IDC_MOVE_UP 					60013
+#define IDC_MOVE_DOWN 					60014
+#define IDC_MOVE_HOME 					60015
+#define IDC_MOVE_END 					60016
+#define IDC_MOVE_CTRLLEFT				60017
+#define IDC_MOVE_CTRLRIGHT				60018
+#define IDC_MOVE_CTRLHOME				60019
+#define IDC_MOVE_CTRLEND				60020
+#define IDC_MOVE_PAGEUP					60021
+#define IDC_MOVE_PAGEDOWN				60022
 
 // Next default values for new objects
 // 
