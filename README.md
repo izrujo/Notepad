@@ -8,4 +8,5 @@ File Processing
 Font Set   
 Move Caret   
 Scroll   
-Select/Copy/Paste/Cut 
+Select/Copy/Paste/Cut   
+Undo/Redo   
