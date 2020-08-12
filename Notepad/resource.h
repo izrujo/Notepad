@@ -14,8 +14,6 @@
 #define IDC_IME_COMPOSITION             50012
 #define IDC_IME_CHAR                    50013
 #define IDC_DELETE_CHAR                 50014
-#define IDC_WRITE_AFTER_DELETE          50015
-#define IDC_IME_AFTER_DELETE            50016
 #define IDM_EDIT_UNDO                   50021
 #define IDM_EDIT_REDO                   50022
 #define IDM_EDIT_CUT                    50023

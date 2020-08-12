@@ -129,11 +129,9 @@ void NotepadForm::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	if (nChar >= 32 || nChar == VK_TAB || nChar == VK_RETURN) {
 		this->currentCharacter = nChar;
 		if (this->selection != NULL) {
-			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_WRITE_AFTER_DELETE, 0));
+			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_DELETE, 0));
 		}
-		else {
-			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_WRITE_CHAR, 0));
-		}
+		this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_WRITE_CHAR, 0));
 	}
 }
 
@@ -142,11 +140,9 @@ LRESULT NotepadForm::OnImeComposition(WPARAM wParam, LPARAM lParam) {
 		this->currentBuffer[0] = (TCHAR)HIBYTE(LOWORD(wParam));
 		this->currentBuffer[1] = (TCHAR)LOBYTE(LOWORD(wParam));
 		if (this->selection != NULL) {
-			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_IME_AFTER_DELETE, 0));
+			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_DELETE, 0));
 		}
-		else {
-			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_IME_COMPOSITION, 0));
-		}
+		this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_IME_COMPOSITION, 0));
 	}
 
 	return ::DefWindowProc(this->m_hWnd, WM_IME_COMPOSITION, wParam, lParam);
@@ -161,10 +157,7 @@ LRESULT NotepadForm::OnImeChar(WPARAM wParam, LPARAM lParam) {
 		this->currentBuffer[0] = (TCHAR)wParam;
 	}
 
-	SHORT isCtrl = GetKeyState(VK_CONTROL) & 0X8000;
-	if (!isCtrl) {
-		this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_IME_CHAR, 0));
-	}
+	this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_IME_CHAR, 0));
 
 	this->isComposing = FALSE;
 
@@ -458,8 +451,7 @@ void NotepadForm::OnEditCommandRange(UINT uID) {
 		if (type != "ImeComposition" && type != "Undo" && type != "Redo" && type != "Copy" && type != "SelectAll") {
 			if ((type == "Write" && this->currentCharacter != VK_RETURN)
 				|| type == "ImeChar"
-				|| type == "WriteAfterDelete" && this->currentCharacter != VK_RETURN
-				|| type == "ImeAfterDelete") {
+				|| type == "DeleteSelection") {
 				Command* history;
 				if (this->undoHistoryBook->GetLength() > 0 && this->undoHistoryBook->OpenAt()->GetType() == "Macro"
 					&& (this->wasUndo == FALSE && this->wasMove == FALSE)) {
@@ -476,6 +468,9 @@ void NotepadForm::OnEditCommandRange(UINT uID) {
 			}
 			else {
 				this->undoHistoryBook->Write(command->Clone());
+			}
+			if (this->redoHistoryBook->GetLength() > 0) {
+				this->redoHistoryBook->Empty();
 			}
 		}
 		if (type == "Undo") {

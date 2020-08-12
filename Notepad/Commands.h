@@ -190,14 +190,8 @@ public:
 	ImeCompositionCommand& operator=(const ImeCompositionCommand& source);
 
 	virtual void Execute();
-	virtual void Unexecute(); //юс╫ц?
 	virtual string GetType();
 	virtual Command* Clone();
-
-private:
-	TCHAR(*buffer);
-	Long row;
-	Long column;
 };
 
 //ImeCharCommand
@@ -316,41 +310,6 @@ public:
 
 private:
 	MacroCommand* macroCommand;
-};
-
-//WriteAfterDeleteCommand
-class WriteAfterDeleteCommand : public Command {
-public:
-	WriteAfterDeleteCommand(NotepadForm* notepadForm = 0);
-	WriteAfterDeleteCommand(const WriteAfterDeleteCommand& source);
-	virtual ~WriteAfterDeleteCommand();
-	WriteAfterDeleteCommand& operator=(const WriteAfterDeleteCommand& source);
-
-	virtual void Execute();
-	virtual void Unexecute();
-	virtual string GetType();
-	virtual Command* Clone();
-
-private:
-	MacroCommand* macroCommand;
-};
-
-//ImeAfterDeleteCommand
-class ImeAfterDeleteCommand : public Command {
-public:
-	ImeAfterDeleteCommand(NotepadForm* notepadForm = 0);
-	ImeAfterDeleteCommand(const ImeAfterDeleteCommand& source);
-	virtual ~ImeAfterDeleteCommand();
-	ImeAfterDeleteCommand& operator=(const ImeAfterDeleteCommand& source);
-
-	virtual void Execute();
-	virtual void Unexecute();
-	virtual string GetType();
-	virtual Command* Clone();
-
-private:
-	MacroCommand* macroCommand;
-	TCHAR(*buffer);
 };
 
 //UndoCommand

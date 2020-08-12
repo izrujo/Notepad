@@ -71,12 +71,6 @@ Command* CommandFactory::Make(int uID) {
 	else if (uID == IDC_DELETE_CHAR) {
 		command = new DeleteCommand(this->notepadForm);
 	}
-	else if (uID == IDC_WRITE_AFTER_DELETE) {
-		command = new WriteAfterDeleteCommand(this->notepadForm);
-	}
-	else if (uID == IDC_IME_AFTER_DELETE) {
-		command = new ImeAfterDeleteCommand(this->notepadForm);
-	}
 	else if (uID == IDC_MOVE_LEFT) {
 		command = new LeftCommand(this->notepadForm);
 	}

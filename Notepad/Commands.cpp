@@ -653,67 +653,49 @@ Command* WriteCommand::Clone() {
 //ImeCompositionCommand
 ImeCompositionCommand::ImeCompositionCommand(NotepadForm* notepadForm)
 	: Command(notepadForm) {
-	this->buffer = new TCHAR[2];
-	this->buffer[0] = '\0';
-	this->buffer[1] = '\0';
-	this->row = -1;
-	this->column = -1;
+
 }
 
 ImeCompositionCommand::ImeCompositionCommand(const ImeCompositionCommand& source)
 	: Command(source) {
-	this->buffer = new TCHAR[2];
-	this->buffer[0] = source.buffer[0];
-	this->buffer[1] = source.buffer[1];
-	this->row = source.row;
-	this->column = source.column;
+
 }
 
 ImeCompositionCommand::~ImeCompositionCommand() {
-	if (this->buffer != 0) {
-		delete[] this->buffer;
-	}
+	
 }
 
 ImeCompositionCommand& ImeCompositionCommand::operator=(const ImeCompositionCommand& source) {
 	Command::operator=(source);
-	if (this->buffer != 0) {
-		delete[] this->buffer;
-	}
-	this->buffer = new TCHAR[2];
-	this->buffer[0] = source.buffer[0];
-	this->buffer[1] = source.buffer[1];
-	this->row = source.row;
-	this->column = source.column;
 
 	return *this;
 }
 
 void ImeCompositionCommand::Execute() {
-	if (this->buffer[0] == '\0' && this->row == -1 && this->column == -1) {
-		this->buffer[0] = this->notepadForm->GetCurrentBuffer()[0];
-		this->buffer[1] = this->notepadForm->GetCurrentBuffer()[1];
-		this->row = this->notepadForm->note->GetCurrent();
-		this->column = this->notepadForm->current->GetCurrent();
-		if (this->notepadForm->GetIsComposing() == TRUE) {
-			this->notepadForm->current->Remove(--this->column);
-		}
+	TCHAR(*buffer) = new TCHAR[2];
+	buffer = this->notepadForm->GetCurrentBuffer();
+
+	Long index;
+	if (this->notepadForm->note->IsSelecting()) {
+		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_DELETE, 0));
 	}
 
-	this->notepadForm->note->Move(this->row);
-	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
-	this->notepadForm->current->Move(this->column);
+	if (this->notepadForm->GetIsComposing() == TRUE) {
+		index = this->notepadForm->current->GetCurrent();
+		this->notepadForm->current->Remove(index - 1);
+	}
 
-	if (this->buffer[0] != '\0') {
+		if (buffer[0] != '\0') {
 		this->notepadForm->SetIsComposing(TRUE);
 		GlyphFactory glyphFactory;
-		Glyph* doubleByteCharacter = glyphFactory.Make(this->buffer);
+		Glyph* doubleByteCharacter = glyphFactory.Make(buffer);
+		index = this->notepadForm->current->GetCurrent();
 
-		if (this->column >= this->notepadForm->current->GetLength()) {
+		if (index >= this->notepadForm->current->GetLength()) {
 			this->notepadForm->current->Add(doubleByteCharacter);
 		}
 		else {
-			this->notepadForm->current->Add(this->column, doubleByteCharacter);
+			this->notepadForm->current->Add(index, doubleByteCharacter);
 		}
 	}
 	else {
@@ -726,21 +708,6 @@ void ImeCompositionCommand::Execute() {
 		title.Insert(0, '*');
 		this->notepadForm->SetWindowTextA(title);
 		this->notepadForm->document->SetIsDirty(true);
-	}
-}
-
-void ImeCompositionCommand::Unexecute() {
-	//only call by ImeAfterDelete
-	this->notepadForm->note->Move(this->row);
-	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
-	this->notepadForm->current->Move(this->column);
-
-	this->notepadForm->current->Remove(this->column);
-
-	if (this->notepadForm->selection != NULL) {
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-		this->notepadForm->note->UnselectAll();
 	}
 }
 
@@ -1305,134 +1272,6 @@ string DeleteSelectionCommand::GetType() {
 
 Command* DeleteSelectionCommand::Clone() {
 	return new DeleteSelectionCommand(*this);
-}
-
-//WriteAfterDeleteCommand
-WriteAfterDeleteCommand::WriteAfterDeleteCommand(NotepadForm* notepadForm)
-	: Command(notepadForm) {
-	this->macroCommand = new MacroCommand(notepadForm);
-}
-
-WriteAfterDeleteCommand::WriteAfterDeleteCommand(const WriteAfterDeleteCommand& source)
-	: Command(source) {
-	this->macroCommand = new MacroCommand(*const_cast<WriteAfterDeleteCommand&>(source).macroCommand);
-}
-
-WriteAfterDeleteCommand::~WriteAfterDeleteCommand() {
-	if (this->macroCommand != 0) {
-		delete this->macroCommand;
-	}
-}
-
-WriteAfterDeleteCommand& WriteAfterDeleteCommand::operator=(const WriteAfterDeleteCommand& source) {
-	Command::operator=(source);
-	if (this->macroCommand != 0) {
-		delete this->macroCommand;
-	}
-	this->macroCommand = source.macroCommand;
-
-	return *this;
-}
-
-void WriteAfterDeleteCommand::Execute() {
-	Command* command = 0;
-
-	if (this->macroCommand->GetLength() <= 0) {
-		command = new DeleteSelectionCommand(this->notepadForm);
-		this->macroCommand->Add(command);
-
-		command = new WriteCommand(this->notepadForm);
-		this->macroCommand->Add(command);
-	}
-
-	this->macroCommand->Execute();
-}
-
-void WriteAfterDeleteCommand::Unexecute() {
-	this->macroCommand->Unexecute();
-}
-
-string WriteAfterDeleteCommand::GetType() {
-	return "WriteAfterDelete";
-}
-
-Command* WriteAfterDeleteCommand::Clone() {
-	return new WriteAfterDeleteCommand(*this);
-}
-
-//ImeAfterDeleteCommand
-ImeAfterDeleteCommand::ImeAfterDeleteCommand(NotepadForm* notepadForm)
-	: Command(notepadForm) {
-	this->macroCommand = new MacroCommand(notepadForm);
-	this->buffer = new TCHAR[2];
-	this->buffer[0] = '\0';
-	this->buffer[1] = '\0';
-}
-
-ImeAfterDeleteCommand::ImeAfterDeleteCommand(const ImeAfterDeleteCommand& source)
-	: Command(source) {
-	this->macroCommand = new MacroCommand(*const_cast<ImeAfterDeleteCommand&>(source).macroCommand);
-	this->buffer = new TCHAR[2];
-	this->buffer[0] = source.buffer[0];
-	this->buffer[1] = source.buffer[1];
-}
-
-ImeAfterDeleteCommand::~ImeAfterDeleteCommand() {
-	if (this->macroCommand != 0) {
-		delete this->macroCommand;
-	}
-	if (this->buffer != 0) {
-		delete[] this->buffer;
-	}
-}
-
-ImeAfterDeleteCommand& ImeAfterDeleteCommand::operator=(const ImeAfterDeleteCommand& source) {
-	Command::operator=(source);
-	if (this->macroCommand != 0) {
-		delete this->macroCommand;
-	}
-	if (this->buffer != 0) {
-		delete[] this->buffer;
-	}
-
-	this->macroCommand = source.macroCommand;
-	this->buffer = new TCHAR[2];
-	this->buffer[0] = source.buffer[0];
-	this->buffer[1] = source.buffer[1];
-
-	return *this;
-}
-
-void ImeAfterDeleteCommand::Execute() {
-	Command* command = 0;
-
-	if (this->macroCommand->GetLength() <= 0) {
-		command = new DeleteSelectionCommand(this->notepadForm);
-		this->macroCommand->Add(command);
-
-		this->buffer[0] = this->notepadForm->GetCurrentBuffer()[0];
-		this->buffer[1] = this->notepadForm->GetCurrentBuffer()[1];
-		command = new ImeCompositionCommand(this->notepadForm);
-		this->macroCommand->Add(command);
-	}
-	else {
-		this->notepadForm->SetCurrentBuffer(this->buffer);
-		this->macroCommand->Modify(1, new ImeCharCommand(this->notepadForm));
-	}
-
-	this->macroCommand->Execute();
-}
-
-void ImeAfterDeleteCommand::Unexecute() {
-	this->macroCommand->Unexecute();
-}
-
-string ImeAfterDeleteCommand::GetType() {
-	return "ImeAfterDelete";
-}
-
-Command* ImeAfterDeleteCommand::Clone() {
-	return new ImeAfterDeleteCommand(*this);
 }
 
 //UndoCommand
