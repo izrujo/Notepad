@@ -621,15 +621,15 @@ void WriteCommand::Execute() {
 }
 
 void WriteCommand::Unexecute() {
+	this->notepadForm->note->Move(this->row);
+	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
+	this->notepadForm->current->Move(this->column);
+
 	Glyph* index;
 	if (this->nChar >= 32 || this->nChar == VK_TAB) {
-		this->notepadForm->note->Move(this->row);
-		this->notepadForm->current = this->notepadForm->note->GetAt(this->notepadForm->note->GetCurrent());
 		this->notepadForm->current->Remove(this->column);
 	}
 	else if (this->nChar == VK_RETURN) {
-		this->notepadForm->note->Move(this->row);
-		this->notepadForm->current = this->notepadForm->note->GetAt(this->notepadForm->note->GetCurrent());
 		index = this->notepadForm->note->GetAt(this->notepadForm->note->GetCurrent() + 1);
 		this->notepadForm->current->Combine(index);
 		this->notepadForm->note->Remove(this->notepadForm->note->GetCurrent() + 1);
@@ -700,6 +700,10 @@ void ImeCompositionCommand::Execute() {
 		}
 	}
 
+	this->notepadForm->note->Move(this->row);
+	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
+	this->notepadForm->current->Move(this->column);
+
 	if (this->buffer[0] != '\0') {
 		this->notepadForm->SetIsComposing(TRUE);
 		GlyphFactory glyphFactory;
@@ -728,8 +732,16 @@ void ImeCompositionCommand::Execute() {
 void ImeCompositionCommand::Unexecute() {
 	//only call by ImeAfterDelete
 	this->notepadForm->note->Move(this->row);
-	this->notepadForm->current = this->notepadForm->note->GetAt(this->notepadForm->note->GetCurrent());
+	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
+	this->notepadForm->current->Move(this->column);
+
 	this->notepadForm->current->Remove(this->column);
+
+	if (this->notepadForm->selection != NULL) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+		this->notepadForm->note->UnselectAll();
+	}
 }
 
 string ImeCompositionCommand::GetType() {
@@ -790,6 +802,10 @@ void ImeCharCommand::Execute() {
 		}
 	}
 
+	this->notepadForm->note->Move(this->row);
+	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
+	this->notepadForm->current->Move(this->column);
+
 	GlyphFactory glyphFactory;
 	Glyph* glyph = glyphFactory.Make(this->buffer);
 
@@ -797,15 +813,17 @@ void ImeCharCommand::Execute() {
 		this->notepadForm->current->Add(glyph);
 	}
 	else {
-		this->notepadForm->current->Add(this->column + 1, glyph);
+		this->notepadForm->current->Add(this->column, glyph);
 	}
 
-	this->notepadForm->SetIsComposing(FALSE);
+
 }
 
 void ImeCharCommand::Unexecute() {
 	this->notepadForm->note->Move(this->row);
-	this->notepadForm->current = this->notepadForm->note->GetAt(this->notepadForm->note->GetCurrent());
+	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
+	this->notepadForm->current->Move(this->column);
+
 	this->notepadForm->current->Remove(this->column);
 
 	if (this->notepadForm->selection != NULL) {
@@ -879,6 +897,7 @@ void DeleteCommand::Execute() {
 
 	this->notepadForm->note->Move(this->row);
 	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
+	this->notepadForm->current->Move(this->column);
 
 	if (this->column < this->lineLength) {
 		this->notepadForm->current->Remove(this->column);
@@ -893,6 +912,7 @@ void DeleteCommand::Execute() {
 void DeleteCommand::Unexecute() {
 	this->notepadForm->note->Move(this->row);
 	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
+	this->notepadForm->current->Move(this->column);
 
 	Glyph* line;
 	if (this->column < this->lineLength) {
@@ -1255,7 +1275,7 @@ void DeleteSelectionCommand::Execute() {
 				}
 				j++;
 			}
-			if (j >= this->notepadForm->current->GetLength() && i < end) {
+			if (j >= line->GetLength() && i < end) {
 				command = new DeleteCommand(this->notepadForm);
 				this->macroCommand->Add(command);
 			}
@@ -1318,10 +1338,8 @@ void WriteAfterDeleteCommand::Execute() {
 	Command* command = 0;
 
 	if (this->macroCommand->GetLength() <= 0) {
-		if (this->notepadForm->selection != NULL) {
-			command = new DeleteSelectionCommand(this->notepadForm);
-			this->macroCommand->Add(command);
-		}
+		command = new DeleteSelectionCommand(this->notepadForm);
+		this->macroCommand->Add(command);
 
 		command = new WriteCommand(this->notepadForm);
 		this->macroCommand->Add(command);
@@ -1389,10 +1407,9 @@ void ImeAfterDeleteCommand::Execute() {
 	Command* command = 0;
 
 	if (this->macroCommand->GetLength() <= 0) {
-		if (this->notepadForm->selection != NULL) {
-			command = new DeleteSelectionCommand(this->notepadForm);
-			this->macroCommand->Add(command);
-		}
+		command = new DeleteSelectionCommand(this->notepadForm);
+		this->macroCommand->Add(command);
+
 		this->buffer[0] = this->notepadForm->GetCurrentBuffer()[0];
 		this->buffer[1] = this->notepadForm->GetCurrentBuffer()[1];
 		command = new ImeCompositionCommand(this->notepadForm);
@@ -1445,6 +1462,11 @@ void UndoCommand::Execute() {
 		this->notepadForm->redoHistoryBook->Write(command->Clone());
 		this->notepadForm->undoHistoryBook->Erase();
 	}
+	if (this->notepadForm->selection != NULL) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+		this->notepadForm->note->UnselectAll();
+	}
 }
 
 string UndoCommand::GetType() {
@@ -1481,6 +1503,11 @@ void RedoCommand::Execute() {
 
 		this->notepadForm->undoHistoryBook->Write(command->Clone());
 		this->notepadForm->redoHistoryBook->Erase();
+	}
+	if (this->notepadForm->selection != NULL) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+		this->notepadForm->note->UnselectAll();
 	}
 }
 

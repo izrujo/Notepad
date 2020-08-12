@@ -11,7 +11,7 @@ Recently Updated : 2020.07.17
 #ifndef _COMMAND_H
 #define _COMMAND_H
 
-#include <afxwin.h>
+#include <afxwin.h> //TCHAR
 #include <iostream>
 #include "Array.h"
 using namespace std;
@@ -209,7 +209,7 @@ public:
 	ImeCharCommand& operator=(const ImeCharCommand& source);
 
 	virtual void Execute();
-	virtual void Unexecute(); //임시?
+	virtual void Unexecute();
 	virtual string GetType();
 	virtual Command* Clone();
 
@@ -239,27 +239,7 @@ private:
 	Long lineLength;
 	Glyph* character;
 };
-#if 0
-//BackspaceCommand
-class BackspaceCommand : public Command {
-public:
-	BackspaceCommand(NotepadForm* notepadForm = 0);
-	BackspaceCommand(const BackspaceCommand& source);
-	virtual ~BackspaceCommand();
-	BackspaceCommand& operator=(const BackspaceCommand& source);
 
-	virtual void Execute();
-	virtual void Unexecute();
-	virtual string GetType();
-	virtual Command* Clone();
-
-private:
-	Long row;
-	Long column;
-	Long preLineLength;
-	Glyph* character;
-};
-#endif
 //CopyCommand
 class CopyCommand : public Command {
 public:
@@ -269,7 +249,7 @@ public:
 	CopyCommand& operator=(const CopyCommand& source);
 
 	virtual void Execute();
-	virtual void Unexecute(); //임시?
+	virtual void Unexecute();
 	virtual string GetType();
 	virtual Command* Clone();
 };
@@ -283,7 +263,7 @@ public:
 	PasteCommand& operator=(const PasteCommand& source);
 
 	virtual void Execute();
-	virtual void Unexecute(); //임시?
+	virtual void Unexecute();
 	virtual string GetType();
 	virtual Command* Clone();
 

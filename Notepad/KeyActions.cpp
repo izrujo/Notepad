@@ -317,8 +317,10 @@ BackSpaceKeyAction& BackSpaceKeyAction::operator=(const BackSpaceKeyAction& sour
 
 void BackSpaceKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	if (this->notepadForm->selection == NULL) {
-		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_LEFT, 0));
-		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_DELETE_CHAR, 0));
+		if (this->notepadForm->note->GetCurrent() > 0 || this->notepadForm->current->GetCurrent() > 0) {
+			this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_LEFT, 0));
+			this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_DELETE_CHAR, 0));
+		}
 	}
 	else {
 		this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_DELETE, 0));

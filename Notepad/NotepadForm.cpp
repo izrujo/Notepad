@@ -161,7 +161,12 @@ LRESULT NotepadForm::OnImeChar(WPARAM wParam, LPARAM lParam) {
 		this->currentBuffer[0] = (TCHAR)wParam;
 	}
 
-	this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_IME_CHAR, 0));
+	SHORT isCtrl = GetKeyState(VK_CONTROL) & 0X8000;
+	if (!isCtrl) {
+		this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_IME_CHAR, 0));
+	}
+
+	this->isComposing = FALSE;
 
 	return 0;
 }
@@ -447,7 +452,7 @@ void NotepadForm::OnEditCommandRange(UINT uID) {
 	Command* command = commandFactory.Make(uID);
 	if (command != NULL) {
 		command->Execute();
-		
+
 		//========== 실행 취소 추가 ==========
 		string type = command->GetType();
 		if (type != "ImeComposition" && type != "Undo" && type != "Redo" && type != "Copy" && type != "SelectAll") {
@@ -456,7 +461,7 @@ void NotepadForm::OnEditCommandRange(UINT uID) {
 				|| type == "WriteAfterDelete" && this->currentCharacter != VK_RETURN
 				|| type == "ImeAfterDelete") {
 				Command* history;
-				if (this->undoHistoryBook->GetLength() > 0 && this->undoHistoryBook->OpenAt()->GetType() == "Macro" 
+				if (this->undoHistoryBook->GetLength() > 0 && this->undoHistoryBook->OpenAt()->GetType() == "Macro"
 					&& (this->wasUndo == FALSE && this->wasMove == FALSE)) {
 					history = this->undoHistoryBook->OpenAt();
 					history->Add(command->Clone());
