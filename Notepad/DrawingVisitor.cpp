@@ -15,7 +15,7 @@ DrawingVisitor::DrawingVisitor(CDC* dc, CharacterMetrics* characterMetrics, Scro
 	this->dc = dc;
 	this->characterMetrics = characterMetrics;
 	this->scrollController = scrollController;
-	this->selection = selection;
+	this->selection = selection; //임시
 	this->x = 0;
 	this->y = 0;
 }
@@ -28,22 +28,22 @@ void DrawingVisitor::Visit(Note* note) {
 	Long y = this->scrollController->GetVerticalScroll()->GetPosition();
 	Long begin = this->characterMetrics->GetRow(y);
 
-	//
+	//임시
 	Long start = -1;
 	Long end = -1;
 	if (this->selection != NULL) {
 		start = this->selection->GetStart();
 		end = this->selection->GetEnd();
 	}
-	//
+	//임시
 
 	Long i = begin;
 	while (i < note->GetLength()) {
 		this->y = i * this->characterMetrics->GetHeight() - y;
 		note->GetAt(i)->Accept(this);
-		if (i == start || i == end) {
-			this->dc->MoveTo(this->x + 10, this->y);
-			this->dc->LineTo(this->x + 10, this->y + this->characterMetrics->GetHeight());
+		if (i == start || i == end) { //임시
+			this->dc->MoveTo(this->x + 10, this->y); //임시
+			this->dc->LineTo(this->x + 10, this->y + this->characterMetrics->GetHeight()); //임시
 		}
 		i++;
 	}

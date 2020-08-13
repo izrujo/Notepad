@@ -90,7 +90,7 @@ Long Scroll::Rotate(short delta) {
 SCROLLINFO Scroll::GetScrollInfo(){
 	SCROLLINFO scrollInfo = { 0, };
 	scrollInfo.cbSize = sizeof(SCROLLINFO);
-	scrollInfo.fMask = SIF_ALL;
+	scrollInfo.fMask = SIF_ALL & ~SIF_POS;
 	scrollInfo.nMin = this->minimum;
 	scrollInfo.nMax = this->maximum;
 	scrollInfo.nPage = this->pageSize;
