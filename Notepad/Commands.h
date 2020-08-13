@@ -60,7 +60,6 @@ public:
 
 	virtual Long Add(Command* command);
 	virtual Long Remove(Long index);
-	virtual Long Modify(Long index, Command* command);
 	virtual Command* GetAt(Long index);
 
 	virtual string GetType();
@@ -69,7 +68,7 @@ public:
 	virtual Long GetCapacity() const;
 	virtual Long GetLength() const;
 
-protected:
+private:
 	Array<Command*> commands;
 	Long capacity;
 	Long length;
@@ -243,7 +242,6 @@ public:
 	CopyCommand& operator=(const CopyCommand& source);
 
 	virtual void Execute();
-	virtual void Unexecute();
 	virtual string GetType();
 	virtual Command* Clone();
 };

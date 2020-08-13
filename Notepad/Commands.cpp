@@ -163,15 +163,6 @@ Long MacroCommand::Remove(Long index) {
 	return index;
 }
 
-Long MacroCommand::Modify(Long index, Command* command) {
-	if (this->commands[index] != 0) {
-		delete this->commands[index];
-	}
-	this->commands[index] = command;
-
-	return index;
-}
-
 Command* MacroCommand::GetAt(Long index) {
 	return this->commands.GetAt(index);
 }
@@ -662,7 +653,7 @@ ImeCompositionCommand::ImeCompositionCommand(const ImeCompositionCommand& source
 }
 
 ImeCompositionCommand::~ImeCompositionCommand() {
-	
+
 }
 
 ImeCompositionCommand& ImeCompositionCommand::operator=(const ImeCompositionCommand& source) {
@@ -685,7 +676,7 @@ void ImeCompositionCommand::Execute() {
 		this->notepadForm->current->Remove(index - 1);
 	}
 
-		if (buffer[0] != '\0') {
+	if (buffer[0] != '\0') {
 		this->notepadForm->SetIsComposing(TRUE);
 		GlyphFactory glyphFactory;
 		Glyph* doubleByteCharacter = glyphFactory.Make(buffer);
@@ -965,10 +956,6 @@ void CopyCommand::Execute() {
 
 }
 
-void CopyCommand::Unexecute() {
-
-}
-
 string CopyCommand::GetType() {
 	return "Copy";
 }
@@ -1175,7 +1162,11 @@ void SelectAllCommand::Execute() {
 	if (this->notepadForm->selection != NULL) {
 		delete this->notepadForm->selection;
 	}
-	this->notepadForm->selection = new Selection(0, this->notepadForm->note->GetLength() - 1);
+
+	//노트에 내용이 하나도 없으면 선택하지 않는다.
+	if (!(this->notepadForm->note->GetLength() <= 1 && this->notepadForm->current->GetLength() <= 0)) {
+		this->notepadForm->selection = new Selection(0, this->notepadForm->note->GetLength() - 1);
+	}
 }
 
 string SelectAllCommand::GetType() {
