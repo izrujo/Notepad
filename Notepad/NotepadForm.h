@@ -14,6 +14,7 @@ class Glyph;
 class Document;
 class HistoryBook;
 class Selection;
+class AutoNewlineController;
 
 class NotepadForm : public CFrameWnd, public Subject {
 public:
@@ -30,6 +31,7 @@ public:
 	HistoryBook* undoHistoryBook;
 	HistoryBook* redoHistoryBook;
 	Selection* selection;
+	AutoNewlineController* autoNewlineController;
 
 protected:
 	afx_msg void OnClose();

@@ -16,6 +16,7 @@
 #include "CaretController.h"
 #include "ScrollController.h"
 #include "Scroll.h"
+#include "AutoNewlineController.h"
 
 #include "resource.h"
 
@@ -223,6 +224,45 @@ string FontCommand::GetType() {
 
 Command* FontCommand::Clone() {
 	return new FontCommand(*this);
+}
+
+//AutoNewlineCommand
+AutoNewlineCommand::AutoNewlineCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+AutoNewlineCommand::AutoNewlineCommand(const AutoNewlineCommand& source)
+	: Command(source) {
+
+}
+
+AutoNewlineCommand::~AutoNewlineCommand() {
+
+}
+
+AutoNewlineCommand& AutoNewlineCommand::operator=(const AutoNewlineCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void AutoNewlineCommand::Execute() {
+	if (this->notepadForm->autoNewlineController == NULL) {
+		this->notepadForm->autoNewlineController = new AutoNewlineController(this->notepadForm);
+	}
+	else {
+		this->notepadForm->autoNewlineController->Release();
+		delete this->notepadForm->autoNewlineController;
+		this->notepadForm->autoNewlineController = NULL;
+	}
+}
+
+string AutoNewlineCommand::GetType() {
+	return "AutoNewline";
+}
+
+Command* AutoNewlineCommand::Clone() {
+	return new AutoNewlineCommand(*this);
 }
 
 //NewCommand

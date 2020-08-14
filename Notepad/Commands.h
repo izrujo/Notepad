@@ -96,6 +96,19 @@ public:
 	virtual Command* Clone();
 };
 
+//AutoNewlineCommand
+class AutoNewlineCommand : public Command {
+public:
+	AutoNewlineCommand(NotepadForm* notepadForm = 0);
+	AutoNewlineCommand(const AutoNewlineCommand& source);
+	~AutoNewlineCommand();
+	AutoNewlineCommand& operator=(const AutoNewlineCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
 //NewCommand
 class NewCommand : public Command {
 public:

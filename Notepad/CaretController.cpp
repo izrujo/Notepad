@@ -7,7 +7,7 @@
 #include "ScrollController.h"
 #include "Scroll.h"
 
-CaretController::CaretController(NotepadForm *notepadForm) {
+CaretController::CaretController(NotepadForm* notepadForm) {
 	this->notepadForm = notepadForm;
 	this->caret = 0;
 	this->notepadForm->AttachObserver(this);

@@ -24,6 +24,7 @@
 #include "HistoryBook.h"
 #include "DrawingVisitor.h"
 #include "Selection.h"
+#include "AutoNewlineController.h"
 
 BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_CREATE()
@@ -61,6 +62,7 @@ NotepadForm::NotepadForm() {
 	this->undoHistoryBook = NULL;
 	this->redoHistoryBook = NULL;
 	this->selection = NULL;
+	this->autoNewlineController = NULL;
 
 	this->isComposing = FALSE;
 	this->currentCharacter = '\0';
@@ -487,9 +489,7 @@ void NotepadForm::OnEditCommandRange(UINT uID) {
 	this->scrollController = new ScrollController(this);
 
 	this->Notify();
-	RECT rect;
-	this->GetClientRect(&rect);
-	this->InvalidateRect(&rect);
+	this->Invalidate();
 
 	Long x = this->characterMetrics->GetX(this->current) + 1; // 
 	Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함

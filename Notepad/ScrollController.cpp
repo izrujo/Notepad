@@ -69,7 +69,7 @@ ScrollController& ScrollController::operator=(const ScrollController& source) {
 		delete this->verticalScroll;
 		this->verticalScroll = new VerticalScroll(*(dynamic_cast<VerticalScroll*>(source.horizontalScroll)));
 	}
-	
+
 	return *this;
 }
 
@@ -108,7 +108,7 @@ void ScrollController::Update() {
 	style = ::GetWindowLong(this->notepadForm->m_hWnd, GWL_STYLE);
 	// 
 
-	if (clientWidth < this->noteWidth) { // 클라이언트 영역이 더 작으면 스크롤 설정및 생성
+	if (clientWidth < this->noteWidth && this->notepadForm->autoNewlineController == NULL) { // 클라이언트 영역이 더 작으면 스크롤 설정및 생성
 		style = style | WS_HSCROLL;
 		minimum = this->horizontalScroll->GetMinimum();
 		maximum = this->noteWidth;//
@@ -130,9 +130,9 @@ void ScrollController::Update() {
 			scrollInfo = this->horizontalScroll->GetScrollInfo();
 		}
 	}
-
 	this->notepadForm->SetScrollInfo(SB_HORZ, &scrollInfo, TRUE);
 	::SetWindowLong(this->notepadForm->m_hWnd, GWL_STYLE, style);
+
 	// 수평 스크롤 생성 부분
 
 	// 수직 스크롤 생성 부분
@@ -165,9 +165,8 @@ void ScrollController::Update() {
 	}
 	this->notepadForm->SetScrollInfo(SB_VERT, &scrollInfo, TRUE);
 	::SetWindowLong(this->notepadForm->m_hWnd, GWL_STYLE, style);
-	
-	this->notepadForm->InvalidateRect(&rect);
-	//this->notepadForm->RedrawWindow();
+
+	this->notepadForm->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);
 }
 
 Long ScrollController::Left() {

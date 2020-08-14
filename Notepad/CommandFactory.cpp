@@ -26,6 +26,9 @@ Command* CommandFactory::Make(int uID) {
 	if (uID == IDM_FORMAT_FONT) {
 		command = new FontCommand(this->notepadForm);
 	}
+	else if (uID == IDM_FORMAT_AUTONEWLINE) {
+		command = new AutoNewlineCommand(this->notepadForm);
+	}
 	else if (uID == IDM_FILE_NEW) {
 		command = new NewCommand(this->notepadForm);
 	}
