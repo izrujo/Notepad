@@ -31,7 +31,7 @@ BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_CHAR()
 	ON_MESSAGE(WM_IME_COMPOSITION, OnImeComposition)
 	ON_MESSAGE(WM_IME_CHAR, OnImeChar)
-	ON_MESSAGE(WM_IME_STARTCOMPOSITION, OnImeStartComposition)
+	ON_MESSAGE(WM_IME_STARTCOMPOSITION, OnImeStartComposition)	
 	ON_WM_PAINT()
 	ON_WM_SIZE()
 	ON_WM_SETFOCUS()
@@ -72,7 +72,7 @@ NotepadForm::NotepadForm() {
 
 int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	CFrameWnd::OnCreate(lpCreateStruct);
-
+	
 	GlyphFactory glyphFactory;
 	this->note = glyphFactory.Make("");
 	this->current = glyphFactory.Make("\r\n");
@@ -202,8 +202,8 @@ void NotepadForm::OnPaint() {
 	memDC.SetTextColor(oldColor);
 
 	memDC.SelectObject(oldBitmap);
-	memDC.DeleteDC();
 	bitmap.DeleteObject();
+	memDC.DeleteDC();
 }
 
 void NotepadForm::OnSize(UINT nType, int cs, int cy) {
@@ -487,7 +487,9 @@ void NotepadForm::OnEditCommandRange(UINT uID) {
 	this->scrollController = new ScrollController(this);
 
 	this->Notify();
-	this->Invalidate();
+	RECT rect;
+	this->GetClientRect(&rect);
+	this->InvalidateRect(&rect);
 
 	Long x = this->characterMetrics->GetX(this->current) + 1; // 
 	Long y = this->characterMetrics->GetY(this->note->GetCurrent() + 1); // 0베이스이므로 1더함

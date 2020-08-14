@@ -132,6 +132,7 @@ void ScrollController::Update() {
 	}
 
 	this->notepadForm->SetScrollInfo(SB_HORZ, &scrollInfo, TRUE);
+	::SetWindowLong(this->notepadForm->m_hWnd, GWL_STYLE, style);
 	// 荐乞 胶农费 积己 何盒
 
 	// 荐流 胶农费 积己 何盒
@@ -151,7 +152,6 @@ void ScrollController::Update() {
 		}
 		this->verticalScroll = new VerticalScroll(minimum, maximum, pageSize, lineSize, position);
 		scrollInfo = this->verticalScroll->GetScrollInfo();
-		this->notepadForm->SetScrollInfo(SB_VERT, &scrollInfo, TRUE);
 	}
 	else {
 		style = style & ~WS_VSCROLL;
@@ -166,7 +166,8 @@ void ScrollController::Update() {
 	this->notepadForm->SetScrollInfo(SB_VERT, &scrollInfo, TRUE);
 	::SetWindowLong(this->notepadForm->m_hWnd, GWL_STYLE, style);
 	
-	this->notepadForm->RedrawWindow();
+	this->notepadForm->InvalidateRect(&rect);
+	//this->notepadForm->RedrawWindow();
 }
 
 Long ScrollController::Left() {

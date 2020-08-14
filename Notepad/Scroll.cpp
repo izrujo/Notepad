@@ -87,7 +87,7 @@ Long Scroll::Rotate(short delta) {
 	return this->position;
 }
 
-SCROLLINFO Scroll::GetScrollInfo(){
+SCROLLINFO Scroll::GetScrollInfo() {
 	SCROLLINFO scrollInfo = { 0, };
 	scrollInfo.cbSize = sizeof(SCROLLINFO);
 	scrollInfo.fMask = SIF_ALL & ~SIF_POS;
