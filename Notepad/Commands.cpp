@@ -255,6 +255,12 @@ void AutoNewlineCommand::Execute() {
 		delete this->notepadForm->autoNewlineController;
 		this->notepadForm->autoNewlineController = NULL;
 	}
+
+	if (this->notepadForm->selection != NULL) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+		this->notepadForm->note->UnselectAll();
+	}
 }
 
 string AutoNewlineCommand::GetType() {
