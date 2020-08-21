@@ -3,6 +3,7 @@
 
 #include <afxwin.h>
 #include <iostream>
+
 using namespace std;
 #include "Subject.h"
 
@@ -15,6 +16,9 @@ class Document;
 class HistoryBook;
 class Selection;
 class AutoNewlineController;
+class FindReplaceDialog;
+
+static UINT WM_FINDREPLACE = ::RegisterWindowMessage(FINDMSGSTRING);
 
 class NotepadForm : public CFrameWnd, public Subject {
 public:
@@ -32,6 +36,7 @@ public:
 	HistoryBook* redoHistoryBook;
 	Selection* selection;
 	AutoNewlineController* autoNewlineController;
+	FindReplaceDialog* findReplaceDialog;	
 
 protected:
 	afx_msg void OnClose();
@@ -53,6 +58,7 @@ protected:
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+	afx_msg LRESULT OnFindReplace(WPARAM wParam, LPARAM lParam);
 	//afx_msg void OnUpdateCommandUIRange(CCmdUI *pCmdUI);
 	DECLARE_MESSAGE_MAP()
 
@@ -71,6 +77,7 @@ private:
 	TCHAR currentBuffer[2];
 	BOOL wasUndo;
 	BOOL wasMove;
+	BOOL isAllReplacing;
 };
 
 inline BOOL NotepadForm::GetIsComposing() const {

@@ -74,6 +74,10 @@ bool Glyph::IsSelecting() {
 	return false;
 }
 
+string Glyph::GetSelectedContent() {
+	return "";
+}
+
 void Glyph::Select(bool isSelected) {
 
 }

@@ -28,6 +28,7 @@ public:
 
 	virtual void UnselectAll();
 	virtual bool IsSelecting();
+	virtual string GetSelectedContent();
 
 	virtual Glyph* Clone();
 	virtual string GetContent();

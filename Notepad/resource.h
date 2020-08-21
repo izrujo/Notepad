@@ -1,8 +1,14 @@
 //{{NO_DEPENDENCIES}}
-// Microsoft Visual C++에서 생성한 포함 파일입니다.
-// Notepad20190501.rc에서 사용되고 있습니다.
+// Microsoft Visual C++ generated include file.
+// Used by Notepad20190501.rc
 //
-#define IDR_MENU1                       101
+#define IDD_FINDDIALOG                  30000
+#define IDD_REPLACEDIALOG               30001
+#define IDC_STATIC_FINDTEXT             30002
+#define IDC_CHECKBOX_WRAPAROUND         30003
+#define IDC_STATIC_DIRECTION            30004
+
+#define IDR_MENU1                       40000
 #define ID_Menu                         40001
 #define IDM_FILE_NEW                    40011
 #define IDM_FILE_OPEN                   40012
@@ -21,6 +27,8 @@
 #define IDM_EDIT_PASTE                  50025
 #define IDM_EDIT_DELETE                 50026
 #define IDM_EDIT_SELECTALL              50027
+#define IDM_EDIT_FIND                   50028
+#define IDM_EDIT_REPLACE				50029
 #define IDC_MOVE_LEFT                   60011
 #define IDC_MOVE_RIGHT                  60012
 #define IDC_MOVE_UP                     60013
@@ -33,14 +41,16 @@
 #define IDC_MOVE_CTRLEND                60020
 #define IDC_MOVE_PAGEUP                 60021
 #define IDC_MOVE_PAGEDOWN               60022
+#define IDC_SELECTMOVE_LEFT             60023
+#define IDC_SELECTMOVE_RIGHT            60024
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        105
-#define _APS_NEXT_COMMAND_VALUE         40044
-#define _APS_NEXT_CONTROL_VALUE         1001
+#define _APS_NEXT_RESOURCE_VALUE        112
+#define _APS_NEXT_COMMAND_VALUE         40047
+#define _APS_NEXT_CONTROL_VALUE         1004
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

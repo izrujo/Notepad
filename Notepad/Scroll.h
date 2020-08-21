@@ -1,5 +1,6 @@
 #ifndef _SCROLL_H
 #define _SCROLL_H
+
 #include <afxwin.h>
 
 typedef signed long int Long;

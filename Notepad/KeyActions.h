@@ -301,4 +301,22 @@ public:
 	CtrlYKeyAction& operator =(const CtrlYKeyAction& source);
 };
 
+class CtrlFKeyAction : public KeyAction {
+public:
+	CtrlFKeyAction(NotepadForm* notepadForm = 0);
+	CtrlFKeyAction(const CtrlFKeyAction& source);
+	virtual ~CtrlFKeyAction();
+	virtual void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	CtrlFKeyAction& operator =(const CtrlFKeyAction& source);
+};
+
+class CtrlHKeyAction : public KeyAction {
+public:
+	CtrlHKeyAction(NotepadForm* notepadForm = 0);
+	CtrlHKeyAction(const CtrlHKeyAction& source);
+	virtual ~CtrlHKeyAction();
+	virtual void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	CtrlHKeyAction& operator =(const CtrlHKeyAction& source);
+};
+
 #endif //_KEYACTIONS_H

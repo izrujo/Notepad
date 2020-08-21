@@ -90,6 +90,12 @@ KeyAction* KeyActionFactory::Make(UINT nChar) {
 	else if (isCtrl && nChar == 0x59) {
 		keyAction = new CtrlYKeyAction(this->notepadForm);
 	}
+	else if (isCtrl && nChar == 0x46) {
+		keyAction = new CtrlFKeyAction(this->notepadForm);
+	}
+	else if (isCtrl && nChar == 0x48) {
+		keyAction = new CtrlHKeyAction(this->notepadForm);
+	}
 	//KEY
 	else if (nChar == VK_LEFT) {
 		keyAction = new LeftKeyAction(this->notepadForm);

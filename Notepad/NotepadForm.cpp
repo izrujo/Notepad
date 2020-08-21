@@ -25,6 +25,7 @@
 #include "DrawingVisitor.h"
 #include "Selection.h"
 #include "AutoNewlineController.h"
+#include "FindReplaceDialog.h"
 
 BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_CREATE()
@@ -32,7 +33,7 @@ BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_CHAR()
 	ON_MESSAGE(WM_IME_COMPOSITION, OnImeComposition)
 	ON_MESSAGE(WM_IME_CHAR, OnImeChar)
-	ON_MESSAGE(WM_IME_STARTCOMPOSITION, OnImeStartComposition)	
+	ON_MESSAGE(WM_IME_STARTCOMPOSITION, OnImeStartComposition)
 	ON_WM_PAINT()
 	ON_WM_SIZE()
 	ON_WM_SETFOCUS()
@@ -40,14 +41,15 @@ BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_MOUSEMOVE()
 	ON_COMMAND_RANGE(IDM_FILE_NEW, IDM_FORMAT_FONT, OnCommandRange)
-	ON_COMMAND_RANGE(IDC_WRITE_CHAR, IDM_EDIT_SELECTALL, OnEditCommandRange)
-	ON_COMMAND_RANGE(IDC_MOVE_LEFT, IDC_MOVE_PAGEDOWN, OnMoveCommandRange)
+	ON_COMMAND_RANGE(IDC_WRITE_CHAR, IDM_EDIT_REPLACE, OnEditCommandRange)
+	ON_COMMAND_RANGE(IDC_MOVE_LEFT, IDC_SELECTMOVE_RIGHT, OnMoveCommandRange)
 	ON_WM_KEYDOWN()
 	ON_WM_HSCROLL()
 	ON_WM_VSCROLL()
 	ON_WM_MOUSEWHEEL()
 	ON_WM_MENUSELECT()
 	ON_WM_ERASEBKGND()
+	ON_REGISTERED_MESSAGE(WM_FINDREPLACE, OnFindReplace)
 	//ON_UPDATE_COMMAND_UI_RANGE(IDM_FORMAT_WORDWRAP, IDM_FORMAT_WORDWRAP, OnUpdateCommandUIRange)
 END_MESSAGE_MAP()
 
@@ -63,6 +65,7 @@ NotepadForm::NotepadForm() {
 	this->redoHistoryBook = NULL;
 	this->selection = NULL;
 	this->autoNewlineController = NULL;
+	this->findReplaceDialog = NULL;
 
 	this->isComposing = FALSE;
 	this->currentCharacter = '\0';
@@ -70,11 +73,12 @@ NotepadForm::NotepadForm() {
 	this->currentBuffer[1] = '\0';
 	this->wasUndo = FALSE;
 	this->wasMove = FALSE;
+	this->isAllReplacing = FALSE;
 }
 
 int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	CFrameWnd::OnCreate(lpCreateStruct);
-	
+
 	GlyphFactory glyphFactory;
 	this->note = glyphFactory.Make("");
 	this->current = glyphFactory.Make("\r\n");
@@ -122,6 +126,9 @@ void NotepadForm::OnClose() {
 	}
 	if (this->selection != NULL) {
 		delete this->selection;
+	}
+	if (this->findReplaceDialog != NULL) {
+		delete this->findReplaceDialog;
 	}
 
 	CFrameWnd::OnClose();
@@ -450,13 +457,14 @@ void NotepadForm::OnEditCommandRange(UINT uID) {
 
 		//========== 실행 취소 추가 ==========
 		string type = command->GetType();
-		if (type != "ImeComposition" && type != "Undo" && type != "Redo" && type != "Copy" && type != "SelectAll") {
+		if (type != "ImeComposition"
+			&& type != "Undo" && type != "Redo" && type != "Copy" && type != "SelectAll" && type != "Find" && type != "Replace") {
 			if ((type == "Write" && this->currentCharacter != VK_RETURN)
 				|| type == "ImeChar"
 				|| type == "DeleteSelection") {
 				Command* history;
 				if (this->undoHistoryBook->GetLength() > 0 && this->undoHistoryBook->OpenAt()->GetType() == "Macro"
-					&& (this->wasUndo == FALSE && this->wasMove == FALSE)) {
+					&& (this->wasUndo == FALSE && this->wasMove == FALSE) || this->isAllReplacing == TRUE) {
 					history = this->undoHistoryBook->OpenAt();
 					history->Add(command->Clone());
 				}
@@ -567,4 +575,47 @@ BOOL NotepadForm::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) {
 
 BOOL NotepadForm::OnEraseBkgnd(CDC* pDC) {
 	return TRUE;
+}
+
+LRESULT NotepadForm::OnFindReplace(WPARAM wParam, LPARAM lParam) {
+	UNREFERENCED_PARAMETER(wParam);
+
+	if (this->findReplaceDialog != NULL) {
+		BOOL isFindSuccess;
+		if (this->findReplaceDialog->FindNext()) {
+			isFindSuccess = this->findReplaceDialog->Find();
+			if (isFindSuccess == FALSE) {
+				CString messageText;
+				messageText.Format("\"%s\"을(를) 찾을 수 없습니다.", this->findReplaceDialog->GetFindString());
+				MessageBox((LPCTSTR)messageText, "메모장", MB_OK);
+			}
+		}
+		else if (this->findReplaceDialog->ReplaceCurrent()) {
+			this->findReplaceDialog->Replace();
+			isFindSuccess = this->findReplaceDialog->Find();
+			if (isFindSuccess == FALSE) {
+				CString messageText;
+				messageText.Format("\"%s\"을(를) 찾을 수 없습니다.", this->findReplaceDialog->GetFindString());
+				MessageBox((LPCTSTR)messageText, "메모장", MB_OK);
+			}
+		}
+		else if (this->findReplaceDialog->ReplaceAll()) {
+			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_MOVE_CTRLHOME, 0));
+			isFindSuccess = this->findReplaceDialog->Find();
+			while (isFindSuccess == TRUE) {
+				this->findReplaceDialog->Replace();
+				this->isAllReplacing = TRUE;
+				isFindSuccess = this->findReplaceDialog->Find();
+			}
+			this->isAllReplacing = FALSE;
+		}
+		else if (this->findReplaceDialog->IsTerminating()) {
+			this->findReplaceDialog = NULL; //No memory leak detected although do not call DestroyWindow() or destructor
+		}
+
+		this->Notify();
+		this->Invalidate();
+	}
+
+	return 0;
 }

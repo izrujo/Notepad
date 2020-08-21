@@ -12,7 +12,6 @@ Recently Updated : 2019.05
 #define CHARACTERMETRICS_H
 
 #include <string>
-#include <afxwin.h>
 
 using namespace std;
 typedef signed long int Long;

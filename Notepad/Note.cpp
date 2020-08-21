@@ -113,6 +113,37 @@ bool Note::IsSelecting() {
 	return isSelecting;
 }
 
+string Note::GetSelectedContent() {
+	string content = "";
+	string characterString;
+	Glyph* line;
+	Glyph* character;
+	Long j;
+	Long i = 0;
+
+	while (i < this->length) {
+		line = this->glyphs.GetAt(i);
+		j = 0;
+		while (j < line->GetLength()) {
+			character = line->GetAt(j);
+			if (character->GetIsSelected() == true) {
+				characterString = character->GetContent();
+				if (characterString.length() == 8) {
+					characterString = '\t';
+				}
+				content += characterString;
+			}
+			j++;
+		}
+		if (i < this->length - 1) {
+			content += "\n";
+		}
+		i++;
+	}
+
+	return content;
+}
+
 Glyph* Note::Clone() {
 	return new Note(*this);
 }

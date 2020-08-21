@@ -390,44 +390,7 @@ ShiftLeftKeyAction::~ShiftLeftKeyAction() {
 }
 
 void ShiftLeftKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
-	Glyph* character;
-	Long column;
-	Long noteCurrent = this->notepadForm->note->GetCurrent();
-	Long row = noteCurrent;
-	Long lineCurrent = this->notepadForm->current->GetCurrent();
-	if (lineCurrent > 0) {
-		column = this->notepadForm->current->Previous();
-		character = this->notepadForm->current->GetAt(column);
-		(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
-	}
-	else if (noteCurrent > 0) {
-		row = this->notepadForm->note->Previous();
-		this->notepadForm->current = this->notepadForm->note->GetAt(row);
-		this->notepadForm->current->Last();
-	}
-
-	Long start = row;
-	Long end = noteCurrent;
-	if (this->notepadForm->selection != NULL) {
-		Long originStart = this->notepadForm->selection->GetStart();
-		Long originEnd = this->notepadForm->selection->GetEnd();
-		if (originStart == noteCurrent) { //선택할 때
-			start = row;
-			end = originEnd;
-		}
-		else if (originEnd == noteCurrent) { //선택 해제할 때
-			end = row;
-			start = originStart;
-		}
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	this->notepadForm->selection = new Selection(start, end);
-
-	if (start == end && this->notepadForm->note->IsSelecting() == false) {
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_SELECTMOVE_LEFT, 0));
 }
 
 ShiftLeftKeyAction& ShiftLeftKeyAction::operator = (const ShiftLeftKeyAction& source) {
@@ -448,44 +411,7 @@ ShiftRightKeyAction::~ShiftRightKeyAction() {
 }
 
 void ShiftRightKeyAction::OnKeyDown(UINT nChar, UINT nRepeatCnt, UINT nFlags) {
-	Glyph* character;
-	Long column;
-	Long noteCurrent = this->notepadForm->note->GetCurrent();
-	Long row = noteCurrent;
-	Long lineCurrent = this->notepadForm->current->GetCurrent();
-	if (lineCurrent < this->notepadForm->current->GetLength()) {
-		column = this->notepadForm->current->Next();
-		character = this->notepadForm->current->GetAt(column - 1);
-		(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
-	}
-	else if (noteCurrent < this->notepadForm->note->GetLength() - 1) {
-		row = this->notepadForm->note->Next();
-		this->notepadForm->current = this->notepadForm->note->GetAt(row);
-		this->notepadForm->current->First();
-	}
-
-	Long start = noteCurrent;
-	Long end = row;
-	if (this->notepadForm->selection != NULL) {
-		Long originStart = this->notepadForm->selection->GetStart();
-		Long originEnd = this->notepadForm->selection->GetEnd();
-		if (originEnd == noteCurrent) { //선택할 때
-			start = originStart;
-			end = row;
-		}
-		else if (originStart == noteCurrent) { //선택 해제할 때
-			end = originEnd;
-			start = row;
-		}
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
-	this->notepadForm->selection = new Selection(start, end);
-
-	if (start == end && this->notepadForm->note->IsSelecting() == false) {
-		delete this->notepadForm->selection;
-		this->notepadForm->selection = NULL;
-	}
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_SELECTMOVE_RIGHT, 0));
 }
 
 ShiftRightKeyAction& ShiftRightKeyAction::operator=(const ShiftRightKeyAction& source) {
@@ -1130,6 +1056,50 @@ void CtrlYKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 }
 
 CtrlYKeyAction& CtrlYKeyAction::operator =(const CtrlYKeyAction& source) {
+	KeyAction::operator =(source);
+
+	return *this;
+}
+
+//CtrlFKeyAction
+CtrlFKeyAction::CtrlFKeyAction(NotepadForm* notepadForm)
+	: KeyAction(notepadForm) {
+}
+
+CtrlFKeyAction::CtrlFKeyAction(const CtrlFKeyAction& source)
+	: KeyAction(source) {
+}
+
+CtrlFKeyAction::~CtrlFKeyAction() {
+}
+
+void CtrlFKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_FIND, 0));
+}
+
+CtrlFKeyAction& CtrlFKeyAction::operator =(const CtrlFKeyAction& source) {
+	KeyAction::operator =(source);
+
+	return *this;
+}
+
+//CtrlHKeyAction
+CtrlHKeyAction::CtrlHKeyAction(NotepadForm* notepadForm)
+	: KeyAction(notepadForm) {
+}
+
+CtrlHKeyAction::CtrlHKeyAction(const CtrlHKeyAction& source)
+	: KeyAction(source) {
+}
+
+CtrlHKeyAction::~CtrlHKeyAction() {
+}
+
+void CtrlHKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	this->notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_EDIT_REPLACE, 0));
+}
+
+CtrlHKeyAction& CtrlHKeyAction::operator =(const CtrlHKeyAction& source) {
 	KeyAction::operator =(source);
 
 	return *this;

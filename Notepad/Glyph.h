@@ -31,6 +31,7 @@ public:
 
 	virtual void UnselectAll();
 	virtual bool IsSelecting();
+	virtual string GetSelectedContent();
 
 	virtual void Select(bool isSelected); //virtual
 

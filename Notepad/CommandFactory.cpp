@@ -62,6 +62,12 @@ Command* CommandFactory::Make(int uID) {
 	else if (uID == IDM_EDIT_REDO) {
 		command = new RedoCommand(this->notepadForm);
 	}
+	else if (uID == IDM_EDIT_FIND) {
+		command = new FindCommand(this->notepadForm);
+	}
+	else if (uID == IDM_EDIT_REPLACE) {
+		command = new ReplaceCommand(this->notepadForm);
+	}
 	else if (uID == IDC_WRITE_CHAR) {
 		command = new WriteCommand(this->notepadForm);
 	}
@@ -109,6 +115,12 @@ Command* CommandFactory::Make(int uID) {
 	}
 	else if (uID == IDC_MOVE_PAGEDOWN) {
 		command = new PageDownCommand(this->notepadForm);
+	}
+	else if (uID == IDC_SELECTMOVE_LEFT) {
+		command = new ShiftLeftCommand(this->notepadForm);
+	}
+	else if (uID == IDC_SELECTMOVE_RIGHT) {
+		command = new ShiftRightCommand(this->notepadForm);
 	}
 
 	return command;

@@ -4,6 +4,8 @@
 #include "Characters.h"
 #include "Font.h"
 
+#include <afxwin.h>
+
 CharacterMetrics::CharacterMetrics(NotepadForm* notepadForm) {
 	this->notepadForm = notepadForm;
 	CDC* dc = this->notepadForm->GetDC();

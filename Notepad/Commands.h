@@ -349,6 +349,33 @@ public:
 	virtual Command* Clone();
 };
 
+//FindCommand
+class FindCommand : public Command {
+public:
+	FindCommand(NotepadForm* notepadForm = 0);
+	FindCommand(const FindCommand& source);
+	virtual ~FindCommand();
+	FindCommand& operator=(const FindCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//ReplaceCommand
+class ReplaceCommand : public Command {
+public:
+	ReplaceCommand(NotepadForm* notepadForm = 0);
+	ReplaceCommand(const ReplaceCommand& source);
+	virtual ~ReplaceCommand();
+	ReplaceCommand& operator=(const ReplaceCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//=============== Move Command ===============
 //LeftCommand
 class LeftCommand : public Command {
 public:
@@ -504,5 +531,32 @@ public:
 	virtual string GetType();
 	virtual Command* Clone();
 };
+
+//ShiftLeftCommand
+class ShiftLeftCommand : public Command {
+public:
+	ShiftLeftCommand(NotepadForm* notepadForm = 0);
+	ShiftLeftCommand(const ShiftLeftCommand& source);
+	virtual ~ShiftLeftCommand();
+	ShiftLeftCommand& operator=(const ShiftLeftCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//ShiftRightCommand
+class ShiftRightCommand : public Command {
+public:
+	ShiftRightCommand(NotepadForm* notepadForm = 0);
+	ShiftRightCommand(const ShiftRightCommand& source);
+	virtual ~ShiftRightCommand();
+	ShiftRightCommand& operator=(const ShiftRightCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+//=============== Move Command ===============
 
 #endif //_COMMAND_H

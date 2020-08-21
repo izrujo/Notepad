@@ -17,6 +17,7 @@
 #include "ScrollController.h"
 #include "Scroll.h"
 #include "AutoNewlineController.h"
+#include "FindReplaceDialog.h"
 
 #include "resource.h"
 
@@ -1395,6 +1396,85 @@ Command* RedoCommand::Clone() {
 	return new RedoCommand(*this);
 }
 
+//FindCommand
+FindCommand::FindCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+FindCommand::FindCommand(const FindCommand& source)
+	: Command(source) {
+}
+
+FindCommand::~FindCommand() {
+
+}
+
+FindCommand& FindCommand::operator=(const FindCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void FindCommand::Execute() {
+	if (this->notepadForm->findReplaceDialog == NULL) {
+		string selectedContent = "";
+		if (notepadForm->selection != NULL) {
+			selectedContent = notepadForm->note->GetSelectedContent();
+		}
+		this->notepadForm->findReplaceDialog = new FindReplaceDialog(TRUE, selectedContent, this->notepadForm);
+		this->notepadForm->findReplaceDialog->SetActiveWindow();
+		this->notepadForm->findReplaceDialog->ShowWindow(TRUE);
+	}
+}
+
+string FindCommand::GetType() {
+	return "Find";
+}
+
+Command* FindCommand::Clone() {
+	return new FindCommand(*this);
+}
+
+//ReplaceCommand
+ReplaceCommand::ReplaceCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+ReplaceCommand::ReplaceCommand(const ReplaceCommand& source)
+	: Command(source) {
+}
+
+ReplaceCommand::~ReplaceCommand() {
+
+}
+
+ReplaceCommand& ReplaceCommand::operator=(const ReplaceCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void ReplaceCommand::Execute() {
+	if (this->notepadForm->findReplaceDialog == NULL) {
+		string selectedContent = "";
+		if (notepadForm->selection != NULL) {
+			selectedContent = notepadForm->note->GetSelectedContent();
+		}
+		this->notepadForm->findReplaceDialog = new FindReplaceDialog(FALSE, selectedContent, this->notepadForm); 
+		this->notepadForm->findReplaceDialog->SetActiveWindow();
+		this->notepadForm->findReplaceDialog->ShowWindow(TRUE);
+	}
+}
+
+string ReplaceCommand::GetType() {
+	return "Replace";
+}
+
+Command* ReplaceCommand::Clone() {
+	return new ReplaceCommand(*this);
+}
+
+//=============== Move Command ===============
 //LeftCommand
 LeftCommand::LeftCommand(NotepadForm* notepadForm)
 	: Command(notepadForm) {
@@ -1883,3 +1963,140 @@ string PageDownCommand::GetType() {
 Command* PageDownCommand::Clone() {
 	return new PageDownCommand(*this);
 }
+
+//ShiftLeftCommand
+ShiftLeftCommand::ShiftLeftCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+ShiftLeftCommand::ShiftLeftCommand(const ShiftLeftCommand& source)
+	: Command(source) {
+}
+
+ShiftLeftCommand::~ShiftLeftCommand() {
+
+}
+
+ShiftLeftCommand& ShiftLeftCommand::operator=(const ShiftLeftCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void ShiftLeftCommand::Execute() {
+	Glyph* character;
+	Long column;
+	Long noteCurrent = this->notepadForm->note->GetCurrent();
+	Long row = noteCurrent;
+	Long lineCurrent = this->notepadForm->current->GetCurrent();
+	if (lineCurrent > 0) {
+		column = this->notepadForm->current->Previous();
+		character = this->notepadForm->current->GetAt(column);
+		(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+	}
+	else if (noteCurrent > 0) {
+		row = this->notepadForm->note->Previous();
+		this->notepadForm->current = this->notepadForm->note->GetAt(row);
+		this->notepadForm->current->Last();
+	}
+
+	Long start = row;
+	Long end = noteCurrent;
+	if (this->notepadForm->selection != NULL) {
+		Long originStart = this->notepadForm->selection->GetStart();
+		Long originEnd = this->notepadForm->selection->GetEnd();
+		if (originStart == noteCurrent) { //선택할 때
+			start = row;
+			end = originEnd;
+		}
+		else if (originEnd == noteCurrent) { //선택 해제할 때
+			end = row;
+			start = originStart;
+		}
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	this->notepadForm->selection = new Selection(start, end);
+
+	if (start == end && this->notepadForm->note->IsSelecting() == false) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+}
+
+string ShiftLeftCommand::GetType() {
+	return "ShiftLeft";
+}
+
+Command* ShiftLeftCommand::Clone() {
+	return new ShiftLeftCommand(*this);
+}
+
+//ShiftRightCommand
+ShiftRightCommand::ShiftRightCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+ShiftRightCommand::ShiftRightCommand(const ShiftRightCommand& source)
+	: Command(source) {
+}
+
+ShiftRightCommand::~ShiftRightCommand() {
+
+}
+
+ShiftRightCommand& ShiftRightCommand::operator=(const ShiftRightCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void ShiftRightCommand::Execute() {
+	Glyph* character;
+	Long column;
+	Long noteCurrent = this->notepadForm->note->GetCurrent();
+	Long row = noteCurrent;
+	Long lineCurrent = this->notepadForm->current->GetCurrent();
+	if (lineCurrent < this->notepadForm->current->GetLength()) {
+		column = this->notepadForm->current->Next();
+		character = this->notepadForm->current->GetAt(column - 1);
+		(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+	}
+	else if (noteCurrent < this->notepadForm->note->GetLength() - 1) {
+		row = this->notepadForm->note->Next();
+		this->notepadForm->current = this->notepadForm->note->GetAt(row);
+		this->notepadForm->current->First();
+	}
+
+	Long start = noteCurrent;
+	Long end = row;
+	if (this->notepadForm->selection != NULL) {
+		Long originStart = this->notepadForm->selection->GetStart();
+		Long originEnd = this->notepadForm->selection->GetEnd();
+		if (originEnd == noteCurrent) { //선택할 때
+			start = originStart;
+			end = row;
+		}
+		else if (originStart == noteCurrent) { //선택 해제할 때
+			end = originEnd;
+			start = row;
+		}
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+	this->notepadForm->selection = new Selection(start, end);
+
+	if (start == end && this->notepadForm->note->IsSelecting() == false) {
+		delete this->notepadForm->selection;
+		this->notepadForm->selection = NULL;
+	}
+}
+
+string ShiftRightCommand::GetType() {
+	return "ShiftRight";
+}
+
+Command* ShiftRightCommand::Clone() {
+	return new ShiftRightCommand(*this);
+}
+//=============== Move Command ===============
