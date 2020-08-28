@@ -49,6 +49,8 @@
     <ClInclude Include="NotepadApp.h" />
     <ClInclude Include="NotepadForm.h" />
     <ClInclude Include="Observer.h" />
+    <ClInclude Include="PageSetupDialog.h" />
+    <ClInclude Include="PreviewForm.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="Scroll.h" />
@@ -91,6 +93,8 @@
     <ClCompile Include="NotepadApp.cpp" />
     <ClCompile Include="NotepadForm.cpp" />
     <ClCompile Include="Observer.cpp" />
+    <ClCompile Include="PageSetupDialog.cpp" />
+    <ClCompile Include="PreviewForm.cpp" />
     <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="Scroll.cpp" />
     <ClCompile Include="ScrollController.cpp" />
@@ -104,6 +108,9 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Notepad20190501.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="bmp00001.bmp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

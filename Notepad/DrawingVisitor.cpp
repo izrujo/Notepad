@@ -25,7 +25,10 @@ DrawingVisitor::~DrawingVisitor() {
 }
 
 void DrawingVisitor::Visit(Note* note) {
-	Long y = this->scrollController->GetVerticalScroll()->GetPosition();
+	Long y = 0;
+	if (this->scrollController != NULL) {
+		y = this->scrollController->GetVerticalScroll()->GetPosition();
+	}
 	Long begin = this->characterMetrics->GetRow(y);
 
 	//юс╫ц
@@ -50,7 +53,10 @@ void DrawingVisitor::Visit(Note* note) {
 }
 
 void DrawingVisitor::Visit(Line* line) {
-	Long x = this->scrollController->GetHorizontalScroll()->GetPosition();
+	Long x = 0;
+	if (this->scrollController != NULL) {
+		x = this->scrollController->GetHorizontalScroll()->GetPosition();
+	}
 	Long begin = this->characterMetrics->GetColumnForDrawing(line, x);
 	this->x = this->characterMetrics->GetX(line, begin);
 
@@ -68,7 +74,10 @@ void DrawingVisitor::Visit(Character* character) {
 	string content = character->GetContent();
 	bool isSelected = character->GetIsSelected();
 
-	Long x = this->scrollController->GetHorizontalScroll()->GetPosition();
+	Long x = 0;
+	if (this->scrollController != NULL) {
+		x = this->scrollController->GetHorizontalScroll()->GetPosition();
+	}
 
 	Long width = 0;
 	if (dynamic_cast<SingleByteCharacter*>(character)) {

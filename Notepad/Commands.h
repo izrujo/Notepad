@@ -174,6 +174,45 @@ public:
 	virtual Command* Clone();
 };
 
+//PageSetupCommand
+class PageSetupCommand : public Command {
+public:
+	PageSetupCommand(NotepadForm* notepadForm = 0);
+	PageSetupCommand(const PageSetupCommand& source);
+	virtual ~PageSetupCommand();
+	PageSetupCommand& operator=(const PageSetupCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//PrintCommand
+class PrintCommand : public Command {
+public:
+	PrintCommand(NotepadForm* notepadForm = 0);
+	PrintCommand(const PrintCommand& source);
+	virtual ~PrintCommand();
+	PrintCommand& operator=(const PrintCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
+//PreviewCommand
+class PreviewCommand : public Command {
+public:
+	PreviewCommand(NotepadForm* notepadForm = 0);
+	PreviewCommand(const PreviewCommand& source);
+	virtual ~PreviewCommand();
+	PreviewCommand& operator=(const PreviewCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
 //WriteCommand
 class WriteCommand : public Command {
 public:

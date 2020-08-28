@@ -25,6 +25,7 @@ public:
 	NotepadForm();
 	virtual int OnCreate(LPCREATESTRUCT lpCreateStruct);
 public:
+	CMenu menu;
 	Glyph* note;
 	Glyph* current;
 	CaretController* caretController;
@@ -72,7 +73,6 @@ public:
 
 private:
 	BOOL isComposing;
-	CMenu menu;
 	char currentCharacter;
 	TCHAR currentBuffer[2];
 	BOOL wasUndo;

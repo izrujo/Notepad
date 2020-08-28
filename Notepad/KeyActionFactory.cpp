@@ -40,6 +40,9 @@ KeyAction* KeyActionFactory::Make(UINT nChar) {
 	else if (isShift && isCtrl && nChar == VK_END) {
 		keyAction = new ShiftCtrlEndKeyAction(this->notepadForm);
 	}
+	else if (isShift && isCtrl && nChar == 0x53) {
+		keyAction = new CtrlShiftSKeyAction(this->notepadForm);
+	}
 	//Shift + KEY
 	else if (isShift && nChar == VK_LEFT) {
 		keyAction = new ShiftLeftKeyAction(this->notepadForm);
@@ -95,6 +98,15 @@ KeyAction* KeyActionFactory::Make(UINT nChar) {
 	}
 	else if (isCtrl && nChar == 0x48) {
 		keyAction = new CtrlHKeyAction(this->notepadForm);
+	}
+	else if (isCtrl && nChar == 0x4E) {
+		keyAction = new CtrlNKeyAction(this->notepadForm);
+	}
+	else if (isCtrl && nChar == 0x4F) {
+		keyAction = new CtrlOKeyAction(this->notepadForm);
+	}
+	else if (isCtrl && nChar == 0x53) {
+		keyAction = new CtrlSKeyAction(this->notepadForm);
 	}
 	//KEY
 	else if (nChar == VK_LEFT) {

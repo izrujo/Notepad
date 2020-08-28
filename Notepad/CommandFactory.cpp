@@ -41,6 +41,15 @@ Command* CommandFactory::Make(int uID) {
 	else if (uID == IDM_FILE_SAVEAS) {
 		command = new SaveAsCommand(this->notepadForm);
 	}
+	else if (uID == IDM_FILE_PAGESETUP) {
+		command = new PageSetupCommand(this->notepadForm);
+	}
+	else if (uID == IDM_FILE_PRINT) {
+		command = new PrintCommand(this->notepadForm);
+	}
+	else if (uID == IDM_FILE_PREVIEW) {
+		command = new PreviewCommand(this->notepadForm);
+	}
 	else if (uID == IDM_EDIT_COPY) {
 		command = new CopyCommand(this->notepadForm);
 	}

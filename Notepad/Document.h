@@ -12,8 +12,10 @@ Recently Updated : 2020.07.17
 #define _DOCUMENT_H
 
 #include <iostream>
+#include <afxwin.h>
 
 using namespace std;
+typedef signed long int Long;
 
 class NotepadForm;
 
@@ -28,15 +30,34 @@ public:
 	void SetPathName(string pathName);
 	void SetEncodingType(string encodingType);
 
+	void SetPaperSize(CSize paperSize);
+	void SetIsVertical(bool isVertical);
+	void SetMargins(CRect margins);
+	void SetHeader(string header);
+	void SetFooter(string footer);
+
 	bool GetIsDirty() const;
 	string& GetPathName() const;
 	string& GetEncodingType() const;
+	
+	CSize& GetPaperSize() const;
+	bool GetIsVertical() const;
+	CRect& GetMargins() const;
+	string& GetHeader() const;
+	string& GetFooter() const;
 
 private:
 	NotepadForm* notepadForm;
 	bool isDirty;
 	string pathName;
 	string encodingType;
+	//페이지 설정
+	//용지(크기, 공급(x)), 방향,	여백, 머리글, 바닥글
+	CSize paperSize;
+	bool isVertical;
+	CRect margins;
+	string header;
+	string footer;
 };
 
 inline bool Document::GetIsDirty() const {
@@ -49,6 +70,26 @@ inline string& Document::GetPathName() const {
 
 inline string& Document::GetEncodingType() const {
 	return const_cast<string&>(this->encodingType);
+}
+
+inline CSize& Document::GetPaperSize() const {
+	return const_cast<CSize&>(this->paperSize);
+}
+
+inline bool Document::GetIsVertical() const {
+	return this->isVertical;
+}
+
+inline CRect& Document::GetMargins() const {
+	return const_cast<CRect&>(this->margins);
+}
+
+inline string& Document::GetHeader() const {
+	return const_cast<string&>(this->header);
+}
+
+inline string& Document::GetFooter() const {
+	return const_cast<string&>(this->footer);
 }
 
 #endif //_DOCUMENT_H

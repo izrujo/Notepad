@@ -18,6 +18,8 @@
 #include "Scroll.h"
 #include "AutoNewlineController.h"
 #include "FindReplaceDialog.h"
+#include "PageSetupDialog.h"
+#include "PreviewForm.h"
 
 #include "resource.h"
 
@@ -25,6 +27,7 @@
 #include <WinUser.h>
 #include <direct.h>
 #include <dlgs.h>
+
 #pragma warning(disable:4996)
 
 //Command
@@ -249,12 +252,14 @@ AutoNewlineCommand& AutoNewlineCommand::operator=(const AutoNewlineCommand& sour
 
 void AutoNewlineCommand::Execute() {
 	if (this->notepadForm->autoNewlineController == NULL) {
+		this->notepadForm->menu.CheckMenuItem(IDM_FORMAT_AUTONEWLINE, MF_CHECKED | MF_BYCOMMAND);
 		this->notepadForm->autoNewlineController = new AutoNewlineController(this->notepadForm);
 	}
 	else {
 		this->notepadForm->autoNewlineController->Release();
 		delete this->notepadForm->autoNewlineController;
 		this->notepadForm->autoNewlineController = NULL;
+		this->notepadForm->menu.CheckMenuItem(IDM_FORMAT_AUTONEWLINE, MF_UNCHECKED | MF_BYCOMMAND);
 	}
 
 	if (this->notepadForm->selection != NULL) {
@@ -580,6 +585,118 @@ string CloseCommand::GetType() {
 
 Command* CloseCommand::Clone() {
 	return new CloseCommand(*this);
+}
+
+//PageSetupCommand
+PageSetupCommand::PageSetupCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+PageSetupCommand::PageSetupCommand(const PageSetupCommand& source)
+	: Command(source) {
+}
+
+PageSetupCommand::~PageSetupCommand() {
+
+}
+
+PageSetupCommand& PageSetupCommand::operator=(const PageSetupCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void PageSetupCommand::Execute() {
+	PageSetupDialog psd(this->notepadForm);
+	psd.DoModal();
+}
+
+string PageSetupCommand::GetType() {
+	return "PageSetup";
+}
+
+Command* PageSetupCommand::Clone() {
+	return new PageSetupCommand(*this);
+}
+
+//PrintCommand
+PrintCommand::PrintCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+PrintCommand::PrintCommand(const PrintCommand& source)
+	: Command(source) {
+}
+
+PrintCommand::~PrintCommand() {
+
+}
+
+PrintCommand& PrintCommand::operator=(const PrintCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void PrintCommand::Execute() {
+	CPrintDialog pd(FALSE, PD_ALLPAGES | PD_USEDEVMODECOPIES | PD_NOPAGENUMS | PD_NOSELECTION,
+		this->notepadForm);
+	if (IDOK == pd.DoModal()) {
+		CSize paperSize = this->notepadForm->document->GetPaperSize();
+		bool isVertical = this->notepadForm->document->GetIsVertical();
+		CRect margins = this->notepadForm->document->GetMargins();
+		string header = this->notepadForm->document->GetHeader();
+		string footer = this->notepadForm->document->GetFooter();
+
+		CDC printerDC;
+		HDC hdc = pd.CreatePrinterDC();
+		printerDC.Attach(hdc);
+
+		//printerDC.
+	}
+}
+
+string PrintCommand::GetType() {
+	return "Print";
+}
+
+Command* PrintCommand::Clone() {
+	return new PrintCommand(*this);
+}
+
+//PreviewCommand
+PreviewCommand::PreviewCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+PreviewCommand::PreviewCommand(const PreviewCommand& source)
+	: Command(source) {
+}
+
+PreviewCommand::~PreviewCommand() {
+
+}
+
+PreviewCommand& PreviewCommand::operator=(const PreviewCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void PreviewCommand::Execute() {
+	Glyph* note = this->notepadForm->note->Clone();
+	PreviewForm* previewForm = new PreviewForm(this->notepadForm, note);
+	previewForm->Create(NULL, "인쇄 미리 보기", 13565952UL, CRect(0, 0, 1200, 875));
+	previewForm->ShowWindow(SW_NORMAL);
+	previewForm->UpdateWindow();
+}
+
+string PreviewCommand::GetType() {
+	return "Preview";
+}
+
+Command* PreviewCommand::Clone() {
+	return new PreviewCommand(*this);
 }
 
 //WriteCommand
@@ -1460,7 +1577,7 @@ void ReplaceCommand::Execute() {
 		if (notepadForm->selection != NULL) {
 			selectedContent = notepadForm->note->GetSelectedContent();
 		}
-		this->notepadForm->findReplaceDialog = new FindReplaceDialog(FALSE, selectedContent, this->notepadForm); 
+		this->notepadForm->findReplaceDialog = new FindReplaceDialog(FALSE, selectedContent, this->notepadForm);
 		this->notepadForm->findReplaceDialog->SetActiveWindow();
 		this->notepadForm->findReplaceDialog->ShowWindow(TRUE);
 	}
