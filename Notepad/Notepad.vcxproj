@@ -21,10 +21,12 @@
   <ItemGroup>
     <ClInclude Include="Array.h" />
     <ClInclude Include="AutoNewlineController.h" />
+    <ClInclude Include="Book.h" />
     <ClInclude Include="Caret.h" />
     <ClInclude Include="CaretController.h" />
     <ClInclude Include="Characters.h" />
     <ClInclude Include="CharacterMetrics.h" />
+    <ClInclude Include="CHWindowForm.h" />
     <ClInclude Include="Commands.h" />
     <ClInclude Include="CommandFactory.h" />
     <ClInclude Include="Composite.h" />
@@ -45,12 +47,14 @@
     <ClInclude Include="KeyActionFactory.h" />
     <ClInclude Include="KeyActions.h" />
     <ClInclude Include="Line.h" />
+    <ClInclude Include="LineDivider.h" />
     <ClInclude Include="Note.h" />
     <ClInclude Include="NotepadApp.h" />
     <ClInclude Include="NotepadForm.h" />
     <ClInclude Include="Observer.h" />
     <ClInclude Include="PageSetupDialog.h" />
     <ClInclude Include="PreviewForm.h" />
+    <ClInclude Include="PrintingVisitor.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="Scroll.h" />
@@ -69,6 +73,7 @@
     <ClCompile Include="CaretController.cpp" />
     <ClCompile Include="Characters.cpp" />
     <ClCompile Include="CharacterMetrics.cpp" />
+    <ClCompile Include="CHWindowForm.cpp" />
     <ClCompile Include="Commands.cpp" />
     <ClCompile Include="CommandFactory.cpp" />
     <ClCompile Include="Composite.cpp" />
@@ -89,16 +94,19 @@
     <ClCompile Include="KeyActionFactory.cpp" />
     <ClCompile Include="KeyActions.cpp" />
     <ClCompile Include="Line.cpp" />
+    <ClCompile Include="LineDivider.cpp" />
     <ClCompile Include="Note.cpp" />
     <ClCompile Include="NotepadApp.cpp" />
     <ClCompile Include="NotepadForm.cpp" />
     <ClCompile Include="Observer.cpp" />
     <ClCompile Include="PageSetupDialog.cpp" />
     <ClCompile Include="PreviewForm.cpp" />
+    <ClCompile Include="PrintingVisitor.cpp" />
     <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="Scroll.cpp" />
     <ClCompile Include="ScrollController.cpp" />
     <ClCompile Include="Selection.cpp" />
+    <ClCompile Include="Book.cpp" />
     <ClCompile Include="Stack.cpp" />
     <ClCompile Include="String.cpp" />
     <ClCompile Include="Subject.cpp" />

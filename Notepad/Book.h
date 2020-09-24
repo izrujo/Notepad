@@ -10,26 +10,17 @@ using namespace std;
 class Glyph;
 class Visitor;
 
-class Note : public Composite {
+class Book : public Composite {
 public:
-	Note(Long capacity = 256);
-	Note(const Note& source);
-	virtual ~Note();
-	Note& operator=(const Note& source);
+	Book(Long capacity = 256);
+	Book(const Book& source);
+	virtual ~Book();
+	Book& operator=(const Book& source);
 
 	virtual Long Add(Glyph* glyph);
 	virtual Long Add(Long index, Glyph* glyph);
 	virtual Long Remove(Long index);
-	virtual Glyph* Divide(Long index);
-
 	virtual Long Next();
-	virtual Long Last();
-	virtual Long MovePreviousWord();
-	virtual Long MoveNextWord();
-
-	virtual void UnselectAll();
-	virtual bool IsSelecting();
-	virtual string GetSelectedContent();
 
 	virtual Glyph* Clone();
 	virtual string GetContent();

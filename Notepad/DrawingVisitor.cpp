@@ -45,7 +45,7 @@ void DrawingVisitor::Visit(Note* note) {
 		this->y = i * this->characterMetrics->GetHeight() - y;
 		note->GetAt(i)->Accept(this);
 		if (i == start || i == end) { //임시
-			this->dc->MoveTo(this->x + 10, this->y); //임시
+			this->dc->MoveTo(this->x + 10, this->y);
 			this->dc->LineTo(this->x + 10, this->y + this->characterMetrics->GetHeight()); //임시
 		}
 		i++;
@@ -97,4 +97,8 @@ void DrawingVisitor::Visit(Character* character) {
 
 	this->dc->SetTextColor(oldColor);
 	this->dc->SetBkColor(oldBkColor);
+}
+
+void DrawingVisitor::Visit(Book* book) {
+
 }

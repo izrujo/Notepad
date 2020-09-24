@@ -46,6 +46,8 @@ public:
 	string& GetHeader() const;
 	string& GetFooter() const;
 
+	HGLOBAL deviceMode;
+
 private:
 	NotepadForm* notepadForm;
 	bool isDirty;

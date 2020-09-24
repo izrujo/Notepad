@@ -13,12 +13,13 @@ class Selection;
 
 class DrawingVisitor : public Visitor {
 public:
-	DrawingVisitor(CDC* dc = 0, CharacterMetrics* characterMetrics = 0, ScrollController* scrollController = 0, Selection* selection = 0);
+	DrawingVisitor(CDC *dc = 0, CharacterMetrics* characterMetrics = 0, ScrollController* scrollController = 0, Selection* selection = 0);
 	virtual ~DrawingVisitor();
 
 	virtual void Visit(Note* note);
 	virtual void Visit(Line* line);
 	virtual void Visit(Character* character);
+	virtual void Visit(Book* book); //not implemented
 
 private:
 	CDC* dc;

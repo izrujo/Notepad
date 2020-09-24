@@ -144,6 +144,18 @@
     <ClInclude Include="PreviewForm.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
+    <ClInclude Include="CHWindowForm.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="LineDivider.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="PrintingVisitor.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="Book.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Caret.cpp">
@@ -267,6 +279,18 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="PreviewForm.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="CHWindowForm.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="LineDivider.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="PrintingVisitor.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="Book.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

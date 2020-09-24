@@ -4,6 +4,7 @@
 class Note;
 class Line;
 class Character;
+class Book;
 
 class Visitor {
 public:
@@ -13,6 +14,7 @@ public:
 	virtual void Visit(Note* note) = 0;
 	virtual void Visit(Line* line) = 0;
 	virtual void Visit(Character* character) = 0;
+	virtual void Visit(Book* book) = 0; //not implemented
 };
 
 #endif //_VISITOR_H

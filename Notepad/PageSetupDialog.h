@@ -12,7 +12,7 @@ public:
 	PageSetupDialog(CWnd* parent = NULL);
 	
 	BOOL DoModal();
-private:
+public:
 	PAGESETUPDLG psd;
 };
 

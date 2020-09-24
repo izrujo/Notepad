@@ -13,14 +13,16 @@ Recently Updated : 2019.05
 
 #include <string>
 
+#include "CHWindowForm.h"
+
 using namespace std;
 typedef signed long int Long;
-class NotepadForm;
 class Glyph;
+class Font;
 
 class CharacterMetrics {
 public:
-	CharacterMetrics(NotepadForm* notepadForm = 0);
+	CharacterMetrics(CHWindowForm* window = 0, Font *font = 0);
 	CharacterMetrics(const CharacterMetrics& source);
 	~CharacterMetrics();
 	Long GetX(Glyph* line);
@@ -39,7 +41,8 @@ public:
 	Long GetDoubleByteWidth() const;
 	Long GetHeight() const;
 private:
-	NotepadForm* notepadForm;
+	CHWindowForm* window;
+	Font* font;
 	Long widths[129];
 	Long height;
 };

@@ -3,10 +3,11 @@
 
 Document::Document(NotepadForm* notepadForm) 
 	: pathName("제목 없음"), encodingType("ANSI"), 
-	paperSize(21000, 29700), margins(2000, 2500, 2000, 2500), header(""), footer("") {
+	paperSize(21000, 29700), margins(20, 25, 20, 25), header(""), footer("") {
 	this->notepadForm = notepadForm;
 	this->isDirty = false;
 	this->isVertical = true;
+	this->deviceMode = { 0, };
 }
 
 Document::Document(const Document& source) 
@@ -15,6 +16,7 @@ Document::Document(const Document& source)
 	this->notepadForm = source.notepadForm;
 	this->isDirty = source.isDirty;
 	this->isVertical = source.isVertical;
+	this->deviceMode = source.deviceMode;
 }
 
 Document::~Document() {
@@ -31,6 +33,7 @@ Document& Document::operator=(const Document& source) {
 	this->margins = source.margins;
 	this->header = source.header;
 	this->footer = source.footer;
+	this->deviceMode = source.deviceMode;
 
 	return *this;
 }

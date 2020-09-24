@@ -5,8 +5,8 @@
 #define IDR_TOOLBAR1                    10000
 #define IDT_BUTTON_PRINT                10001
 #define IDT_BUTTON_EXIT                 10002
-#define IDT_BUTTON_NEXT                 10003
-#define IDT_BUTTON_PREVIOUS             10004
+#define IDT_BUTTON_PREVIOUS             10003
+#define IDT_BUTTON_NEXT                 10004
 #define IDT_BUTTON_ZOOMIN               10005
 #define IDT_BUTTON_ZOOMOUT              10006
 

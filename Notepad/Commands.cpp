@@ -20,6 +20,7 @@
 #include "FindReplaceDialog.h"
 #include "PageSetupDialog.h"
 #include "PreviewForm.h"
+#include "LineDivider.h"
 
 #include "resource.h"
 
@@ -607,8 +608,9 @@ PageSetupCommand& PageSetupCommand::operator=(const PageSetupCommand& source) {
 }
 
 void PageSetupCommand::Execute() {
-	PageSetupDialog psd(this->notepadForm);
-	psd.DoModal();
+	PageSetupDialog pageSetupDialog(this->notepadForm);
+	pageSetupDialog.DoModal();
+	this->notepadForm->document->deviceMode = pageSetupDialog.psd.hDevMode;
 }
 
 string PageSetupCommand::GetType() {
@@ -642,17 +644,85 @@ void PrintCommand::Execute() {
 	CPrintDialog pd(FALSE, PD_ALLPAGES | PD_USEDEVMODECOPIES | PD_NOPAGENUMS | PD_NOSELECTION,
 		this->notepadForm);
 	if (IDOK == pd.DoModal()) {
-		CSize paperSize = this->notepadForm->document->GetPaperSize();
-		bool isVertical = this->notepadForm->document->GetIsVertical();
-		CRect margins = this->notepadForm->document->GetMargins();
-		string header = this->notepadForm->document->GetHeader();
-		string footer = this->notepadForm->document->GetFooter();
+		// start a page
+		if (this->printerDC.StartDocA(notepadForm->document->GetPathName().c_str()) < 0) {
+			AfxMessageBox(_T("Printer wouldn't initialize"));
+		}
+		else {
+			Long deviceWidth = this->printerDC.GetDeviceCaps(PHYSICALWIDTH);
+			Long deviceHeight = this->printerDC.GetDeviceCaps(PHYSICALHEIGHT);
+			Long dpi = this->printerDC.GetDeviceCaps(LOGPIXELSX);
 
-		CDC printerDC;
-		HDC hdc = pd.CreatePrinterDC();
-		printerDC.Attach(hdc);
+			CRect deviceMargin = notepadForm->document->GetMargins();
+			float milimeterPerInch = 25.4F;
+			deviceMargin.left = deviceMargin.left * (dpi / milimeterPerInch);
+			deviceMargin.top = deviceMargin.top * (dpi / milimeterPerInch);
+			deviceMargin.right = deviceMargin.right * (dpi / milimeterPerInch);
+			deviceMargin.bottom = deviceMargin.bottom * (dpi / milimeterPerInch);
+			Long top = deviceMargin.top;
+			Long bottom = deviceMargin.bottom;
 
-		//printerDC.
+			string header = notepadForm->document->GetHeader();
+			if (header != "") {
+				top += this->characterMetrics->GetHeight();
+			}
+			string footer = notepadForm->document->GetFooter();
+			if (footer != "") {
+				bottom += this->characterMetrics->GetHeight();
+			}
+
+			CDC memDC;
+			memDC.CreateCompatibleDC(&this->printerDC);
+			CBitmap bitmap;
+			bitmap.CreateCompatibleBitmap(&this->printerDC, deviceWidth, deviceHeight);
+			CBitmap* oldBitmap = memDC.SelectObject(&bitmap);
+			RECT deviceRect = { 0, 0, deviceWidth, deviceHeight }; // 그리고자 하는 영역의 크기
+
+			CFont* oldCFont;
+			COLORREF oldColor;
+			CFont cFont;
+			this->font->Create(cFont);
+			oldCFont = memDC.SelectObject(&cFont);
+			oldColor = memDC.SetTextColor(font->GetColor());
+
+			Long i = 0;
+			int canStart = this->printerDC.StartPage();
+			while (canStart > 0) {
+				memDC.FillSolidRect(&deviceRect, RGB(255, 255, 255)); // 배경을 칠하다
+
+				//==========머리말을 그리다.
+				memDC.DrawText(header.c_str(), CRect(0, deviceMargin.top, deviceWidth, top), DT_CENTER);
+				//=========================
+
+				//==========본문 내용을 그리다.
+				Visitor* printingVisitor = new PrintingVisitor(&memDC, this->characterMetrics, deviceMargin.left, top);
+
+				this->book->GetAt(i++)->Accept(printingVisitor);
+				//=========================
+
+				//==========꼬리말을 그리다. //deviceMargin.bottom 에다가 그리기
+				memDC.DrawText(footer.c_str(), CRect(0, deviceHeight - bottom, deviceWidth, deviceHeight - deviceMargin.bottom), DT_CENTER);
+				//=========================
+
+				this->printerDC.BitBlt(0, 0, deviceWidth, deviceHeight, &memDC, 0, 0, SRCCOPY);
+
+				if (printingVisitor != NULL) {
+					delete printingVisitor;
+				}
+				this->printerDC.EndPage();
+				if (i >= this->book->GetLength()) {
+					this->printerDC.EndDoc();
+				}
+				canStart = this->printerDC.StartPage();
+			}
+
+			memDC.SelectObject(oldCFont);
+			memDC.SetTextColor(oldColor);
+
+			memDC.SelectObject(oldBitmap);
+			bitmap.DeleteObject();
+			memDC.DeleteDC();
+		}
 	}
 }
 
@@ -685,6 +755,10 @@ PreviewCommand& PreviewCommand::operator=(const PreviewCommand& source) {
 
 void PreviewCommand::Execute() {
 	Glyph* note = this->notepadForm->note->Clone();
+	Long row;
+	Long column;
+	LineDivider lineDivider(this->notepadForm->characterMetrics);
+	lineDivider.Combine(note, &row, &column);
 	PreviewForm* previewForm = new PreviewForm(this->notepadForm, note);
 	previewForm->Create(NULL, "인쇄 미리 보기", 13565952UL, CRect(0, 0, 1200, 875));
 	previewForm->ShowWindow(SW_NORMAL);

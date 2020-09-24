@@ -3,6 +3,7 @@
 #include "Glyph.h"
 #include "DummyLine.h"
 #include "CharacterMetrics.h"
+#include "LineDivider.h"
 
 AutoNewlineController::AutoNewlineController(NotepadForm* notepadForm)
 	: Observer() {
@@ -74,7 +75,7 @@ void AutoNewlineController::Update() {
 				j++;
 			}
 			this->notepadForm->note->Add(i + 1, dummy);
-			
+
 			if (row > i) {
 				row++;
 			}
@@ -82,7 +83,7 @@ void AutoNewlineController::Update() {
 				row++;
 				column -= cutColumn;
 			}
-			
+
 			if (next != 0) {
 				delete next;
 			}

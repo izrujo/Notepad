@@ -53,12 +53,11 @@ BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	//ON_UPDATE_COMMAND_UI_RANGE(IDM_FORMAT_WORDWRAP, IDM_FORMAT_WORDWRAP, OnUpdateCommandUIRange)
 END_MESSAGE_MAP()
 
-NotepadForm::NotepadForm() {
+NotepadForm::NotepadForm() 
+	: CHWindowForm() {
 	this->note = NULL;
 	this->current = NULL;
 	this->caretController = NULL;
-	this->font = NULL;
-	this->characterMetrics = NULL;
 	this->scrollController = NULL;
 	this->document = NULL;
 	this->undoHistoryBook = NULL;
@@ -77,7 +76,7 @@ NotepadForm::NotepadForm() {
 }
 
 int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
-	CFrameWnd::OnCreate(lpCreateStruct);
+	CHWindowForm::OnCreate(lpCreateStruct);
 
 	GlyphFactory glyphFactory;
 	this->note = glyphFactory.Make("");
@@ -86,7 +85,7 @@ int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 	this->font = new Font(this);
 
-	this->characterMetrics = new CharacterMetrics(this);
+	this->characterMetrics = new CharacterMetrics(this, this->font);
 
 	this->menu.LoadMenuA(IDR_MENU1);
 	this->SetMenu(&menu);
@@ -105,12 +104,6 @@ int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 }
 
 void NotepadForm::OnClose() {
-	if (this->characterMetrics != NULL) {
-		delete this->characterMetrics;
-	}
-	if (this->font != NULL) {
-		delete this->font;
-	}
 	if (this->note != NULL) {
 		delete this->note;
 		this->note = NULL;
@@ -179,7 +172,7 @@ LRESULT NotepadForm::OnImeStartComposition(WPARAM wParam, LPARAM lParam) {
 
 void NotepadForm::OnPaint() {
 	CPaintDC dc(this);
-
+	
 	CDC memDC;
 	memDC.CreateCompatibleDC(&dc);
 	CBitmap bitmap;

@@ -41,6 +41,23 @@ Long Note::Remove(Long index) {
 	return -1;
 }
 
+Glyph* Note::Divide(Long index) {
+	Glyph* note = new Note;
+	Glyph* line;
+	Long i = index;
+	Long length = this->length;
+	while (i < length) {
+		line = this->glyphs.GetAt(index);
+		note->Add(line);
+		this->glyphs.Delete(index);
+		this->capacity--;
+		this->length--;
+		i++;
+	}
+
+	return note;
+}
+
 Long Note::Next() {
 	this->current = Composite::Next();
 	if (this->current >= this->length) {

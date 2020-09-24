@@ -1,20 +1,17 @@
 #include "CharacterMetrics.h"
-#include "NotepadForm.h"
 #include "Glyph.h"
 #include "Characters.h"
 #include "Font.h"
 
-#include <afxwin.h>
-
-CharacterMetrics::CharacterMetrics(NotepadForm* notepadForm) {
-	this->notepadForm = notepadForm;
-	CDC* dc = this->notepadForm->GetDC();
+CharacterMetrics::CharacterMetrics(CHWindowForm* window, Font* font) {
+	this->window = window;
+	CDC* dc = this->window->GetDC();
 	CString buffer;
 	CSize size;
 	CFont* oldFont;
-	CFont font;
-	this->notepadForm->font->Create(font);
-	oldFont = dc->SelectObject(&font);
+	CFont cFont;
+	font->Create(cFont);
+	oldFont = dc->SelectObject(&cFont);
 
 	Long i = 1;
 	while (i < 128) {
@@ -36,7 +33,8 @@ CharacterMetrics::CharacterMetrics(NotepadForm* notepadForm) {
 }
 
 CharacterMetrics::CharacterMetrics(const CharacterMetrics& source) {
-	this->notepadForm = source.notepadForm;
+	this->window = source.window;
+	this->font = source.font;
 
 	Long i = 0;
 	while (i < 129) {
@@ -131,7 +129,8 @@ Long CharacterMetrics::GetY(Long index) {
 }
 
 CharacterMetrics& CharacterMetrics::operator=(const CharacterMetrics& source) {
-	this->notepadForm = source.notepadForm;
+	this->window = source.window;
+	this->font = source.font;
 
 	Long i = 0;
 	while (i < 129) {
@@ -260,7 +259,7 @@ Long CharacterMetrics::GetNoteWidth(Glyph* note) {
 }
 
 Long CharacterMetrics::GetWidthAverage() {
-	CDC* dc = this->notepadForm->GetDC();
+	CDC* dc = this->window->GetDC();
 	TEXTMETRICA textmetrica;
 	memset(&textmetrica, 0, sizeof(textmetrica));
 	dc->GetTextMetrics(&textmetrica);
