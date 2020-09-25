@@ -68,14 +68,17 @@ PrintInformation::PrintInformation(NotepadForm* notepadForm) {
 	this->book->Move(0);
 }
 
-PrintInformation::PrintInformation(const PrintInformation& source) {
-
-}
-
 PrintInformation::~PrintInformation() {
-
-}
-
-PrintInformation& PrintInformation::operator=(const PrintInformation& source) {
-	return *this;
+	if (this->book != NULL) {
+		delete this->book;
+	}
+	if (this->font != NULL) {
+		delete this->font;
+	}
+	if (this->characterMetrics != NULL) {
+		delete this->characterMetrics;
+	}
+	if (this->printerDC != NULL) {
+		this->printerDC.DeleteDC();
+	}
 }

@@ -1,6 +1,6 @@
 #include "Font.h"
 
-Font::Font(CHWindowForm* window) {
+Font::Font(CWnd* window) {
 	this->window = window;
 	CDC* dc = this->window->GetDC();
 	CFont* dcFont = dc->GetCurrentFont();

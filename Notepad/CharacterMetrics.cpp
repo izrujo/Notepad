@@ -3,7 +3,7 @@
 #include "Characters.h"
 #include "Font.h"
 
-CharacterMetrics::CharacterMetrics(CHWindowForm* window, Font* font) {
+CharacterMetrics::CharacterMetrics(CWnd* window, Font* font) {
 	this->window = window;
 	CDC* dc = this->window->GetDC();
 	CString buffer;

@@ -1,11 +1,11 @@
 #ifndef _Font_H
 #define _Font_H
 
-#include "CHWindowForm.h"
+#include <afxwin.h>
 
 class Font {
 public:
-	Font(CHWindowForm *window = 0);
+	Font(CWnd *window = 0);
 	Font(LOGFONT Font, COLORREF color, CWnd* window = 0);
 	Font(const Font& source);
 	~Font();

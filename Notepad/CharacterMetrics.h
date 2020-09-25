@@ -13,7 +13,7 @@ Recently Updated : 2019.05
 
 #include <string>
 
-#include "CHWindowForm.h"
+#include <afxwin.h>
 
 using namespace std;
 typedef signed long int Long;
@@ -22,7 +22,7 @@ class Font;
 
 class CharacterMetrics {
 public:
-	CharacterMetrics(CHWindowForm* window = 0, Font *font = 0);
+	CharacterMetrics(CWnd* window = 0, Font *font = 0);
 	CharacterMetrics(const CharacterMetrics& source);
 	~CharacterMetrics();
 	Long GetX(Glyph* line);
@@ -41,7 +41,7 @@ public:
 	Long GetDoubleByteWidth() const;
 	Long GetHeight() const;
 private:
-	CHWindowForm* window;
+	CWnd* window;
 	Font* font;
 	Long widths[129];
 	Long height;

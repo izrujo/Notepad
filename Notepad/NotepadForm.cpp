@@ -53,10 +53,11 @@ BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	//ON_UPDATE_COMMAND_UI_RANGE(IDM_FORMAT_WORDWRAP, IDM_FORMAT_WORDWRAP, OnUpdateCommandUIRange)
 END_MESSAGE_MAP()
 
-NotepadForm::NotepadForm() 
-	: CHWindowForm() {
+NotepadForm::NotepadForm() {
 	this->note = NULL;
 	this->current = NULL;
+	this->font = NULL;
+	this->characterMetrics = NULL;
 	this->caretController = NULL;
 	this->scrollController = NULL;
 	this->document = NULL;
@@ -76,7 +77,7 @@ NotepadForm::NotepadForm()
 }
 
 int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
-	CHWindowForm::OnCreate(lpCreateStruct);
+	CFrameWnd::OnCreate(lpCreateStruct);
 
 	GlyphFactory glyphFactory;
 	this->note = glyphFactory.Make("");
@@ -498,6 +499,11 @@ void NotepadForm::OnEditCommandRange(UINT uID) {
 }
 
 void NotepadForm::OnMoveCommandRange(UINT uID) {
+	if (this->autoNewlineController != NULL) {
+		delete this->autoNewlineController;
+		this->autoNewlineController = NULL;
+	}
+
 	CommandFactory commandFactory(this);
 	Command* command = commandFactory.Make(uID);
 	if (command != NULL) {
@@ -512,6 +518,8 @@ void NotepadForm::OnMoveCommandRange(UINT uID) {
 	}
 	this->Notify();
 	this->Invalidate();
+
+	this->autoNewlineController = new AutoNewlineController(this);
 }
 
 void NotepadForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {

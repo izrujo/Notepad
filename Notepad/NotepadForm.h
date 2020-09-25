@@ -1,7 +1,7 @@
 #ifndef _NOTEPADFORM_H
 #define _NOTEPADFORM_H
 
-#include "CHWindowForm.h"
+#include <afxwin.h>
 #include <iostream>
 
 using namespace std;
@@ -20,7 +20,7 @@ class FindReplaceDialog;
 
 static UINT WM_FINDREPLACE = ::RegisterWindowMessage(FINDMSGSTRING);
 
-class NotepadForm : public CHWindowForm, public Subject {
+class NotepadForm : public CFrameWnd, public Subject {
 public:
 	NotepadForm();
 	virtual int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -28,6 +28,8 @@ public:
 	CMenu menu;
 	Glyph* note;
 	Glyph* current;
+	Font* font;
+	CharacterMetrics* characterMetrics;
 	CaretController* caretController;
 	ScrollController* scrollController;
 	Document* document;

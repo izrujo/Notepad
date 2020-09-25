@@ -21,6 +21,8 @@
 #include "PageSetupDialog.h"
 #include "PreviewForm.h"
 #include "LineDivider.h"
+#include "PrintInformation.h"
+#include "PrintingVisitor.h"
 
 #include "resource.h"
 
@@ -217,7 +219,7 @@ void FontCommand::Execute() {
 		if (this->notepadForm->characterMetrics != NULL) {
 			delete this->notepadForm->characterMetrics;
 		}
-		this->notepadForm->characterMetrics = new CharacterMetrics(this->notepadForm);
+		this->notepadForm->characterMetrics = new CharacterMetrics(this->notepadForm, this->notepadForm->font);
 		this->notepadForm->Notify();
 		this->notepadForm->Invalidate();
 	}
@@ -644,14 +646,15 @@ void PrintCommand::Execute() {
 	CPrintDialog pd(FALSE, PD_ALLPAGES | PD_USEDEVMODECOPIES | PD_NOPAGENUMS | PD_NOSELECTION,
 		this->notepadForm);
 	if (IDOK == pd.DoModal()) {
+		PrintInformation printInformation(this->notepadForm);
 		// start a page
-		if (this->printerDC.StartDocA(notepadForm->document->GetPathName().c_str()) < 0) {
+		if (printInformation.printerDC.StartDocA(notepadForm->document->GetPathName().c_str()) < 0) {
 			AfxMessageBox(_T("Printer wouldn't initialize"));
 		}
 		else {
-			Long deviceWidth = this->printerDC.GetDeviceCaps(PHYSICALWIDTH);
-			Long deviceHeight = this->printerDC.GetDeviceCaps(PHYSICALHEIGHT);
-			Long dpi = this->printerDC.GetDeviceCaps(LOGPIXELSX);
+			Long deviceWidth = printInformation.printerDC.GetDeviceCaps(PHYSICALWIDTH);
+			Long deviceHeight = printInformation.printerDC.GetDeviceCaps(PHYSICALHEIGHT);
+			Long dpi = printInformation.printerDC.GetDeviceCaps(LOGPIXELSX);
 
 			CRect deviceMargin = notepadForm->document->GetMargins();
 			float milimeterPerInch = 25.4F;
@@ -664,29 +667,29 @@ void PrintCommand::Execute() {
 
 			string header = notepadForm->document->GetHeader();
 			if (header != "") {
-				top += this->characterMetrics->GetHeight();
+				top += printInformation.characterMetrics->GetHeight();
 			}
 			string footer = notepadForm->document->GetFooter();
 			if (footer != "") {
-				bottom += this->characterMetrics->GetHeight();
+				bottom += printInformation.characterMetrics->GetHeight();
 			}
 
 			CDC memDC;
-			memDC.CreateCompatibleDC(&this->printerDC);
+			memDC.CreateCompatibleDC(&printInformation.printerDC);
 			CBitmap bitmap;
-			bitmap.CreateCompatibleBitmap(&this->printerDC, deviceWidth, deviceHeight);
+			bitmap.CreateCompatibleBitmap(&printInformation.printerDC, deviceWidth, deviceHeight);
 			CBitmap* oldBitmap = memDC.SelectObject(&bitmap);
 			RECT deviceRect = { 0, 0, deviceWidth, deviceHeight }; // 그리고자 하는 영역의 크기
 
 			CFont* oldCFont;
 			COLORREF oldColor;
 			CFont cFont;
-			this->font->Create(cFont);
+			printInformation.font->Create(cFont);
 			oldCFont = memDC.SelectObject(&cFont);
-			oldColor = memDC.SetTextColor(font->GetColor());
+			oldColor = memDC.SetTextColor(printInformation.font->GetColor());
 
 			Long i = 0;
-			int canStart = this->printerDC.StartPage();
+			int canStart = printInformation.printerDC.StartPage();
 			while (canStart > 0) {
 				memDC.FillSolidRect(&deviceRect, RGB(255, 255, 255)); // 배경을 칠하다
 
@@ -695,25 +698,25 @@ void PrintCommand::Execute() {
 				//=========================
 
 				//==========본문 내용을 그리다.
-				Visitor* printingVisitor = new PrintingVisitor(&memDC, this->characterMetrics, deviceMargin.left, top);
+				Visitor* printingVisitor = new PrintingVisitor(&memDC, printInformation.characterMetrics, deviceMargin.left, top);
 
-				this->book->GetAt(i++)->Accept(printingVisitor);
+				printInformation.book->GetAt(i++)->Accept(printingVisitor);
 				//=========================
 
 				//==========꼬리말을 그리다. //deviceMargin.bottom 에다가 그리기
 				memDC.DrawText(footer.c_str(), CRect(0, deviceHeight - bottom, deviceWidth, deviceHeight - deviceMargin.bottom), DT_CENTER);
 				//=========================
 
-				this->printerDC.BitBlt(0, 0, deviceWidth, deviceHeight, &memDC, 0, 0, SRCCOPY);
+				printInformation.printerDC.BitBlt(0, 0, deviceWidth, deviceHeight, &memDC, 0, 0, SRCCOPY);
 
 				if (printingVisitor != NULL) {
 					delete printingVisitor;
 				}
-				this->printerDC.EndPage();
-				if (i >= this->book->GetLength()) {
-					this->printerDC.EndDoc();
+				printInformation.printerDC.EndPage();
+				if (i >= printInformation.book->GetLength()) {
+					printInformation.printerDC.EndDoc();
 				}
-				canStart = this->printerDC.StartPage();
+				canStart = printInformation.printerDC.StartPage();
 			}
 
 			memDC.SelectObject(oldCFont);
@@ -759,7 +762,7 @@ void PreviewCommand::Execute() {
 	Long column;
 	LineDivider lineDivider(this->notepadForm->characterMetrics);
 	lineDivider.Combine(note, &row, &column);
-	PreviewForm* previewForm = new PreviewForm(this->notepadForm, note);
+	PreviewForm* previewForm = new PreviewForm(this->notepadForm);
 	previewForm->Create(NULL, "인쇄 미리 보기", 13565952UL, CRect(0, 0, 1200, 875));
 	previewForm->ShowWindow(SW_NORMAL);
 	previewForm->UpdateWindow();
