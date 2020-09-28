@@ -9,7 +9,8 @@
 #define IDT_BUTTON_NEXT                 10004
 #define IDT_BUTTON_ZOOMIN               10005
 #define IDT_BUTTON_ZOOMOUT              10006
-
+#define IDD_PRINTSTATEDIALOG            10010
+#define IDC_STATIC_FILENAME             10011
 #define IDD_PAGESETUPDIALOG             20000
 #define IDC_STATIC_PREVIEW              20001
 #define IDC_STATIC_HEADER               20002
@@ -32,7 +33,6 @@
 #define IDM_FILE_PREVIEW                40017
 #define IDM_FORMAT_AUTONEWLINE          40021
 #define IDM_FORMAT_FONT                 40022
-
 #define IDC_WRITE_CHAR                  50011
 #define IDC_IME_COMPOSITION             50012
 #define IDC_IME_CHAR                    50013
@@ -65,9 +65,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        123
+#define _APS_NEXT_RESOURCE_VALUE        127
 #define _APS_NEXT_COMMAND_VALUE         40071
-#define _APS_NEXT_CONTROL_VALUE         1006
+#define _APS_NEXT_CONTROL_VALUE         1007
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

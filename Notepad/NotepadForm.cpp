@@ -26,6 +26,7 @@
 #include "Selection.h"
 #include "AutoNewlineController.h"
 #include "FindReplaceDialog.h"
+#include "Printer.h"
 
 BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_CREATE()
@@ -66,6 +67,7 @@ NotepadForm::NotepadForm() {
 	this->selection = NULL;
 	this->autoNewlineController = NULL;
 	this->findReplaceDialog = NULL;
+	this->printer = NULL;
 
 	this->isComposing = FALSE;
 	this->currentCharacter = '\0';
@@ -96,6 +98,8 @@ int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	this->undoHistoryBook = new HistoryBook(10);
 	this->redoHistoryBook = new HistoryBook(10);
 
+	this->printer = new Printer(this);
+
 	Long index = this->note->Move(0);
 	this->current = this->note->GetAt(index);
 	this->current->First();
@@ -123,6 +127,9 @@ void NotepadForm::OnClose() {
 	}
 	if (this->findReplaceDialog != NULL) {
 		delete this->findReplaceDialog;
+	}
+	if (this->printer != NULL) {
+		delete this->printer;
 	}
 
 	CFrameWnd::OnClose();

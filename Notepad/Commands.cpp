@@ -23,6 +23,8 @@
 #include "LineDivider.h"
 #include "PrintInformation.h"
 #include "PrintingVisitor.h"
+#include "PrintStateDialog.h"
+#include "Printer.h"
 
 #include "resource.h"
 
@@ -646,85 +648,18 @@ void PrintCommand::Execute() {
 	CPrintDialog pd(FALSE, PD_ALLPAGES | PD_USEDEVMODECOPIES | PD_NOPAGENUMS | PD_NOSELECTION,
 		this->notepadForm);
 	if (IDOK == pd.DoModal()) {
-		PrintInformation printInformation(this->notepadForm);
+		PrintInformation *printInformation = new PrintInformation(this->notepadForm);
+
+		PrintStateDialog* printStateDialog = new PrintStateDialog(this->notepadForm);
+		printStateDialog->SetActiveWindow();
+		printStateDialog->ShowWindow(TRUE);
+
 		// start a page
-		if (printInformation.printerDC.StartDocA(notepadForm->document->GetPathName().c_str()) < 0) {
+		if (printInformation->printerDC.StartDocA(notepadForm->document->GetPathName().c_str()) < 0) {
 			AfxMessageBox(_T("Printer wouldn't initialize"));
 		}
 		else {
-			Long deviceWidth = printInformation.printerDC.GetDeviceCaps(PHYSICALWIDTH);
-			Long deviceHeight = printInformation.printerDC.GetDeviceCaps(PHYSICALHEIGHT);
-			Long dpi = printInformation.printerDC.GetDeviceCaps(LOGPIXELSX);
-
-			CRect deviceMargin = notepadForm->document->GetMargins();
-			float milimeterPerInch = 25.4F;
-			deviceMargin.left = deviceMargin.left * (dpi / milimeterPerInch);
-			deviceMargin.top = deviceMargin.top * (dpi / milimeterPerInch);
-			deviceMargin.right = deviceMargin.right * (dpi / milimeterPerInch);
-			deviceMargin.bottom = deviceMargin.bottom * (dpi / milimeterPerInch);
-			Long top = deviceMargin.top;
-			Long bottom = deviceMargin.bottom;
-
-			string header = notepadForm->document->GetHeader();
-			if (header != "") {
-				top += printInformation.characterMetrics->GetHeight();
-			}
-			string footer = notepadForm->document->GetFooter();
-			if (footer != "") {
-				bottom += printInformation.characterMetrics->GetHeight();
-			}
-
-			CDC memDC;
-			memDC.CreateCompatibleDC(&printInformation.printerDC);
-			CBitmap bitmap;
-			bitmap.CreateCompatibleBitmap(&printInformation.printerDC, deviceWidth, deviceHeight);
-			CBitmap* oldBitmap = memDC.SelectObject(&bitmap);
-			RECT deviceRect = { 0, 0, deviceWidth, deviceHeight }; // 그리고자 하는 영역의 크기
-
-			CFont* oldCFont;
-			COLORREF oldColor;
-			CFont cFont;
-			printInformation.font->Create(cFont);
-			oldCFont = memDC.SelectObject(&cFont);
-			oldColor = memDC.SetTextColor(printInformation.font->GetColor());
-
-			Long i = 0;
-			int canStart = printInformation.printerDC.StartPage();
-			while (canStart > 0) {
-				memDC.FillSolidRect(&deviceRect, RGB(255, 255, 255)); // 배경을 칠하다
-
-				//==========머리말을 그리다.
-				memDC.DrawText(header.c_str(), CRect(0, deviceMargin.top, deviceWidth, top), DT_CENTER);
-				//=========================
-
-				//==========본문 내용을 그리다.
-				Visitor* printingVisitor = new PrintingVisitor(&memDC, printInformation.characterMetrics, deviceMargin.left, top);
-
-				printInformation.book->GetAt(i++)->Accept(printingVisitor);
-				//=========================
-
-				//==========꼬리말을 그리다. //deviceMargin.bottom 에다가 그리기
-				memDC.DrawText(footer.c_str(), CRect(0, deviceHeight - bottom, deviceWidth, deviceHeight - deviceMargin.bottom), DT_CENTER);
-				//=========================
-
-				printInformation.printerDC.BitBlt(0, 0, deviceWidth, deviceHeight, &memDC, 0, 0, SRCCOPY);
-
-				if (printingVisitor != NULL) {
-					delete printingVisitor;
-				}
-				printInformation.printerDC.EndPage();
-				if (i >= printInformation.book->GetLength()) {
-					printInformation.printerDC.EndDoc();
-				}
-				canStart = printInformation.printerDC.StartPage();
-			}
-
-			memDC.SelectObject(oldCFont);
-			memDC.SetTextColor(oldColor);
-
-			memDC.SelectObject(oldBitmap);
-			bitmap.DeleteObject();
-			memDC.DeleteDC();
+			this->notepadForm->printer->Print(printInformation, printStateDialog);
 		}
 	}
 }

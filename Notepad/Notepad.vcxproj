@@ -53,8 +53,10 @@
     <ClInclude Include="Observer.h" />
     <ClInclude Include="PageSetupDialog.h" />
     <ClInclude Include="PreviewForm.h" />
+    <ClInclude Include="Printer.h" />
     <ClInclude Include="PrintInformation.h" />
     <ClInclude Include="PrintingVisitor.h" />
+    <ClInclude Include="PrintStateDialog.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="Scroll.h" />
@@ -100,8 +102,10 @@
     <ClCompile Include="Observer.cpp" />
     <ClCompile Include="PageSetupDialog.cpp" />
     <ClCompile Include="PreviewForm.cpp" />
+    <ClCompile Include="Printer.cpp" />
     <ClCompile Include="PrintInformation.cpp" />
     <ClCompile Include="PrintingVisitor.cpp" />
+    <ClCompile Include="PrintStateDialog.cpp" />
     <ClCompile Include="Scanner.cpp" />
     <ClCompile Include="Scroll.cpp" />
     <ClCompile Include="ScrollController.cpp" />

@@ -17,6 +17,7 @@ class HistoryBook;
 class Selection;
 class AutoNewlineController;
 class FindReplaceDialog;
+class Printer;
 
 static UINT WM_FINDREPLACE = ::RegisterWindowMessage(FINDMSGSTRING);
 
@@ -38,6 +39,7 @@ public:
 	Selection* selection;
 	AutoNewlineController* autoNewlineController;
 	FindReplaceDialog* findReplaceDialog;
+	Printer* printer;
 
 protected:
 	afx_msg void OnClose();
