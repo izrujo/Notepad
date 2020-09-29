@@ -76,19 +76,8 @@ void Printer::End() {
 		if (this->isPausing == TRUE) {
 			this->thread->ResumeThread();
 		}
-		::WaitForSingleObject(this->thread->m_hThread, 1000);
-		
-
-		this->printInformation->printerDC.AbortDoc();
-
-		if (this->printInformation != NULL) {
-			delete this->printInformation;
-			this->printInformation = NULL;
-		}
-		if (this->printStateDialog != NULL) {
-			this->printStateDialog->DestroyWindow();
-			this->printStateDialog = NULL;
-		}
+		::WaitForSingleObject(this->thread->m_hThread, INFINITE);
+	
 	}
 	this->isPausing = FALSE;
 }
@@ -134,7 +123,7 @@ UINT Printer::PrintThread(LPVOID pParam) {
 
 	Long i = 0;
 	int canStart = printer->printInformation->printerDC.StartPage();
-	while (canStart > 0) {
+	while (canStart > 0 && printer->isPrinting == TRUE) {
 		memDC.FillSolidRect(&deviceRect, RGB(255, 255, 255)); // 배경을 칠하다
 
 		//==========머리말을 그리다.
@@ -178,10 +167,11 @@ UINT Printer::PrintThread(LPVOID pParam) {
 		delete printer->printInformation;
 		printer->printInformation = NULL;
 	}
-	if (printer->printStateDialog != NULL) {
+	//인쇄를 정상적으로 완료했을 때 인쇄 중 대화 상자 꺼야 하는데 아래 코드 넣으면 오류 발생함.
+	/*if (printer->printStateDialog != NULL) {
 		printer->printStateDialog->DestroyWindow();
 		printer->printStateDialog = NULL;
-	}
+	}*/
 
 	return 0;
 }

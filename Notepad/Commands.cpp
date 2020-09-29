@@ -648,7 +648,9 @@ void PrintCommand::Execute() {
 	CPrintDialog pd(FALSE, PD_ALLPAGES | PD_USEDEVMODECOPIES | PD_NOPAGENUMS | PD_NOSELECTION,
 		this->notepadForm);
 	if (IDOK == pd.DoModal()) {
-		PrintInformation *printInformation = new PrintInformation(this->notepadForm);
+		CString deviceName = pd.GetDeviceName();
+		
+		PrintInformation *printInformation = new PrintInformation(deviceName, this->notepadForm);
 
 		PrintStateDialog* printStateDialog = new PrintStateDialog(this->notepadForm);
 		printStateDialog->SetActiveWindow();
@@ -657,6 +659,9 @@ void PrintCommand::Execute() {
 		// start a page
 		if (printInformation->printerDC.StartDocA(notepadForm->document->GetPathName().c_str()) < 0) {
 			AfxMessageBox(_T("Printer wouldn't initialize"));
+			if (printStateDialog != NULL) {
+				printStateDialog->DestroyWindow();
+			}
 		}
 		else {
 			this->notepadForm->printer->Print(printInformation, printStateDialog);

@@ -10,7 +10,7 @@ class Font;
 
 class PrintInformation {
 public:
-	PrintInformation(NotepadForm* notepadForm = 0);
+	PrintInformation(CString deviceName, NotepadForm* notepadForm = 0);
 	~PrintInformation();
 
 public:

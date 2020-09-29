@@ -22,8 +22,9 @@ BOOL PrintStateDialog::OnInitDialog() {
 
 void PrintStateDialog::OnCancel() {
 	NotepadForm* notepadForm = static_cast<NotepadForm*>(this->GetParent());
-	notepadForm->printer->Pause();
 	notepadForm->printer->End();
-	this->DestroyWindow();
-	AfxMessageBox(_T("사용자가 작업을 취소했습니다."));
+	int ret = AfxMessageBox(_T("사용자가 작업을 취소했습니다."));
+	if (ret == IDOK) {
+		this->DestroyWindow();
+	}
 }

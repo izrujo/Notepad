@@ -9,18 +9,19 @@
 #include <afxdlgs.h>
 
 
-PrintInformation::PrintInformation(NotepadForm* notepadForm) {
+PrintInformation::PrintInformation(CString deviceName, NotepadForm* notepadForm) {
 	DEVMODE* pDevMode = (DEVMODE*)GlobalLock(notepadForm->document->deviceMode);
 	if (pDevMode) {
-		this->printerDC.CreateDC("WINSPOOL", (LPCTSTR)pDevMode->dmDeviceName, NULL, pDevMode);
+		this->printerDC.CreateDC("WINSPOOL", (LPCTSTR)deviceName, NULL, pDevMode);
 	}
 	else {
 		CPrintDialog printDialog(FALSE, PD_ALLPAGES | PD_USEDEVMODECOPIES | PD_NOPAGENUMS | PD_HIDEPRINTTOFILE | PD_NOSELECTION | PD_RETURNDEFAULT, notepadForm);
 		printDialog.GetDefaults();
-		HDC hdc = printDialog.GetPrinterDC();
-		this->printerDC.Attach(hdc);
+		DEVMODE* devMode = printDialog.GetDevMode();
+		GlobalLock(devMode);
+		this->printerDC.CreateDC("WINSPOOL", (LPCTSTR)deviceName, NULL, devMode);
+		GlobalUnlock(devMode);
 	}
-	DWORD error = GetLastError();
 	GlobalUnlock(notepadForm->document->deviceMode);
 
 	Long dpi = this->printerDC.GetDeviceCaps(LOGPIXELSX);
