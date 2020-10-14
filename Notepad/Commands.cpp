@@ -25,6 +25,8 @@
 #include "PrintingVisitor.h"
 #include "PrintStateDialog.h"
 #include "Printer.h"
+#include "PrintJobManager.h"
+#include "DummyLine.h"
 
 #include "resource.h"
 
@@ -32,6 +34,7 @@
 #include <WinUser.h>
 #include <direct.h>
 #include <dlgs.h>
+#include <winspool.h>
 
 #pragma warning(disable:4996)
 
@@ -614,7 +617,8 @@ PageSetupCommand& PageSetupCommand::operator=(const PageSetupCommand& source) {
 void PageSetupCommand::Execute() {
 	PageSetupDialog pageSetupDialog(this->notepadForm);
 	pageSetupDialog.DoModal();
-	this->notepadForm->document->deviceMode = pageSetupDialog.psd.hDevMode;
+	this->notepadForm->document->deviceMode = (DEVMODE*)GlobalLock(pageSetupDialog.psd.hDevMode);
+	GlobalUnlock(pageSetupDialog.psd.hDevMode);
 }
 
 string PageSetupCommand::GetType() {
@@ -649,22 +653,22 @@ void PrintCommand::Execute() {
 		this->notepadForm);
 	if (IDOK == pd.DoModal()) {
 		CString deviceName = pd.GetDeviceName();
-		
-		PrintInformation *printInformation = new PrintInformation(deviceName, this->notepadForm);
+		memcpy(this->notepadForm->document->deviceMode->dmDeviceName, (VOID*)LPCTSTR(deviceName), 32);
 
-		PrintStateDialog* printStateDialog = new PrintStateDialog(this->notepadForm);
-		printStateDialog->SetActiveWindow();
-		printStateDialog->ShowWindow(TRUE);
+		PrintInformation* printInformation = new PrintInformation(this->notepadForm);
 
-		// start a page
-		if (printInformation->printerDC.StartDocA(notepadForm->document->GetPathName().c_str()) < 0) {
+		if (printInformation->printerDC.StartDocA(this->notepadForm->document->GetPathName().c_str()) < 0) {
 			AfxMessageBox(_T("Printer wouldn't initialize"));
-			if (printStateDialog != NULL) {
-				printStateDialog->DestroyWindow();
-			}
 		}
 		else {
-			this->notepadForm->printer->Print(printInformation, printStateDialog);
+			this->notepadForm->printStateDialog = new PrintStateDialog(this->notepadForm);
+			this->notepadForm->printStateDialog->SetActiveWindow();
+			this->notepadForm->printStateDialog->ShowWindow(TRUE);
+
+			Printer printer(this->notepadForm, printInformation);
+			printer.Print();
+
+			this->notepadForm->printJobManager->Check(this->notepadForm->printStateDialog);
 		}
 	}
 }
@@ -1687,6 +1691,9 @@ void RightCommand::Execute() {
 			Long index = this->notepadForm->note->Next();
 			this->notepadForm->current = this->notepadForm->note->GetAt(index);
 			this->notepadForm->current->First();
+			if (dynamic_cast<DummyLine*>(this->notepadForm->current)) {
+				this->notepadForm->current->Next();
+			}
 		}
 	}
 }
@@ -1919,6 +1926,11 @@ void CtrlRightCommand::Execute() {
 	}
 	Long index = this->notepadForm->note->MoveNextWord();
 	this->notepadForm->current = this->notepadForm->note->GetAt(index);
+	/*index++;
+	while (dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(index))) {
+		index = this->notepadForm->note->MoveNextWord();
+	}
+	this->notepadForm->current = this->notepadForm->note->GetAt(index);*/
 }
 
 string CtrlRightCommand::GetType() {

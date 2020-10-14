@@ -41,9 +41,9 @@ BOOL PageSetupDialog::DoModal() {
 UINT APIENTRY PageSetupHook(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam) {
 	NotepadForm* notepadForm = static_cast<NotepadForm*>(CWnd::FromHandle(hdlg)->GetParent());
 
-	CSize sizes[10] =
+	/*CSize sizes[10] =
 	{ CSize(29700, 42000), CSize(21000, 29700), CSize(14800, 21000), CSize(25700, 36400), CSize(18200, 25700),
-	CSize(18410, 26670), CSize(21590, 35560), CSize(21590, 27940), CSize(13970, 21590), CSize(27940, 43180) };
+	CSize(18410, 26670), CSize(21590, 35560), CSize(21590, 27940), CSize(13970, 21590), CSize(27940, 43180) };*/
 
 	if (uiMsg == WM_INITDIALOG) {
 		string header = notepadForm->document->GetHeader();
@@ -51,22 +51,23 @@ UINT APIENTRY PageSetupHook(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam)
 		CWnd::FromHandle(GetDlgItem(hdlg, IDC_EDIT_HEADER))->SetWindowTextA(header.c_str());
 		CWnd::FromHandle(GetDlgItem(hdlg, IDC_EDIT_FOOTER))->SetWindowTextA(footer.c_str());
 	
-		CSize paperSize = notepadForm->document->GetPaperSize();
-		Long i = 0;
-		while (i < 10 && sizes[i] != paperSize) {			
-			i++;
-		}
-		if (i < 10) {
-			((CComboBox*)CWnd::FromHandle(GetDlgItem(hdlg, 1137)))->SetCurSel(i);
-		}
+		//10.05 갑자기 이 기능이 자동으로 되네요?
+		//CSize paperSize = notepadForm->document->GetPaperSize();
+		//Long i = 0;
+		//while (i < 10 && sizes[i] != paperSize) {			
+		//	i++;
+		//}
+		//if (i < 10) {
+		////	((CComboBox*)CWnd::FromHandle(GetDlgItem(hdlg, 1137)))->SetCurSel(i);
+		//}
 	}
 	else if (uiMsg == WM_COMMAND && LOWORD(wParam) == IDOK) {
-		CSize paperSize;
+		/*CSize paperSize;
 		CString size;
 		CWnd::FromHandle(GetDlgItem(hdlg, 1137))->GetWindowTextA(size);
 		int index = ((CComboBox*)CWnd::FromHandle(GetDlgItem(hdlg, 1137)))->FindString(0, size);
 		paperSize = sizes[index];
-		notepadForm->document->SetPaperSize(paperSize);
+		notepadForm->document->SetPaperSize(paperSize);*/
 
 		bool isVertical;
 		int selectedRadio = CWnd::FromHandle(hdlg)->GetCheckedRadioButton(1056, 1057);

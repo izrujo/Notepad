@@ -10,7 +10,7 @@ public:
 public:
 	PrintStateDialog(CWnd* parent = NULL);
 	virtual BOOL OnInitDialog();
-	virtual void OnCancel();
+	void OnCancel();
 };
 
 #endif //_PRINTSTATEDIALOG_H

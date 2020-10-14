@@ -8,21 +8,9 @@
 #include "Book.h"
 #include <afxdlgs.h>
 
-
-PrintInformation::PrintInformation(CString deviceName, NotepadForm* notepadForm) {
-	DEVMODE* pDevMode = (DEVMODE*)GlobalLock(notepadForm->document->deviceMode);
-	if (pDevMode) {
-		this->printerDC.CreateDC("WINSPOOL", (LPCTSTR)deviceName, NULL, pDevMode);
-	}
-	else {
-		CPrintDialog printDialog(FALSE, PD_ALLPAGES | PD_USEDEVMODECOPIES | PD_NOPAGENUMS | PD_HIDEPRINTTOFILE | PD_NOSELECTION | PD_RETURNDEFAULT, notepadForm);
-		printDialog.GetDefaults();
-		DEVMODE* devMode = printDialog.GetDevMode();
-		GlobalLock(devMode);
-		this->printerDC.CreateDC("WINSPOOL", (LPCTSTR)deviceName, NULL, devMode);
-		GlobalUnlock(devMode);
-	}
-	GlobalUnlock(notepadForm->document->deviceMode);
+PrintInformation::PrintInformation(NotepadForm* notepadForm) {
+	this->printerDC.CreateDC("WINSPOOL", (LPCTSTR)notepadForm->document->deviceMode->dmDeviceName, 
+		NULL, notepadForm->document->deviceMode);
 
 	Long dpi = this->printerDC.GetDeviceCaps(LOGPIXELSX);
 

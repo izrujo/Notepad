@@ -26,7 +26,8 @@
 #include "Selection.h"
 #include "AutoNewlineController.h"
 #include "FindReplaceDialog.h"
-#include "Printer.h"
+#include "PrintJobManager.h"
+#include "PrintStateDialog.h"
 
 BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_CREATE()
@@ -51,6 +52,7 @@ BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_MENUSELECT()
 	ON_WM_ERASEBKGND()
 	ON_REGISTERED_MESSAGE(WM_FINDREPLACE, OnFindReplace)
+	ON_MESSAGE(WM_THREADNOTIFY, OnThreadNotify)
 	//ON_UPDATE_COMMAND_UI_RANGE(IDM_FORMAT_WORDWRAP, IDM_FORMAT_WORDWRAP, OnUpdateCommandUIRange)
 END_MESSAGE_MAP()
 
@@ -67,7 +69,8 @@ NotepadForm::NotepadForm() {
 	this->selection = NULL;
 	this->autoNewlineController = NULL;
 	this->findReplaceDialog = NULL;
-	this->printer = NULL;
+	this->printJobManager = NULL;
+	this->printStateDialog = NULL;
 
 	this->isComposing = FALSE;
 	this->currentCharacter = '\0';
@@ -98,7 +101,7 @@ int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	this->undoHistoryBook = new HistoryBook(10);
 	this->redoHistoryBook = new HistoryBook(10);
 
-	this->printer = new Printer(this);
+	this->printJobManager = new PrintJobManager(this);
 
 	Long index = this->note->Move(0);
 	this->current = this->note->GetAt(index);
@@ -128,8 +131,11 @@ void NotepadForm::OnClose() {
 	if (this->findReplaceDialog != NULL) {
 		delete this->findReplaceDialog;
 	}
-	if (this->printer != NULL) {
-		delete this->printer;
+	if (this->printJobManager != NULL) {
+		delete this->printJobManager;
+	}
+	if (this->printStateDialog != NULL) {
+		delete this->printStateDialog;
 	}
 
 	CFrameWnd::OnClose();
@@ -506,11 +512,6 @@ void NotepadForm::OnEditCommandRange(UINT uID) {
 }
 
 void NotepadForm::OnMoveCommandRange(UINT uID) {
-	if (this->autoNewlineController != NULL) {
-		delete this->autoNewlineController;
-		this->autoNewlineController = NULL;
-	}
-
 	CommandFactory commandFactory(this);
 	Command* command = commandFactory.Make(uID);
 	if (command != NULL) {
@@ -525,8 +526,6 @@ void NotepadForm::OnMoveCommandRange(UINT uID) {
 	}
 	this->Notify();
 	this->Invalidate();
-
-	this->autoNewlineController = new AutoNewlineController(this);
 }
 
 void NotepadForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
@@ -625,5 +624,14 @@ LRESULT NotepadForm::OnFindReplace(WPARAM wParam, LPARAM lParam) {
 		this->Invalidate();
 	}
 
+	return 0;
+}
+
+LRESULT NotepadForm::OnThreadNotify(WPARAM wParam, LPARAM lParam) {
+	if (this->printStateDialog != NULL) {
+		this->printStateDialog->DestroyWindow();
+		this->printStateDialog = NULL;
+	}
+	
 	return 0;
 }

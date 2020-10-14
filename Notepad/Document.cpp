@@ -1,18 +1,22 @@
 #include "Document.h"
 #include "NotepadForm.h"
+#include <afxdlgs.h>
 
 Document::Document(NotepadForm* notepadForm) 
 	: pathName("제목 없음"), encodingType("ANSI"), 
-	paperSize(21000, 29700), margins(20, 25, 20, 25), header(""), footer("") {
+	/*paperSize(21000, 29700),*/ margins(20, 25, 20, 25), header(""), footer("") {
 	this->notepadForm = notepadForm;
 	this->isDirty = false;
 	this->isVertical = true;
-	this->deviceMode = { 0, };
+
+	CPrintDialog printDialog(FALSE, PD_ALLPAGES | PD_USEDEVMODECOPIES | PD_NOPAGENUMS | PD_HIDEPRINTTOFILE | PD_NOSELECTION | PD_RETURNDEFAULT, notepadForm);
+	printDialog.GetDefaults();
+	this->deviceMode = printDialog.GetDevMode();
 }
 
 Document::Document(const Document& source) 
 	: pathName(source.pathName), encodingType(source.encodingType), 
-	paperSize(source.paperSize), margins(source.margins), header(source.header), footer(source.footer) {
+	/*paperSize(source.paperSize),*/ margins(source.margins), header(source.header), footer(source.footer) {
 	this->notepadForm = source.notepadForm;
 	this->isDirty = source.isDirty;
 	this->isVertical = source.isVertical;
@@ -20,7 +24,6 @@ Document::Document(const Document& source)
 }
 
 Document::~Document() {
-
 }
 
 Document& Document::operator=(const Document& source) {
@@ -28,7 +31,7 @@ Document& Document::operator=(const Document& source) {
 	this->isDirty = source.isDirty;
 	this->pathName = source.pathName;
 	this->encodingType = source.encodingType;
-	this->paperSize = source.paperSize;
+	//this->paperSize = source.paperSize;
 	this->isVertical = source.isVertical;
 	this->margins = source.margins;
 	this->header = source.header;
@@ -50,9 +53,9 @@ void Document::SetEncodingType(string encodingType) {
 	this->encodingType = encodingType;
 }
 
-void Document::SetPaperSize(CSize paperSize) {
-	this->paperSize = paperSize;
-}
+//void Document::SetPaperSize(CSize paperSize) {
+//	this->paperSize = paperSize;
+//}
 
 void Document::SetIsVertical(bool isVertical) {
 	this->isVertical = isVertical;

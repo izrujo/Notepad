@@ -33,7 +33,7 @@ int PreviewForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 	NotepadForm* notepadForm = static_cast<NotepadForm*>(this->parent);
 
-	this->printInformation = new PrintInformation("", notepadForm);
+	this->printInformation = new PrintInformation(notepadForm);
 
 	return 0;
 }

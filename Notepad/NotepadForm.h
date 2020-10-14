@@ -7,6 +7,8 @@
 using namespace std;
 #include "Subject.h"
 
+#define WM_THREADNOTIFY (WM_APP + 2000)
+
 class ScrollController;
 class Font;
 class CaretController;
@@ -17,7 +19,8 @@ class HistoryBook;
 class Selection;
 class AutoNewlineController;
 class FindReplaceDialog;
-class Printer;
+class PrintJobManager;
+class PrintStateDialog;
 
 static UINT WM_FINDREPLACE = ::RegisterWindowMessage(FINDMSGSTRING);
 
@@ -39,7 +42,8 @@ public:
 	Selection* selection;
 	AutoNewlineController* autoNewlineController;
 	FindReplaceDialog* findReplaceDialog;
-	Printer* printer;
+	PrintJobManager* printJobManager;
+	PrintStateDialog* printStateDialog;
 
 protected:
 	afx_msg void OnClose();
@@ -62,6 +66,7 @@ protected:
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg LRESULT OnFindReplace(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnThreadNotify(WPARAM wParaml, LPARAM lParam);
 	//afx_msg void OnUpdateCommandUIRange(CCmdUI *pCmdUI);
 	DECLARE_MESSAGE_MAP()
 

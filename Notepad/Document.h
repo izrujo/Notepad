@@ -30,7 +30,7 @@ public:
 	void SetPathName(string pathName);
 	void SetEncodingType(string encodingType);
 
-	void SetPaperSize(CSize paperSize);
+	//void SetPaperSize(CSize paperSize);
 	void SetIsVertical(bool isVertical);
 	void SetMargins(CRect margins);
 	void SetHeader(string header);
@@ -40,13 +40,13 @@ public:
 	string& GetPathName() const;
 	string& GetEncodingType() const;
 	
-	CSize& GetPaperSize() const;
+	//CSize& GetPaperSize() const;
 	bool GetIsVertical() const;
 	CRect& GetMargins() const;
 	string& GetHeader() const;
 	string& GetFooter() const;
 
-	HGLOBAL deviceMode;
+	DEVMODE *deviceMode;
 
 private:
 	NotepadForm* notepadForm;
@@ -55,7 +55,7 @@ private:
 	string encodingType;
 	//페이지 설정
 	//용지(크기, 공급(x)), 방향,	여백, 머리글, 바닥글
-	CSize paperSize;
+	//CSize paperSize;
 	bool isVertical;
 	CRect margins;
 	string header;
@@ -74,9 +74,9 @@ inline string& Document::GetEncodingType() const {
 	return const_cast<string&>(this->encodingType);
 }
 
-inline CSize& Document::GetPaperSize() const {
-	return const_cast<CSize&>(this->paperSize);
-}
+//inline CSize& Document::GetPaperSize() const {
+//	return const_cast<CSize&>(this->paperSize);
+//}
 
 inline bool Document::GetIsVertical() const {
 	return this->isVertical;

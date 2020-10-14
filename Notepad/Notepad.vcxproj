@@ -56,6 +56,7 @@
     <ClInclude Include="Printer.h" />
     <ClInclude Include="PrintInformation.h" />
     <ClInclude Include="PrintingVisitor.h" />
+    <ClInclude Include="PrintJobManager.h" />
     <ClInclude Include="PrintStateDialog.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Scanner.h" />
@@ -111,6 +112,7 @@
     <ClCompile Include="ScrollController.cpp" />
     <ClCompile Include="Selection.cpp" />
     <ClCompile Include="Book.cpp" />
+    <ClCompile Include="PrintJobManager.cpp" />
     <ClCompile Include="Stack.cpp" />
     <ClCompile Include="String.cpp" />
     <ClCompile Include="Subject.cpp" />

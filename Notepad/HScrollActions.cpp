@@ -77,7 +77,6 @@ void LineRightAction::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar *pScrollBar)
 	position = this->notepadForm->GetScrollPos(SB_HORZ);
 	this->notepadForm->scrollController->MoveHorizontalScroll(position);
 	this->notepadForm->ScrollWindow(previous-position, 0);
-
 }
 
 // PageLeftAction
