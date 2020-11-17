@@ -16,17 +16,16 @@
 #include "CaretController.h"
 #include "ScrollController.h"
 #include "Scroll.h"
-#include "AutoNewlineController.h"
 #include "FindReplaceDialog.h"
 #include "PageSetupDialog.h"
 #include "PreviewForm.h"
-#include "LineDivider.h"
 #include "PrintInformation.h"
 #include "PrintingVisitor.h"
 #include "PrintStateDialog.h"
 #include "Printer.h"
 #include "PrintJobManager.h"
 #include "DummyLine.h"
+#include "DummyManager.h"
 
 #include "resource.h"
 
@@ -259,15 +258,32 @@ AutoNewlineCommand& AutoNewlineCommand::operator=(const AutoNewlineCommand& sour
 }
 
 void AutoNewlineCommand::Execute() {
-	if (this->notepadForm->autoNewlineController == NULL) {
+	CRect rect;
+	this->notepadForm->GetClientRect(rect);
+	Long scrollWidth = 0;
+	if (this->notepadForm->scrollController != NULL) {
+		scrollWidth = GetSystemMetrics(SM_CXVSCROLL);
+	}
+	DummyManager dummyManager(this->notepadForm->note, this->notepadForm->characterMetrics, rect.Width() - scrollWidth);
+
+	Long i;
+	if (this->notepadForm->GetIsAutoNewLining() == FALSE) {
+		this->notepadForm->SetIsAutoNewLining(TRUE);
 		this->notepadForm->menu.CheckMenuItem(IDM_FORMAT_AUTONEWLINE, MF_CHECKED | MF_BYCOMMAND);
-		this->notepadForm->autoNewlineController = new AutoNewlineController(this->notepadForm);
+		i = 0;
+		while (i < this->notepadForm->note->GetLength()) {
+			i = dummyManager.Fold(i);
+			i++;
+		}
 	}
 	else {
-		this->notepadForm->autoNewlineController->Release();
-		delete this->notepadForm->autoNewlineController;
-		this->notepadForm->autoNewlineController = NULL;
+		this->notepadForm->SetIsAutoNewLining(FALSE);
 		this->notepadForm->menu.CheckMenuItem(IDM_FORMAT_AUTONEWLINE, MF_UNCHECKED | MF_BYCOMMAND);
+		i = 0;
+		while (i < this->notepadForm->note->GetLength()) {
+			dummyManager.Unfold(i);
+			i++;
+		}
 	}
 
 	if (this->notepadForm->selection != NULL) {
@@ -275,6 +291,13 @@ void AutoNewlineCommand::Execute() {
 		this->notepadForm->selection = NULL;
 		this->notepadForm->note->UnselectAll();
 	}
+
+	this->notepadForm->undoHistoryBook->Empty();
+	this->notepadForm->redoHistoryBook->Empty();
+
+	Long index = this->notepadForm->note->First();
+	this->notepadForm->current = this->notepadForm->note->GetAt(index);
+	this->notepadForm->current->First();
 }
 
 string AutoNewlineCommand::GetType() {
@@ -655,7 +678,19 @@ void PrintCommand::Execute() {
 		CString deviceName = pd.GetDeviceName();
 		memcpy(this->notepadForm->document->deviceMode->dmDeviceName, (VOID*)LPCTSTR(deviceName), 32);
 
-		PrintInformation* printInformation = new PrintInformation(this->notepadForm);
+		Glyph* note = this->notepadForm->note->Clone();
+		if (this->notepadForm->GetIsAutoNewLining() == TRUE) {
+			CRect rect;
+			this->notepadForm->GetClientRect(rect);
+			DummyManager dummyManager(note, this->notepadForm->characterMetrics, rect.Width());
+			Long i = 0;
+			while (i < note->GetLength()) {
+				dummyManager.Unfold(i);
+				i++;
+			}
+		}
+
+		PrintInformation* printInformation = new PrintInformation(this->notepadForm, note);
 
 		if (printInformation->printerDC.StartDocA(this->notepadForm->document->GetPathName().c_str()) < 0) {
 			AfxMessageBox(_T("Printer wouldn't initialize"));
@@ -701,11 +736,6 @@ PreviewCommand& PreviewCommand::operator=(const PreviewCommand& source) {
 }
 
 void PreviewCommand::Execute() {
-	Glyph* note = this->notepadForm->note->Clone();
-	Long row;
-	Long column;
-	LineDivider lineDivider(this->notepadForm->characterMetrics);
-	lineDivider.Combine(note, &row, &column);
 	PreviewForm* previewForm = new PreviewForm(this->notepadForm);
 	previewForm->Create(NULL, "인쇄 미리 보기", 13565952UL, CRect(0, 0, 1200, 875));
 	previewForm->ShowWindow(SW_NORMAL);
@@ -755,6 +785,21 @@ void WriteCommand::Execute() {
 		this->column = this->notepadForm->current->GetCurrent();
 	}
 
+	//========== 자동 개행 처리 1 ==========
+	DummyManager* dummyManager = 0;
+	Long distance;
+	if (this->notepadForm->GetIsAutoNewLining() == TRUE) {
+		CRect rect;
+		this->notepadForm->GetClientRect(rect);
+		dummyManager = new DummyManager(this->notepadForm->note, this->notepadForm->characterMetrics, rect.Width());
+		distance = dummyManager->CountDistance(this->row, this->column);
+		this->row = dummyManager->Unfold(this->row);
+		if (dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(this->row))) {
+			dummyManager->CountIndex(distance, &this->row, &this->column);
+		}
+	}
+	//========== 자동 개행 처리 1 ==========
+
 	GlyphFactory glyphFactory;
 	TCHAR content[2];
 
@@ -785,6 +830,25 @@ void WriteCommand::Execute() {
 		}
 	}
 
+	//========== 자동 개행 처리 2 ==========
+	Long rowIndex;
+	Long columnIndex;
+	if (dummyManager != NULL) {
+		dummyManager->Fold(this->row);
+		dummyManager->CountIndex(distance + 1, &rowIndex, &columnIndex);
+
+		if (this->nChar == VK_RETURN) {
+			columnIndex--;
+			dummyManager->Fold(this->row + 1);
+		}
+		delete dummyManager;
+
+		this->notepadForm->note->Move(rowIndex);
+		this->notepadForm->current = this->notepadForm->note->GetAt(rowIndex);
+		this->notepadForm->current->Move(columnIndex);
+	}
+	//========== 자동 개행 처리 2 ==========
+
 	//Document 처리
 	if (this->notepadForm->document->GetIsDirty() == false &&
 		(this->nChar >= 32 || this->nChar == VK_TAB || this->nChar == VK_RETURN)) {
@@ -797,6 +861,17 @@ void WriteCommand::Execute() {
 }
 
 void WriteCommand::Unexecute() {
+	//========== 자동 개행 처리 1 ==========
+	DummyManager* dummyManager = 0;
+	Long distance;
+	if (this->notepadForm->GetIsAutoNewLining() == TRUE) {
+		CRect rect;
+		this->notepadForm->GetClientRect(rect);
+		dummyManager = new DummyManager(this->notepadForm->note, this->notepadForm->characterMetrics, rect.Width());
+		dummyManager->Unfold(this->row);
+	}
+	//========== 자동 개행 처리 1 ==========
+
 	this->notepadForm->note->Move(this->row);
 	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
 	this->notepadForm->current->Move(this->column);
@@ -816,6 +891,21 @@ void WriteCommand::Unexecute() {
 		this->notepadForm->selection = NULL;
 		this->notepadForm->note->UnselectAll();
 	}
+
+	//========== 자동 개행 처리 2 ==========
+	Long rowIndex;
+	Long columnIndex;
+	if (dummyManager != NULL) {
+		dummyManager->Fold(this->row);
+		distance = dummyManager->CountDistance(this->row, this->column);
+		dummyManager->CountIndex(distance, &rowIndex, &columnIndex);
+		delete dummyManager;
+
+		this->notepadForm->note->Move(rowIndex);
+		this->notepadForm->current = this->notepadForm->note->GetAt(rowIndex);
+		this->notepadForm->current->Move(columnIndex);
+	}
+	//========== 자동 개행 처리 2 ==========
 }
 
 string WriteCommand::GetType() {
@@ -848,8 +938,30 @@ ImeCompositionCommand& ImeCompositionCommand::operator=(const ImeCompositionComm
 }
 
 void ImeCompositionCommand::Execute() {
+	OutputDebugString("Composition\n");
+
 	TCHAR(*buffer) = new TCHAR[2];
 	buffer = this->notepadForm->GetCurrentBuffer();
+
+	//========== 자동 개행 처리 1 ==========
+	Long row = this->notepadForm->note->GetCurrent();
+	Long column = this->notepadForm->current->GetCurrent();
+	DummyManager* dummyManager = 0;
+	Long distance = 0;
+	if (this->notepadForm->GetIsAutoNewLining() == TRUE) {
+		CRect rect;
+		this->notepadForm->GetClientRect(rect);
+		dummyManager = new DummyManager(this->notepadForm->note, this->notepadForm->characterMetrics, rect.Width());
+
+		distance = dummyManager->CountDistance(row, column);
+		row = dummyManager->Unfold(row);
+		dummyManager->CountIndex(distance, &row, &column);
+	}
+
+	this->notepadForm->note->Move(row);
+	this->notepadForm->current = this->notepadForm->note->GetAt(row);
+	this->notepadForm->current->Move(column);
+	//========== 자동 개행 처리 1 ==========
 
 	Long index;
 	if (this->notepadForm->note->IsSelecting()) {
@@ -859,6 +971,7 @@ void ImeCompositionCommand::Execute() {
 	if (this->notepadForm->GetIsComposing() == TRUE) {
 		index = this->notepadForm->current->GetCurrent();
 		this->notepadForm->current->Remove(index - 1);
+		distance--; //자동개행 추가
 	}
 
 	if (buffer[0] != '\0') {
@@ -876,8 +989,24 @@ void ImeCompositionCommand::Execute() {
 	}
 	else {
 		this->notepadForm->SetIsComposing(FALSE);
+		OutputDebugString("composing\n");
 	}
 
+	//========== 자동 개행 처리 2 ==========
+	Long rowIndex;
+	Long columnIndex;
+	if (dummyManager != NULL) {
+		dummyManager->Fold(row);
+		dummyManager->CountIndex(distance + 1, &rowIndex, &columnIndex);
+		delete dummyManager;
+
+		this->notepadForm->note->Move(rowIndex);
+		this->notepadForm->current = this->notepadForm->note->GetAt(rowIndex);
+		this->notepadForm->current->Move(columnIndex);
+	}
+	//========== 자동 개행 처리 2 ==========
+
+	//Document 처리
 	if (this->notepadForm->document->GetIsDirty() == false) {
 		CString title;
 		this->notepadForm->GetWindowText(title);
@@ -935,19 +1064,41 @@ ImeCharCommand& ImeCharCommand::operator=(const ImeCharCommand& source) {
 }
 
 void ImeCharCommand::Execute() {
+	OutputDebugString("Char\n");
+	bool needtoRemove = false;
 	if (this->buffer[0] == '\0' && this->row == -1 && this->column == -1) {
 		this->buffer[0] = this->notepadForm->GetCurrentBuffer()[0];
 		this->buffer[1] = this->notepadForm->GetCurrentBuffer()[1];
 		this->row = this->notepadForm->note->GetCurrent();
 		this->column = this->notepadForm->current->GetCurrent();
 		if (this->notepadForm->GetIsComposing() == TRUE) {
-			this->notepadForm->current->Remove(--this->column);
+			needtoRemove = true;
 		}
 	}
+
+	//========== 자동 개행 처리 1 ==========
+	DummyManager* dummyManager = 0;
+	Long distance = 0;
+	if (this->notepadForm->GetIsAutoNewLining() == TRUE) {
+		CRect rect;
+		this->notepadForm->GetClientRect(rect);
+		dummyManager = new DummyManager(this->notepadForm->note, this->notepadForm->characterMetrics, rect.Width());
+		distance = dummyManager->CountDistance(this->row, this->column);
+		this->row = dummyManager->Unfold(this->row);
+		dummyManager->CountIndex(distance, &this->row, &this->column);
+	}
+	//========== 자동 개행 처리 1 ==========
 
 	this->notepadForm->note->Move(this->row);
 	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
 	this->notepadForm->current->Move(this->column);
+
+	if (needtoRemove == true) {
+		this->notepadForm->current->Remove(--this->column);
+	}
+	else { //붙여쓰기, 실행취소 등 ImeChar만 단독으로 들어오는 한글 작성에서 위치를 증가시켜준다.(ImeComposition에서 위치증가중)
+		distance++;
+	}
 
 	GlyphFactory glyphFactory;
 	Glyph* glyph = glyphFactory.Make(this->buffer);
@@ -959,15 +1110,53 @@ void ImeCharCommand::Execute() {
 		this->notepadForm->current->Add(this->column, glyph);
 	}
 
+	//========== 자동 개행 처리 2 ==========
+	Long rowIndex;
+	Long columnIndex;
+	if (dummyManager != NULL) {
+		dummyManager->Fold(this->row);
+		dummyManager->CountIndex(distance, &rowIndex, &columnIndex);
+		delete dummyManager;
 
+		this->notepadForm->note->Move(rowIndex);
+		this->notepadForm->current = this->notepadForm->note->GetAt(rowIndex);
+		this->notepadForm->current->Move(columnIndex);
+	}
+	//========== 자동 개행 처리 2 ==========
 }
 
 void ImeCharCommand::Unexecute() {
+	//========== 자동 개행 처리 1 ==========
+	DummyManager* dummyManager = 0;
+	Long distance;
+	if (this->notepadForm->GetIsAutoNewLining() == TRUE) {
+		CRect rect;
+		this->notepadForm->GetClientRect(rect);
+		dummyManager = new DummyManager(this->notepadForm->note, this->notepadForm->characterMetrics, rect.Width());
+		dummyManager->Unfold(this->row);
+	}
+	//========== 자동 개행 처리 1 ==========
+
 	this->notepadForm->note->Move(this->row);
 	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
 	this->notepadForm->current->Move(this->column);
 
 	this->notepadForm->current->Remove(this->column);
+
+	//========== 자동 개행 처리 2 ==========
+	Long rowIndex;
+	Long columnIndex;
+	if (dummyManager != NULL) {
+		dummyManager->Fold(this->row);
+		distance = dummyManager->CountDistance(this->row, this->column);
+		dummyManager->CountIndex(distance, &rowIndex, &columnIndex);
+		delete dummyManager;
+
+		this->notepadForm->note->Move(rowIndex);
+		this->notepadForm->current = this->notepadForm->note->GetAt(rowIndex);
+		this->notepadForm->current->Move(columnIndex);
+	}
+	//========== 자동 개행 처리 2 ==========
 
 	if (this->notepadForm->selection != NULL) {
 		delete this->notepadForm->selection;
@@ -1038,6 +1227,21 @@ void DeleteCommand::Execute() {
 		}
 	}
 
+	//========== 자동 개행 처리 1 ==========
+	DummyManager* dummyManager = 0;
+	Long distance;
+	if (this->notepadForm->GetIsAutoNewLining() == TRUE) {
+		CRect rect;
+		this->notepadForm->GetClientRect(rect);
+		dummyManager = new DummyManager(this->notepadForm->note, this->notepadForm->characterMetrics, rect.Width());
+		distance = dummyManager->CountDistance(this->row, this->column);
+		this->row = dummyManager->Unfold(this->row);
+		dummyManager->CountIndex(distance, &this->row, &this->column);
+		this->noteLength = this->notepadForm->note->GetLength();
+		this->lineLength = this->notepadForm->note->GetAt(this->row)->GetLength();
+	}
+	//========== 자동 개행 처리 1 ==========
+
 	this->notepadForm->note->Move(this->row);
 	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
 	this->notepadForm->current->Move(this->column);
@@ -1050,9 +1254,34 @@ void DeleteCommand::Execute() {
 		this->notepadForm->current->Combine(other);
 		this->notepadForm->note->Remove(this->row + 1);
 	}
+
+	//========== 자동 개행 처리 2 ==========
+	Long rowIndex;
+	Long columnIndex;
+	if (dummyManager != NULL) {
+		dummyManager->Fold(this->row);
+		dummyManager->CountIndex(distance, &rowIndex, &columnIndex);
+		delete dummyManager;
+
+		this->notepadForm->note->Move(rowIndex);
+		this->notepadForm->current = this->notepadForm->note->GetAt(rowIndex);
+		this->notepadForm->current->Move(columnIndex);
+	}
+	//========== 자동 개행 처리 2 ==========
 }
 
 void DeleteCommand::Unexecute() {
+	//========== 자동 개행 처리 1 ==========
+	DummyManager* dummyManager = 0;
+	Long distance;
+	if (this->notepadForm->GetIsAutoNewLining() == TRUE) {
+		CRect rect;
+		this->notepadForm->GetClientRect(rect);
+		dummyManager = new DummyManager(this->notepadForm->note, this->notepadForm->characterMetrics, rect.Width());
+		dummyManager->Unfold(this->row);
+	}
+	//========== 자동 개행 처리 1 ==========
+
 	this->notepadForm->note->Move(this->row);
 	this->notepadForm->current = this->notepadForm->note->GetAt(this->row);
 	this->notepadForm->current->Move(this->column);
@@ -1063,11 +1292,32 @@ void DeleteCommand::Unexecute() {
 		this->notepadForm->current->Add(this->column, this->character->Clone());
 	}
 	else if (this->column >= this->lineLength && this->row < this->noteLength - 1) {
-		line = this->notepadForm->current->Divide(this->column);
-		this->notepadForm->note->Add(this->row + 1, line);
+		if (this->character == 0) {
+			line = this->notepadForm->current->Divide(this->column);
+			this->notepadForm->note->Add(this->row + 1, line);
+		}
+		else {
+			this->character->Select(false);
+			this->notepadForm->current->Add(this->column, this->character->Clone());
+		}
 	}
 	this->notepadForm->note->Move(this->row);
 	this->notepadForm->current->Move(this->column);
+
+	//========== 자동 개행 처리 2 ==========
+	Long rowIndex;
+	Long columnIndex;
+	if (dummyManager != NULL) {
+		dummyManager->Fold(this->row);
+		distance = dummyManager->CountDistance(this->row, this->column);
+		dummyManager->CountIndex(distance, &rowIndex, &columnIndex);
+		delete dummyManager;
+
+		this->notepadForm->note->Move(rowIndex);
+		this->notepadForm->current = this->notepadForm->note->GetAt(rowIndex);
+		this->notepadForm->current->Move(columnIndex);
+	}
+	//========== 자동 개행 처리 2 ==========
 }
 
 string DeleteCommand::GetType() {
@@ -1105,6 +1355,7 @@ void CopyCommand::Execute() {
 		string content;
 		Glyph* line;
 		Glyph* character;
+		Long column;
 		Long j;
 		Long i = start;
 		while (i <= end) {
@@ -1114,18 +1365,24 @@ void CopyCommand::Execute() {
 			while (j < line->GetLength()) {
 				character = line->GetAt(j);
 				if (character->GetIsSelected()) {
+					column = j + 1;
 					content += character->GetContent();
 				}
 				j++;
 			}
-			content.append("\r\n");
+
+			if (column >= line->GetLength() && (this->notepadForm->GetIsAutoNewLining() == FALSE
+				|| (this->notepadForm->GetIsAutoNewLining() == TRUE && i < this->notepadForm->note->GetLength() - 1
+					&& !dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(i + 1))))) {
+				content.append("\r\n");
+			}
 			clipBoard.Append(content.c_str());
 			i++;
 		}
 
 		HANDLE handle;
 		char* address = NULL;
-		handle = ::GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, clipBoard.GetLength() - 1);
+		handle = ::GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE, clipBoard.GetLength() + 1);
 		address = (char*)::GlobalLock(handle);
 		if (address == NULL) {
 			::GlobalFree(handle);
@@ -1418,7 +1675,9 @@ void DeleteSelectionCommand::Execute() {
 				}
 				j++;
 			}
-			if (j >= line->GetLength() && i < end) {
+			if (j >= line->GetLength() && i < end
+				&& (i < this->notepadForm->note->GetLength() - 1
+					&& !dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(i + 1)))) { //다음 줄이 더미가 아니어야 줄 추가를 함.
 				command = new DeleteCommand(this->notepadForm);
 				this->macroCommand->Add(command);
 			}
@@ -1646,6 +1905,9 @@ void LeftCommand::Execute() {
 			Long index = this->notepadForm->note->Previous();
 			this->notepadForm->current = this->notepadForm->note->GetAt(index);
 			this->notepadForm->current->Last();
+			if (dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(index + 1))) {
+				this->notepadForm->current->Previous();
+			}
 		}
 	}
 }
@@ -1815,7 +2077,15 @@ void HomeCommand::Execute() {
 		delete this->notepadForm->selection;
 		this->notepadForm->selection = NULL;
 	}
-	this->notepadForm->current->First();
+	Long current = this->notepadForm->current->GetCurrent();
+	Long index = this->notepadForm->current->First();
+	Long row = this->notepadForm->note->GetCurrent();
+	if (current == index
+		&& dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(row))) {
+		row = this->notepadForm->note->Previous();
+		this->notepadForm->current = this->notepadForm->note->GetAt(row);
+		this->notepadForm->current->First();
+	}
 }
 
 string HomeCommand::GetType() {
@@ -1851,7 +2121,16 @@ void EndCommand::Execute() {
 		delete this->notepadForm->selection;
 		this->notepadForm->selection = NULL;
 	}
-	this->notepadForm->current->Last();
+	Long current = this->notepadForm->current->GetCurrent();
+	Long index = this->notepadForm->current->Last();
+	Long row = this->notepadForm->note->GetCurrent();
+	if (current == index
+		&& row + 1 < this->notepadForm->note->GetLength()
+		&& dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(row + 1))) {
+		row = this->notepadForm->note->Next();
+		this->notepadForm->current = this->notepadForm->note->GetAt(row);
+		this->notepadForm->current->Last();
+	}
 }
 
 string EndCommand::GetType() {
@@ -1889,6 +2168,14 @@ void CtrlLeftCommand::Execute() {
 	}
 	Long index = this->notepadForm->note->MovePreviousWord();
 	this->notepadForm->current = this->notepadForm->note->GetAt(index);
+	while (index >= 0
+		&& (this->notepadForm->current->GetCurrent() <= 0
+			&& dynamic_cast<DummyLine*>(this->notepadForm->current))
+		|| (this->notepadForm->current->GetCurrent() >= this->notepadForm->current->GetLength()
+			&& dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(index + 1)))) {
+		index = this->notepadForm->note->MovePreviousWord();
+		this->notepadForm->current = this->notepadForm->note->GetAt(index);
+	}
 }
 
 string CtrlLeftCommand::GetType() {
@@ -1926,11 +2213,14 @@ void CtrlRightCommand::Execute() {
 	}
 	Long index = this->notepadForm->note->MoveNextWord();
 	this->notepadForm->current = this->notepadForm->note->GetAt(index);
-	/*index++;
-	while (dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(index))) {
+	while (index + 1 < this->notepadForm->note->GetLength()
+		&& (this->notepadForm->current->GetCurrent() >= this->notepadForm->current->GetLength()
+			&& dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(index + 1)))
+		|| (this->notepadForm->current->GetCurrent() <= 0
+			&& dynamic_cast<DummyLine*>(this->notepadForm->current))) {
 		index = this->notepadForm->note->MoveNextWord();
+		this->notepadForm->current = this->notepadForm->note->GetAt(index);
 	}
-	this->notepadForm->current = this->notepadForm->note->GetAt(index);*/
 }
 
 string CtrlRightCommand::GetType() {
@@ -2144,6 +2434,11 @@ void ShiftLeftCommand::Execute() {
 		row = this->notepadForm->note->Previous();
 		this->notepadForm->current = this->notepadForm->note->GetAt(row);
 		this->notepadForm->current->Last();
+		if (dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(row + 1))) {
+			column = this->notepadForm->current->Previous();
+			character = this->notepadForm->current->GetAt(column);
+			(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+		}
 	}
 
 	Long start = row;
@@ -2212,6 +2507,11 @@ void ShiftRightCommand::Execute() {
 		row = this->notepadForm->note->Next();
 		this->notepadForm->current = this->notepadForm->note->GetAt(row);
 		this->notepadForm->current->First();
+		if (dynamic_cast<DummyLine*>(this->notepadForm->current)) {
+			column = this->notepadForm->current->Next();
+			character = this->notepadForm->current->GetAt(column - 1);
+			(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+		}
 	}
 
 	Long start = noteCurrent;

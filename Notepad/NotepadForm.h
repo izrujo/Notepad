@@ -17,7 +17,6 @@ class Glyph;
 class Document;
 class HistoryBook;
 class Selection;
-class AutoNewlineController;
 class FindReplaceDialog;
 class PrintJobManager;
 class PrintStateDialog;
@@ -40,7 +39,6 @@ public:
 	HistoryBook* undoHistoryBook;
 	HistoryBook* redoHistoryBook;
 	Selection* selection;
-	AutoNewlineController* autoNewlineController;
 	FindReplaceDialog* findReplaceDialog;
 	PrintJobManager* printJobManager;
 	PrintStateDialog* printStateDialog;
@@ -78,6 +76,9 @@ public:
 	TCHAR* GetCurrentBuffer() const;
 	void SetCurrentBuffer(TCHAR(*currentBuffer));
 
+	BOOL GetIsAutoNewLining() const;
+	void SetIsAutoNewLining(BOOL isComposing);
+
 private:
 	BOOL isComposing;
 	char currentCharacter;
@@ -85,6 +86,8 @@ private:
 	BOOL wasUndo;
 	BOOL wasMove;
 	BOOL isAllReplacing;
+	BOOL isAutoNewLining;
+	Long previousWidth;
 };
 
 inline BOOL NotepadForm::GetIsComposing() const {
@@ -110,6 +113,14 @@ inline TCHAR* NotepadForm::GetCurrentBuffer() const {
 inline void NotepadForm::SetCurrentBuffer(TCHAR(*currentBuffer)) {
 	this->currentBuffer[0] = currentBuffer[0];
 	this->currentBuffer[1] = currentBuffer[1];
+}
+
+inline BOOL NotepadForm::GetIsAutoNewLining() const {
+	return this->isAutoNewLining;
+}
+
+inline void NotepadForm::SetIsAutoNewLining(BOOL isAutoNewLining) {
+	this->isAutoNewLining = isAutoNewLining;
 }
 
 #endif //_NOTEPADFORM_H

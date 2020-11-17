@@ -129,9 +129,6 @@
     <ClInclude Include="Visitor.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="AutoNewlineController.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
     <ClInclude Include="String.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
@@ -142,9 +139,6 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="PreviewForm.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="LineDivider.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="PrintingVisitor.h">
@@ -163,6 +157,9 @@
       <Filter>헤더 파일</Filter>
     </ClInclude>
     <ClInclude Include="PrintJobManager.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="DummyManager.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>
@@ -275,9 +272,6 @@
     <ClCompile Include="Visitor.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="AutoNewlineController.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
     <ClCompile Include="String.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
@@ -288,9 +282,6 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="PreviewForm.cpp">
-      <Filter>소스 파일</Filter>
-    </ClCompile>
-    <ClCompile Include="LineDivider.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="PrintingVisitor.cpp">
@@ -309,6 +300,9 @@
       <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="PrintJobManager.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="DummyManager.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>

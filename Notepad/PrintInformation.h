@@ -10,13 +10,13 @@ class Font;
 
 class PrintInformation {
 public:
-	PrintInformation(NotepadForm* notepadForm = 0);
+	PrintInformation(NotepadForm* notepadForm = 0, Glyph* note = 0);
 	~PrintInformation();
 
 public:
 	Glyph* book;
-	CharacterMetrics *characterMetrics;
-	Font *font;
+	CharacterMetrics* characterMetrics;
+	Font* font;
 	CDC printerDC;
 };
 

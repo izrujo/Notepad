@@ -24,10 +24,10 @@
 #include "HistoryBook.h"
 #include "DrawingVisitor.h"
 #include "Selection.h"
-#include "AutoNewlineController.h"
 #include "FindReplaceDialog.h"
 #include "PrintJobManager.h"
 #include "PrintStateDialog.h"
+#include "DummyManager.h"
 
 BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_CREATE()
@@ -67,7 +67,6 @@ NotepadForm::NotepadForm() {
 	this->undoHistoryBook = NULL;
 	this->redoHistoryBook = NULL;
 	this->selection = NULL;
-	this->autoNewlineController = NULL;
 	this->findReplaceDialog = NULL;
 	this->printJobManager = NULL;
 	this->printStateDialog = NULL;
@@ -79,6 +78,8 @@ NotepadForm::NotepadForm() {
 	this->wasUndo = FALSE;
 	this->wasMove = FALSE;
 	this->isAllReplacing = FALSE;
+	this->isAutoNewLining = FALSE;
+	this->previousWidth = 0;
 }
 
 int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
@@ -186,7 +187,7 @@ LRESULT NotepadForm::OnImeStartComposition(WPARAM wParam, LPARAM lParam) {
 
 void NotepadForm::OnPaint() {
 	CPaintDC dc(this);
-	
+
 	CDC memDC;
 	memDC.CreateCompatibleDC(&dc);
 	CBitmap bitmap;
@@ -222,14 +223,36 @@ void NotepadForm::OnPaint() {
 	memDC.DeleteDC();
 }
 
-void NotepadForm::OnSize(UINT nType, int cs, int cy) {
+void NotepadForm::OnSize(UINT nType, int cx, int cy) {
+	if (this->isAutoNewLining == TRUE && this->previousWidth != cx) {
+		DummyManager dummyManager(this->note, this->characterMetrics, cx);
+
+		Long row = this->note->GetCurrent();
+		Long column = this->current->GetCurrent();
+		Long distance = dummyManager.CountDistance(row, column);
+		Long i = 0;
+		while (i < this->note->GetLength()) {
+			dummyManager.Unfold(i);
+			i++;
+		}
+		i = 0;
+		while (i < this->note->GetLength()) {
+			i = dummyManager.Fold(i);
+			i++;
+		}
+		dummyManager.CountIndex(distance, &row, &column);
+		this->note->Move(row);
+		this->current = this->note->GetAt(row);
+		this->current->Move(column);
+	}
+	this->previousWidth = cx; //불필요한 개행처리를 막기 위함(사용자의 윈도우 크기 조정만 개행처리 하기 위함)
+
 	if (this->scrollController == NULL) {
 		this->scrollController = new ScrollController(this);
 	}
 	if (this->note != NULL) {
 		this->Notify();
 	}
-
 }
 
 void NotepadForm::OnSetFocus(CWnd* pNewWnd) {
@@ -462,8 +485,8 @@ void NotepadForm::OnEditCommandRange(UINT uID) {
 	if (command != NULL) {
 		command->Execute();
 
-		//========== 실행 취소 추가 ==========
 		string type = command->GetType();
+		//========== 실행 취소 추가 ==========
 		if (type != "ImeComposition"
 			&& type != "Undo" && type != "Redo" && type != "Copy" && type != "SelectAll" && type != "Find" && type != "Replace") {
 			if ((type == "Write" && this->currentCharacter != VK_RETURN)
@@ -632,6 +655,6 @@ LRESULT NotepadForm::OnThreadNotify(WPARAM wParam, LPARAM lParam) {
 		this->printStateDialog->DestroyWindow();
 		this->printStateDialog = NULL;
 	}
-	
+
 	return 0;
 }

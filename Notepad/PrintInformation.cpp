@@ -3,13 +3,13 @@
 #include "Document.h"
 #include "CharacterMetrics.h"
 #include "Font.h"
-#include "LineDivider.h"
 #include "Glyph.h"
 #include "Book.h"
 #include <afxdlgs.h>
+#include "DummyManager.h"
 
-PrintInformation::PrintInformation(NotepadForm* notepadForm) {
-	this->printerDC.CreateDC("WINSPOOL", (LPCTSTR)notepadForm->document->deviceMode->dmDeviceName, 
+PrintInformation::PrintInformation(NotepadForm* notepadForm, Glyph* note) {
+	this->printerDC.CreateDC("WINSPOOL", (LPCTSTR)notepadForm->document->deviceMode->dmDeviceName,
 		NULL, notepadForm->document->deviceMode);
 
 	Long dpi = this->printerDC.GetDeviceCaps(LOGPIXELSX);
@@ -20,8 +20,6 @@ PrintInformation::PrintInformation(NotepadForm* notepadForm) {
 	this->font = new Font(logFont, notepadForm->font->GetColor(), notepadForm);
 
 	this->characterMetrics = new CharacterMetrics(notepadForm, this->font);
-
-	LineDivider lineDivider(this->characterMetrics);
 
 	Long deviceWidth = this->printerDC.GetDeviceCaps(PHYSICALWIDTH);
 	Long deviceHeight = this->printerDC.GetDeviceCaps(PHYSICALHEIGHT);
@@ -43,17 +41,34 @@ PrintInformation::PrintInformation(NotepadForm* notepadForm) {
 		bottom += this->characterMetrics->GetHeight();
 	}
 
+	DummyManager dummyManager(note, this->characterMetrics,
+		deviceWidth - (deviceMargin.left + deviceMargin.right));
 	this->book = new Book;
-	Glyph* currentNote = notepadForm->note->Clone();
-	Glyph* nextNote = lineDivider.Divide(deviceWidth - (deviceMargin.left + deviceMargin.right),
-		deviceHeight - (top + bottom), currentNote, 0, 0); //좌표아니고 index임
-	while (nextNote != NULL) {
-		this->book->Add(currentNote);
-		currentNote = nextNote;
-		nextNote = lineDivider.Divide(deviceWidth - (deviceMargin.left + deviceMargin.right),
-			deviceHeight - (top + bottom), currentNote, 0, 0); //좌표아니고 index임
+
+	Long i = 0;
+	while (i < note->GetLength()) {
+		i = dummyManager.Fold(i);
+		i++;
 	}
-	this->book->Add(currentNote);
+
+	Glyph* nextNote;
+	Long lineHeight = this->characterMetrics->GetHeight();
+	Long dcHeight = deviceHeight - (top + bottom) - lineHeight;
+	Long height;
+	while (note->GetLength() > 0) {
+		height = 0;
+		i = 0;
+		while (i < note->GetLength() && height < dcHeight) {
+			height += lineHeight;
+			i++;
+		}
+		nextNote = note->Divide(i);
+		this->book->Add(note);
+		note = nextNote;
+	}
+	if (note != NULL) {
+		delete note;
+	}
 	this->book->Move(0);
 }
 

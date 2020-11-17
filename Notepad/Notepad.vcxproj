@@ -20,7 +20,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Array.h" />
-    <ClInclude Include="AutoNewlineController.h" />
     <ClInclude Include="Book.h" />
     <ClInclude Include="Caret.h" />
     <ClInclude Include="CaretController.h" />
@@ -32,6 +31,7 @@
     <ClInclude Include="Document.h" />
     <ClInclude Include="DrawingVisitor.h" />
     <ClInclude Include="DummyLine.h" />
+    <ClInclude Include="DummyManager.h" />
     <ClInclude Include="FileFactory.h" />
     <ClInclude Include="Files.h" />
     <ClInclude Include="FileDialog.h" />
@@ -46,7 +46,6 @@
     <ClInclude Include="KeyActionFactory.h" />
     <ClInclude Include="KeyActions.h" />
     <ClInclude Include="Line.h" />
-    <ClInclude Include="LineDivider.h" />
     <ClInclude Include="Note.h" />
     <ClInclude Include="NotepadApp.h" />
     <ClInclude Include="NotepadForm.h" />
@@ -71,7 +70,6 @@
     <ClInclude Include="VScrollActions.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AutoNewlineController.cpp" />
     <ClCompile Include="Caret.cpp" />
     <ClCompile Include="CaretController.cpp" />
     <ClCompile Include="Characters.cpp" />
@@ -82,6 +80,7 @@
     <ClCompile Include="Document.cpp" />
     <ClCompile Include="DrawingVisitor.cpp" />
     <ClCompile Include="DummyLine.cpp" />
+    <ClCompile Include="DummyManager.cpp" />
     <ClCompile Include="FileFactory.cpp" />
     <ClCompile Include="Files.cpp" />
     <ClCompile Include="FileDialog.cpp" />
@@ -96,7 +95,6 @@
     <ClCompile Include="KeyActionFactory.cpp" />
     <ClCompile Include="KeyActions.cpp" />
     <ClCompile Include="Line.cpp" />
-    <ClCompile Include="LineDivider.cpp" />
     <ClCompile Include="Note.cpp" />
     <ClCompile Include="NotepadApp.cpp" />
     <ClCompile Include="NotepadForm.cpp" />

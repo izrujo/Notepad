@@ -7,9 +7,9 @@
 #include "Font.h"
 #include "CharacterMetrics.h"
 #include "PrintingVisitor.h"
-#include "LineDivider.h"
 #include "Book.h"
 #include "PrintInformation.h"
+#include "DummyManager.h"
 
 #define SCREENDPI 45
 
@@ -33,7 +33,19 @@ int PreviewForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 	NotepadForm* notepadForm = static_cast<NotepadForm*>(this->parent);
 
-	this->printInformation = new PrintInformation(notepadForm);
+	Glyph* note = notepadForm->note->Clone();
+	if (notepadForm->GetIsAutoNewLining() == TRUE) {
+		CRect rect;
+		notepadForm->GetClientRect(rect);
+		DummyManager dummyManager(note, notepadForm->characterMetrics, rect.Width());
+		Long i = 0;
+		while (i < note->GetLength()) {
+			dummyManager.Unfold(i);
+			i++;
+		}
+	}
+
+	this->printInformation = new PrintInformation(notepadForm, note);
 
 	return 0;
 }

@@ -11,6 +11,7 @@
 #include "CaretController.h"
 #include "Scroll.h"
 #include "Selection.h"
+#include "DummyLine.h"
 
 #include "resource.h"
 
@@ -631,9 +632,19 @@ ShiftEndKeyAction::~ShiftEndKeyAction() {
 void ShiftEndKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	Glyph* character;
 	Long noteCurrent = this->notepadForm->note->GetCurrent();
-	Long row = noteCurrent;
 	Long lineCurrent = this->notepadForm->current->GetCurrent();
+
 	Long index = this->notepadForm->current->Last();
+	Long row = this->notepadForm->note->GetCurrent();
+	if (lineCurrent == index
+		&& row + 1 < this->notepadForm->note->GetLength()
+		&& dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(row + 1))) {
+		row = this->notepadForm->note->Next();
+		this->notepadForm->current = this->notepadForm->note->GetAt(row);
+		index = this->notepadForm->current->Last();
+		lineCurrent = 0;
+	}
+
 	Long i = lineCurrent;
 	while (i < index) {
 		character = this->notepadForm->current->GetAt(i);
@@ -752,12 +763,35 @@ void ShiftCtrlRightKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 
 	row = this->notepadForm->note->MoveNextWord();
 	this->notepadForm->current = this->notepadForm->note->GetAt(row);
+	while (row + 1 < this->notepadForm->note->GetLength()
+		&& (this->notepadForm->current->GetCurrent() >= this->notepadForm->current->GetLength()
+			&& dynamic_cast<DummyLine*>(this->notepadForm->note->GetAt(row + 1)))
+		|| (this->notepadForm->current->GetCurrent() <= 0
+			&& dynamic_cast<DummyLine*>(this->notepadForm->current))) {
+		row = this->notepadForm->note->MoveNextWord();
+		this->notepadForm->current = this->notepadForm->note->GetAt(row);
+	}
 
 	Long lineNext = this->notepadForm->current->GetCurrent();
-	Long i = lineCurrent;
-	while (i < lineNext) {
-		character = this->notepadForm->current->GetAt(i);
-		(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+	Glyph* line;
+	Long column;
+	Long j;
+	Long i = noteCurrent;
+	while (i <= row) {
+		line = this->notepadForm->note->GetAt(i);
+		column = line->GetLength();
+		if (i >= row) {
+			column = lineNext;
+		}
+		j = 0;
+		if (i == noteCurrent) {
+			j = lineCurrent;
+		}
+		while (j < column) {
+			character = line->GetAt(j);
+			(!character->GetIsSelected()) ? (character->Select(true)) : (character->Select(false));
+			j++;
+		}
 		i++;
 	}
 
