@@ -1,0 +1,142 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Korean (Korea) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_KOR)
+LANGUAGE LANG_KOREAN, SUBLANG_DEFAULT
+#pragma code_page(949)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDCNT_FINDDIALOG DIALOGEX 30, 73, 236, 74
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "찾기"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+LTEXT           "찾을 내용", IDCNT_STATIC_FINDTEXT, 4, 8, 42, 8
+EDITTEXT        1152, 47, 7, 128, 12, ES_AUTOHSCROLL | WS_GROUP
+CONTROL         "Match &whole word only", 1040, "Button", BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP, 4, 26, 100, 12
+CONTROL         "대/소문자 구분(&C)", 1041, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 4, 42, 64, 12
+CONTROL         "주위에 배치(&R)", IDCNT_CHECKBOX_WRAPAROUND, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 4, 58, 64, 12
+GROUPBOX        "방향", IDCNT_STATIC_DIRECTION, 89, 26, 86, 28, WS_GROUP
+CONTROL         "위로(&U)", 1056, "Button", BS_AUTORADIOBUTTON | WS_GROUP, 94, 38, 35, 12
+CONTROL         "아래로(&D)", 1057, "Button", BS_AUTORADIOBUTTON, 131, 38, 42, 12
+DEFPUSHBUTTON   "다음 찾기(&F)", IDOK, 182, 5, 50, 14, WS_GROUP
+PUSHBUTTON      "취소", IDCANCEL, 182, 23, 50, 14
+PUSHBUTTON      "&Help", 1038, 182, 45, 50, 14
+LTEXT           "", 1088, 4, 56, 1, 1, NOT WS_VISIBLE
+END
+
+IDCNT_REPLACEDIALOG DIALOGEX 36, 44, 230, 94
+STYLE DS_SETFONT | DS_MODALFRAME | DS_3DLOOK | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "바꾸기"
+FONT 8, "MS Shell Dlg", 0, 0, 0x0
+BEGIN
+LTEXT           "찾을 내용(&N):", -1, 4, 9, 48, 8
+EDITTEXT        1152, 54, 7, 114, 12, ES_AUTOHSCROLL | WS_GROUP
+LTEXT           "바꿀 내용(&P):", -1, 4, 26, 48, 8
+EDITTEXT        1153, 54, 24, 114, 12, ES_AUTOHSCROLL | WS_GROUP
+CONTROL         "Match &whole word only", 1040, "Button", BS_AUTOCHECKBOX | WS_GROUP | WS_TABSTOP, 4, 46, 104, 12
+CONTROL         "대/소문자 구분(&C)", 1041, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 4, 62, 64, 12
+CONTROL         "주위에 배치(&R)", IDCNT_CHECKBOX_WRAPAROUND, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 4, 78, 64, 12
+DEFPUSHBUTTON   "다음 찾기(&F)", IDOK, 174, 4, 50, 14, WS_GROUP
+PUSHBUTTON      "바꾸기(&R)", 1024, 174, 21, 50, 14
+PUSHBUTTON      "모두 바꾸기(&A)", 1025, 174, 38, 50, 14
+PUSHBUTTON      "취소", IDCANCEL, 174, 55, 50, 14
+PUSHBUTTON      "&Help", 1038, 174, 75, 50, 14
+LTEXT           "", 1088, 4, 76, 1, 1, NOT WS_VISIBLE
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_FINDDIALOG, DIALOG
+    BEGIN
+    END
+
+    IDD_REPLACEDIALOG, DIALOG
+    BEGIN
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// AFX_DIALOG_LAYOUT
+//
+
+IDD_FINDDIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+IDD_REPLACEDIALOG AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
+
+#endif    // Korean (Korea) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

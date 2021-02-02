@@ -5,6 +5,7 @@
 
 CharacterMetrics::CharacterMetrics(CWnd* window, Font* font) {
 	this->window = window;
+	this->font = 0;
 	CDC* dc = this->window->GetDC();
 	CString buffer;
 	CSize size;
@@ -104,7 +105,7 @@ Long CharacterMetrics::GetX(Glyph* line, Long index) {
 Long CharacterMetrics::GetX(const string& buffer) {
 	Long x = 0;
 
-	Long i = 0;
+	unsigned long int i = 0; //경고 해제하려고..
 	while (i < buffer.length()) {
 		if (!(buffer[i] & 0x80)) {
 			if (buffer.length() == 1) {
@@ -150,7 +151,7 @@ Long CharacterMetrics::GetColumn(Glyph* line, Long x) {
 	Glyph* character;
 	string content;
 	Long asciiIndex;
-	Long width;
+	Long width = 0;
 
 	while (index < line->GetLength() && currentX < x) {
 		character = line->GetAt(index);
@@ -189,7 +190,7 @@ Long CharacterMetrics::GetColumnForDrawing(Glyph* line, Long x) {
 	Glyph* character;
 	string content;
 	Long asciiIndex;
-	Long width;
+	Long width = 0;
 
 	while (index < line->GetLength() && currentX < x) {
 		character = line->GetAt(index);

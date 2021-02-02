@@ -28,12 +28,11 @@ DummyManager& DummyManager::operator=(const DummyManager& source) {
 }
 
 Long DummyManager::Unfold(Long row) {
-	/*
+	Glyph* line = this->note->GetAt(row);
 	while (dynamic_cast<DummyLine*>(line)) {
 		row--;
 		line = this->note->GetAt(row);
-	}*/
-	Glyph* line = this->note->GetAt(row);
+	}
 	if (row < this->note->GetLength() - 1) {
 		Glyph* next = this->note->GetAt(row + 1);
 		while (row < this->note->GetLength() - 1 && dynamic_cast<DummyLine*>(next)) {
@@ -44,6 +43,32 @@ Long DummyManager::Unfold(Long row) {
 	}
 
 	return row;
+}
+
+void DummyManager::Unfold(Long* start, Long* end) {
+	Glyph* line;
+	Glyph* next;
+
+	line = this->note->GetAt(*start);
+	while (dynamic_cast<DummyLine*>(line)) {
+		(*start)--;
+		line = this->note->GetAt(*start);
+	}
+
+	Long i = *start;
+	while (i <= *end && i < this->note->GetLength() - 1) {
+		line = this->note->GetAt(i);
+		next = this->note->GetAt(i + 1);
+		while (i < this->note->GetLength() - 1 && dynamic_cast<DummyLine*>(next)) {
+			line->Combine(next);
+			this->note->Remove(i + 1);
+			if (i < *end) {
+				(*end)--;
+			}
+			next = this->note->GetAt(i + 1);
+		}
+		i++;
+	}
 }
 
 Long DummyManager::Fold(Long unfoldedRow) {

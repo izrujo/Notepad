@@ -1,319 +1,356 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="소스 파일">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    <Filter Include="Notepad">
+      <UniqueIdentifier>{76d38601-48ba-47a4-9361-beff12684404}</UniqueIdentifier>
     </Filter>
-    <Filter Include="헤더 파일">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    <Filter Include="TextEditor">
+      <UniqueIdentifier>{cc498a26-9a70-49ad-b8f8-c825e32b8d5d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="리소스 파일">
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{a187287b-044b-4c12-99e3-0fbeb3449314}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Caret.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CaretController.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CharacterMetrics.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="CommandFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Composite.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DummyLine.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Font.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Glyph.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="GlyphFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="HScrollActionFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="HScrollActions.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="KeyActionFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="KeyActions.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Line.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Note.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="NotepadApp.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="NotepadForm.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Observer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scanner.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Scroll.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="ScrollController.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Subject.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="VScrollActionFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="VScrollActions.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Array.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Commands.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FileManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Document.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FileDialog.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Files.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FileFactory.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Characters.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="HistoryBook.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Stack.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DrawingVisitor.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Selection.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Visitor.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="String.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="FindReplaceDialog.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PageSetupDialog.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PreviewForm.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PrintingVisitor.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Book.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PrintInformation.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PrintStateDialog.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="Printer.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="PrintJobManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-    <ClInclude Include="DummyManager.h">
-      <Filter>헤더 파일</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="Caret.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\Book.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="CaretController.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\CommandFactory.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="CharacterMetrics.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\Commands.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="CommandFactory.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\Document.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="Composite.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\FileDialog.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="DummyLine.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\FileFactory.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="Font.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\FileManager.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="Glyph.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\Files.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="GlyphFactory.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\NotepadApp.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="HScrollActionFactory.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\NotepadForm.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="HScrollActions.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\PageSetupDialog.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="KeyActionFactory.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\PreviewForm.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="KeyActions.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\Printer.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="Line.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\PrintInformation.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="Note.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\PrintingVisitor.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="NotepadApp.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\PrintJobManager.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="NotepadForm.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\PrintStateDialog.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="Observer.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Caret.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Scanner.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\CaretController.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Scroll.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\CharacterMetrics.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="ScrollController.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Characters.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Subject.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Composite.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="VScrollActionFactory.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\DrawingVisitor.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="VScrollActions.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\DummyLine.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Commands.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\DummyManager.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="FileManager.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Font.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Document.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Glyph.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="FileDialog.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\GlyphFactory.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Files.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\HScrollActionFactory.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="FileFactory.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\HScrollActions.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Characters.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Line.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="HistoryBook.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Note.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Stack.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Observer.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="DrawingVisitor.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Scanner.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Selection.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Scroll.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Visitor.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\ScrollController.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="String.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Selection.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="FindReplaceDialog.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Subject.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="PageSetupDialog.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\Visitor.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="PreviewForm.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\VScrollActionFactory.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="PrintingVisitor.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\VScrollActions.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="Book.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Utilities\Stack.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="PrintInformation.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Utilities\String.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="PrintStateDialog.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\KeyActionFactory.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="Printer.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="Notepad\KeyActions.cpp">
+      <Filter>Notepad</Filter>
     </ClCompile>
-    <ClCompile Include="PrintJobManager.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\CNTCommandFactory.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
-    <ClCompile Include="DummyManager.cpp">
-      <Filter>소스 파일</Filter>
+    <ClCompile Include="TextEditor\CNTCommands.cpp">
+      <Filter>TextEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="TextEditor\CNTKeyActionFactory.cpp">
+      <Filter>TextEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="TextEditor\CNTKeyActions.cpp">
+      <Filter>TextEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="TextEditor\FindReplaceDialog.cpp">
+      <Filter>TextEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="TextEditor\HistoryBook.cpp">
+      <Filter>TextEditor</Filter>
+    </ClCompile>
+    <ClCompile Include="TextEditor\TextEditingForm.cpp">
+      <Filter>TextEditor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Notepad20190501.rc">
-      <Filter>리소스 파일</Filter>
+    <ClInclude Include="Notepad\Book.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\CommandFactory.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\Commands.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\Document.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\FileDialog.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\FileFactory.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\FileManager.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\Files.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\NotepadApp.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\NotepadForm.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\PageSetupDialog.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\PreviewForm.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\Printer.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\PrintInformation.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\PrintingVisitor.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\PrintJobManager.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\PrintStateDialog.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\resource.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Caret.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\CaretController.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\CharacterMetrics.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Characters.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Composite.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\DrawingVisitor.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\DummyLine.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\DummyManager.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Font.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Glyph.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\GlyphFactory.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\HScrollActionFactory.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\HScrollActions.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Line.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Note.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Observer.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Scanner.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Scroll.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\ScrollController.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Selection.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Subject.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\TextEditingForm.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\Visitor.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\VScrollActionFactory.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\VScrollActions.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Array.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\Stack.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Utilities\String.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\KeyActionFactory.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\KeyActions.h">
+      <Filter>Notepad</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\CNTCommandFactory.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\CNTCommands.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\CNTKeyActionFactory.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\CNTKeyActions.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\FindReplaceDialog.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\HistoryBook.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="TextEditor\resource.h">
+      <Filter>TextEditor</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Notepad\Notepad20190501.rc">
+      <Filter>Resource</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="TextEditor\TextEditingForm.rc">
+      <Filter>Resource</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="bmp00001.bmp">
-      <Filter>리소스 파일</Filter>
+    <Image Include="Notepad\bmp00001.bmp">
+      <Filter>Resource</Filter>
     </Image>
   </ItemGroup>
 </Project>
