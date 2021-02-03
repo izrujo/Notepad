@@ -120,9 +120,6 @@ void FontCommand::Execute() {
 			this->notepadForm->textEditingForm->current->Move(column);
 		}
 		//=====磊悼 俺青 贸府=====
-
-		this->notepadForm->textEditingForm->Notify();
-		this->notepadForm->textEditingForm->Invalidate();
 	}
 }
 
@@ -355,10 +352,10 @@ SaveCommand& SaveCommand::operator=(const SaveCommand& source) {
 void SaveCommand::Execute() {
 	FileManager fileManager(this->notepadForm);
 	string fileName = this->notepadForm->document->GetPathName();
-
+	int ret = IDOK;
 	FileDialog fileDialog(FALSE, "txt", "*", 524326, "Text File(*.txt) | *.txt ||");
 	if (fileName == "力格 绝澜") {
-		int ret = fileDialog.DoModal();
+		ret = fileDialog.DoModal();
 		if (ret == IDOK) {
 			string encodingType = fileDialog.GetEncodingType();
 			this->notepadForm->document->SetEncodingType(encodingType);
@@ -381,7 +378,7 @@ void SaveCommand::Execute() {
 		fileManager.Save();
 	}
 
-	if (this->notepadForm->document->GetIsDirty() == true) {
+	if (this->notepadForm->document->GetIsDirty() == true && ret == IDOK) {
 		CString title;
 		this->notepadForm->GetWindowText(title);
 		title.Delete(0);
@@ -435,7 +432,7 @@ void SaveAsCommand::Execute() {
 		this->notepadForm->SetWindowTextA((LPCTSTR)title);
 	}
 
-	if (this->notepadForm->document->GetIsDirty() == true) {
+	if (this->notepadForm->document->GetIsDirty() == true && ret == IDOK) {
 		CString title;
 		this->notepadForm->GetWindowText(title);
 		title.Delete(0);
@@ -472,7 +469,7 @@ CloseCommand& CloseCommand::operator=(const CloseCommand& source) {
 }
 
 void CloseCommand::Execute() {
-	//this->notepadForm->OnClose();
+	this->notepadForm->SendMessage(WM_CLOSE, 0);
 }
 
 string CloseCommand::GetType() {
@@ -897,4 +894,43 @@ string ReplaceCommand::GetType() {
 
 Command* ReplaceCommand::Clone() {
 	return new ReplaceCommand(*this);
+}
+
+//ReportDirtyCommand
+ReportDirtyCommand::ReportDirtyCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+ReportDirtyCommand::ReportDirtyCommand(const ReportDirtyCommand& source)
+	: Command(source) {
+}
+
+ReportDirtyCommand::~ReportDirtyCommand() {
+
+}
+
+ReportDirtyCommand& ReportDirtyCommand::operator=(const ReportDirtyCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void ReportDirtyCommand::Execute() {
+	bool isDirty = this->notepadForm->document->GetIsDirty();
+	if (isDirty == false) {
+		CString title;
+		this->notepadForm->GetWindowText(title);
+		title.Insert(0, '*');
+		isDirty = true;
+		this->notepadForm->SetWindowTextA(title);
+		this->notepadForm->document->SetIsDirty(isDirty);
+	}
+}
+
+string ReportDirtyCommand::GetType() {
+	return "ReportDirty";
+}
+
+Command* ReportDirtyCommand::Clone() {
+	return new ReportDirtyCommand(*this);
 }

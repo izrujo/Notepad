@@ -284,4 +284,17 @@ public:
 	virtual Command* Clone();
 };
 
+//ReportDirtyCommand
+class ReportDirtyCommand : public Command {
+public:
+	ReportDirtyCommand(NotepadForm* notepadForm = 0);
+	ReportDirtyCommand(const ReportDirtyCommand& source);
+	virtual ~ReportDirtyCommand();
+	ReportDirtyCommand& operator=(const ReportDirtyCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
 #endif //_COMMAND_H

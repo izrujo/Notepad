@@ -30,6 +30,7 @@ protected:
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 	afx_msg void OnCommandRange(UINT uID);
+	afx_msg void OnSimpleCommandRange(UINT uID);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 	afx_msg LRESULT OnThreadNotify(WPARAM wParaml, LPARAM lParam);
 	//afx_msg void OnUpdateCommandUIRange(CCmdUI *pCmdUI);

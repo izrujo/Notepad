@@ -50,6 +50,9 @@ Command* CommandFactory::Make(int uID) {
 	else if (uID == IDM_FILE_PREVIEW) {
 		command = new PreviewCommand(this->notepadForm);
 	}
+	else if (uID == IDM_FILE_CLOSE) {
+		command = new CloseCommand(this->notepadForm);
+	}
 	else if (uID == IDM_EDIT_COPY) {
 		command = new CopyCommand(this->notepadForm);
 	}
@@ -76,6 +79,9 @@ Command* CommandFactory::Make(int uID) {
 	}
 	else if (uID == IDM_EDIT_REPLACE) {
 		command = new ReplaceCommand(this->notepadForm);
+	}
+	else if (uID == IDC_REPORT_DIRTY) {
+		command = new ReportDirtyCommand(this->notepadForm);
 	}
 
 	return command;

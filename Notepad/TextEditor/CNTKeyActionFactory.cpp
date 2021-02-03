@@ -40,6 +40,9 @@ CNTKeyAction* CNTKeyActionFactory::Make(UINT nChar) {
 	else if (isShift && isCtrl && nChar == VK_END) {
 		keyAction = new CNTShiftCtrlEndKeyAction(this->textEditingForm);
 	}
+	else if (isShift && isCtrl && nChar == 0x53) { //추가 : SaveAs
+		keyAction = new CNTCtrlShiftSKeyAction(this->textEditingForm);
+	}
 	//Shift + KEY
 	else if (isShift && nChar == VK_LEFT) {
 		keyAction = new CNTShiftLeftKeyAction(this->textEditingForm);
@@ -96,6 +99,18 @@ CNTKeyAction* CNTKeyActionFactory::Make(UINT nChar) {
 	else if (isCtrl && nChar == 0x48) {
 		keyAction = new CNTCtrlHKeyAction(this->textEditingForm);
 	}
+	else if (isCtrl && nChar == 0x4E) { //추가 : New
+		keyAction = new CNTCtrlNKeyAction(this->textEditingForm);
+	}
+	else if (isCtrl && nChar == 0x4F) { //추가 : Open
+		keyAction = new CNTCtrlOKeyAction(this->textEditingForm);
+	}
+	else if (isCtrl && nChar == 0x53) { //추가 : Save
+		keyAction = new CNTCtrlSKeyAction(this->textEditingForm);
+	}
+	else if (isCtrl && nChar == 0x50) { //추가 : Print
+		keyAction = new CNTCtrlPKeyAction(this->textEditingForm);
+	}
 	else if (isCtrl && nChar == 0x70) {// 임시
 		keyAction = new CNTCtrlF1KeyAction(this->textEditingForm);
 	}
@@ -104,6 +119,9 @@ CNTKeyAction* CNTKeyActionFactory::Make(UINT nChar) {
 	}
 	else if (isCtrl && nChar == 0x72) {// 임시
 		keyAction = new CNTCtrlF3KeyAction(this->textEditingForm);
+	}
+	else if (isCtrl && nChar == 0x54) {// 임시
+		keyAction = new CNTCtrlTKeyAction(this->textEditingForm);
 	}
 	//KEY
 	else if (nChar == VK_LEFT) {

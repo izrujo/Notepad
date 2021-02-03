@@ -38,7 +38,7 @@ BEGIN_MESSAGE_MAP(TextEditingForm, CWnd)
 	ON_COMMAND_RANGE(IDCNT_EDIT_WRITE, IDCNT_EDIT_REPLACE, OnEditCommandRange)
 	ON_COMMAND_RANGE(IDCNT_BASIC_WRITE, IDCNT_BASIC_DELETESELECTION, OnBasicCommandRange)
 	ON_COMMAND_RANGE(IDCNT_MOVE_LEFT, IDCNT_SELECTMOVE_CTRLEND, OnMoveCommandRange)
-	ON_COMMAND_RANGE(IDCNT_FLAG_LOCKHSCROLL, IDCNT_FLAG_UNLOCKFINDREPLACEDIALOG, OnFlagCommandRange)
+	ON_COMMAND_RANGE(IDCNT_FLAG_LOCKHSCROLL, /*IDCNT_FLAG_UNLOCKFINDREPLACEDIALOG*/IDCNT_ETC_SIZE, OnFlagCommandRange)
 	ON_WM_KEYDOWN()
 	ON_WM_HSCROLL()
 	ON_WM_VSCROLL()
@@ -63,11 +63,13 @@ TextEditingForm::TextEditingForm() {
 	this->currentCharacter = '\0';
 	this->currentBuffer[0] = '\0';
 	this->currentBuffer[1] = '\0';
+	this->previousWidth = 0;
+	this->isSized = TRUE;
+
 	this->isLockedHScroll = FALSE;
 	this->isUnlockedHistoryBook = FALSE;
 	this->isUnlockedFindReplaceDialog = FALSE;
 
-	this->previousWidth = 0;
 	this->wasUndo = FALSE;
 	this->wasMove = FALSE;
 	this->isAllReplacing = FALSE;
@@ -85,7 +87,7 @@ int TextEditingForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	this->font = new Font(this);
 
 	this->characterMetrics = new CharacterMetrics(this, this->font);
-	
+
 	this->undoHistoryBook = new HistoryBook(10);
 	this->redoHistoryBook = new HistoryBook(10);
 
@@ -227,6 +229,8 @@ void TextEditingForm::OnSize(UINT nType, int cx, int cy) {
 		this->note->Move(row);
 		this->current = this->note->GetAt(row);
 		this->current->Move(column);
+		
+		this->isSized = TRUE;
 	}
 	this->previousWidth = cx; //불필요한 개행처리를 막기 위함(사용자의 윈도우 크기 조정만 개행처리 하기 위함)
 
@@ -445,11 +449,20 @@ void TextEditingForm::OnEditCommandRange(UINT uID) {
 	CNTCommandFactory commandFactory(this);
 	CNTCommand* command = commandFactory.Make(uID);
 	if (command != NULL) {
+		string type = command->GetType();
+
+		//SizeCommand 추가
+		if ((type == "CNTWrite" || type == "CNTImeChar" || type == "CNTDelete" 
+			|| type == "CNTDeleteSelection" || type == "CNTPaste" || type == "CNTUndo" || type == "CNTRedo") 
+			&& this->isSized == TRUE) {
+			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDCNT_ETC_SIZE, 0));
+			this->isSized = FALSE;
+		}
+
 		command->Execute();
 
 		//========== 실행 취소 추가 ==========
 		if (this->isUnlockedHistoryBook == TRUE) {
-			string type = command->GetType();
 			//1. Undo아니고 Redo아니고 Find아니고 Replace아니고
 			//1.1. DeleteSelection이면
 			//1.1.1. 실행취소이력이있으면서가장최근이력이매크로이고 방금실행취소를안했으면서방금이동을안했거나 지금모두바꾸기중이면
@@ -544,6 +557,12 @@ void TextEditingForm::OnFlagCommandRange(UINT uID) {
 	CNTCommand* command = commandFactory.Make(uID);
 	if (command != NULL) {
 		command->Execute();
+
+		string type = command->GetType();
+		if (type == "CNTSize") {
+			this->undoHistoryBook->Write(command->Clone());
+		}
+
 		delete command;
 	}
 
@@ -625,7 +644,7 @@ BOOL TextEditingForm::OnEraseBkgnd(CDC* pDC) {
 LRESULT TextEditingForm::OnFindReplace(WPARAM wParam, LPARAM lParam) {
 	UNREFERENCED_PARAMETER(wParam);
 
-	if (this->findReplaceDialog != NULL) {		
+	if (this->findReplaceDialog != NULL) {
 		CString messageText;
 		BOOL isFindSuccess;
 		if (this->findReplaceDialog->FindNext()) {

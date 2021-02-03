@@ -706,4 +706,21 @@ public:
 };
 //////////////////// Flag ////////////////////
 
+//CNTSizeCommand
+class CNTSizeCommand : public CNTCommand {
+public:
+	CNTSizeCommand(TextEditingForm* textEditingForm = 0);
+	CNTSizeCommand(const CNTSizeCommand& source);
+	virtual ~CNTSizeCommand();
+	CNTSizeCommand& operator=(const CNTSizeCommand& source);
+
+	virtual void Execute();
+	virtual void Unexecute();
+	virtual string GetType();
+	virtual CNTCommand* Clone();
+
+private:
+	Long previousWidth;
+};
+
 #endif //_COMMAND_H

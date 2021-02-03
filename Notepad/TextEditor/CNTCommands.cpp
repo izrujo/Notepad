@@ -14,6 +14,9 @@
 #include "DummyManager.h"
 #include "DummyLine.h"
 
+#include "../Notepad/NotepadForm.h"
+#include "../Notepad/resource.h"
+
 #include <afxwin.h>
 
 #pragma warning(disable:4996)
@@ -531,7 +534,7 @@ CNTCommand* CNTDeleteSelectionBasicCommand::Clone() {
 
 //////////////////// Main ////////////////////
 //CNTWriteCommand
-CNTWriteCommand::CNTWriteCommand(TextEditingForm * textEditingForm)
+CNTWriteCommand::CNTWriteCommand(TextEditingForm* textEditingForm)
 	: CNTCommand(textEditingForm) {
 	this->nChar = -1;
 	this->row = -1;
@@ -604,6 +607,12 @@ void CNTWriteCommand::Execute() {
 		this->textEditingForm->current->Move(columnIndex);
 	}
 	//========== 磊悼 俺青 贸府 2 ==========
+
+	//Document 贸府
+	if (this->nChar >= 32 || this->nChar == VK_TAB || this->nChar == VK_RETURN) {
+		NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+		notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_REPORT_DIRTY, 0));
+	}
 }
 
 void CNTWriteCommand::Unexecute() {
@@ -655,6 +664,10 @@ void CNTWriteCommand::Unexecute() {
 		this->textEditingForm->current->Move(columnIndex);
 	}
 	//========== 磊悼 俺青 贸府 2 ==========
+
+	//Document 贸府
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_REPORT_DIRTY, 0));
 }
 
 string CNTWriteCommand::GetType() {
@@ -729,6 +742,10 @@ void CNTImeCompositionCommand::Execute() {
 		this->textEditingForm->current->Move(columnIndex);
 	}
 	//========== 磊悼 俺青 贸府 2 ==========
+
+	//Document 贸府
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_REPORT_DIRTY, 0));
 }
 
 string CNTImeCompositionCommand::GetType() {
@@ -832,6 +849,10 @@ void CNTImeCharCommand::Execute() {
 		this->textEditingForm->current->Move(columnIndex);
 	}
 	//========== 磊悼 俺青 贸府 2 ==========
+
+	//Document 贸府
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_REPORT_DIRTY, 0));
 }
 
 void CNTImeCharCommand::Unexecute() {
@@ -872,6 +893,10 @@ void CNTImeCharCommand::Unexecute() {
 		this->textEditingForm->selection = NULL;
 		this->textEditingForm->note->UnselectAll();
 	}
+
+	//Document 贸府
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_REPORT_DIRTY, 0));
 }
 
 string CNTImeCharCommand::GetType() {
@@ -977,6 +1002,10 @@ void CNTDeleteCommand::Execute() {
 		this->textEditingForm->current->Move(columnIndex);
 	}
 	//========== 磊悼 俺青 贸府 2 ==========
+
+	//Document 贸府
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_REPORT_DIRTY, 0));
 }
 
 void CNTDeleteCommand::Unexecute() {
@@ -1031,6 +1060,10 @@ void CNTDeleteCommand::Unexecute() {
 		this->textEditingForm->current->Move(columnIndex);
 	}
 	//========== 磊悼 俺青 贸府 2 ==========
+
+	//Document 贸府
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_REPORT_DIRTY, 0));
 }
 
 string CNTDeleteCommand::GetType() {
@@ -1232,6 +1265,10 @@ void CNTDeleteSelectionCommand::Execute() {
 		this->textEditingForm->current->Move(columnIndex);
 	}
 	//========== 磊悼 俺青 贸府 2 ==========
+
+	//Document 贸府
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_REPORT_DIRTY, 0));
 }
 
 void CNTDeleteSelectionCommand::Unexecute() {
@@ -1310,6 +1347,10 @@ void CNTDeleteSelectionCommand::Unexecute() {
 	this->textEditingForm->note->Move(this->endRow);
 	this->textEditingForm->current = this->textEditingForm->note->GetAt(this->endRow);
 	this->textEditingForm->current->Move(this->endColumn);
+
+	//Document 贸府
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_REPORT_DIRTY, 0));
 }
 
 string CNTDeleteSelectionCommand::GetType() {
@@ -1502,6 +1543,10 @@ void CNTPasteCommand::Execute() {
 		this->textEditingForm->current->Move(this->endColumn);
 	}
 	//========== 磊悼 俺青 贸府 2 ==========
+
+	//Document 贸府
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_REPORT_DIRTY, 0));
 }
 
 void CNTPasteCommand::Unexecute() {
@@ -1565,6 +1610,10 @@ void CNTPasteCommand::Unexecute() {
 		this->textEditingForm->selection = 0;
 		this->textEditingForm->note->UnselectAll();
 	}
+
+	//Document 贸府
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDC_REPORT_DIRTY, 0));
 }
 
 string CNTPasteCommand::GetType() {
@@ -1659,12 +1708,29 @@ void CNTUndoCommand::Execute() {
 		}
 
 		CNTCommand* command = this->textEditingForm->undoHistoryBook->OpenAt();
-		command->Unexecute();
 
-		this->textEditingForm->redoHistoryBook->Write(command->Clone());
-		this->textEditingForm->undoHistoryBook->Erase();
+		//SizeCommand 眠啊 1
+		CNTCommand* sizeCommand = 0;
+		if (command->GetType() == "CNTSize") {
+			sizeCommand = command->Clone();
+			sizeCommand->Unexecute();
+			this->textEditingForm->redoHistoryBook->Write(sizeCommand);
+			this->textEditingForm->undoHistoryBook->Erase();
+			command = this->textEditingForm->undoHistoryBook->OpenAt();
+		}
+
+		if (this->textEditingForm->undoHistoryBook->GetLength() > 0) {
+			command->Unexecute();
+			this->textEditingForm->redoHistoryBook->Write(command->Clone());
+			this->textEditingForm->undoHistoryBook->Erase();
+		}
+
+		//SizeCommand 眠啊 2
+		if (sizeCommand != 0) {
+			sizeCommand->Execute();
+		}
 	}
-	
+
 }
 
 string CNTUndoCommand::GetType() {
@@ -1697,10 +1763,27 @@ CNTRedoCommand& CNTRedoCommand::operator=(const CNTRedoCommand& source) {
 void CNTRedoCommand::Execute() {
 	if (this->textEditingForm->redoHistoryBook->GetLength() > 0) {
 		CNTCommand* command = this->textEditingForm->redoHistoryBook->OpenAt();
-		command->Execute();
 
-		this->textEditingForm->undoHistoryBook->Write(command->Clone());
-		this->textEditingForm->redoHistoryBook->Erase();
+		//SizeCommand 眠啊 1
+		CNTCommand* sizeCommand = 0;
+		if (command->GetType() == "CNTSize") {
+			sizeCommand = command->Clone();
+			sizeCommand->Unexecute();
+			this->textEditingForm->undoHistoryBook->Write(sizeCommand);
+			this->textEditingForm->redoHistoryBook->Erase();
+			command = this->textEditingForm->redoHistoryBook->OpenAt();
+		}
+
+		if (this->textEditingForm->redoHistoryBook->GetLength() > 0) {
+			command->Execute();
+			this->textEditingForm->undoHistoryBook->Write(command->Clone());
+			this->textEditingForm->redoHistoryBook->Erase();
+		}
+		
+		//SizeCommand 眠啊 2
+		if (sizeCommand != 0) {
+			sizeCommand->Execute();
+		}
 	}
 	if (this->textEditingForm->selection != NULL) {
 		delete this->textEditingForm->selection;
@@ -1829,7 +1912,7 @@ void CNTLeftCommand::Execute() {
 			isSelected = this->textEditingForm->current->GetAt(i)->GetIsSelected();
 			i++;
 		}
-		Long startColumn = i-1;
+		Long startColumn = i - 1;
 		if (isSelected == false) {
 			startColumn++;
 		}
@@ -2584,7 +2667,7 @@ CNTCommand* CNTShiftUpCommand::Clone() {
 }
 
 //CNTShiftDownCommand
-CNTShiftDownCommand::CNTShiftDownCommand(TextEditingForm * textEditingForm)
+CNTShiftDownCommand::CNTShiftDownCommand(TextEditingForm* textEditingForm)
 	: CNTCommand(textEditingForm) {
 }
 
@@ -3289,3 +3372,83 @@ CNTCommand* CNTUnlockFindReplaceDialogCommand::Clone() {
 	return new CNTUnlockFindReplaceDialogCommand(*this);
 }
 //////////////////// Flag ////////////////////
+
+//CNTSizeCommand
+CNTSizeCommand::CNTSizeCommand(TextEditingForm* textEditingForm)
+	: CNTCommand(textEditingForm) {
+	this->previousWidth = 0;
+}
+
+CNTSizeCommand::CNTSizeCommand(const CNTSizeCommand& source)
+	: CNTCommand(source) {
+	this->previousWidth = source.previousWidth;
+}
+
+CNTSizeCommand::~CNTSizeCommand() {
+
+}
+
+CNTSizeCommand& CNTSizeCommand::operator=(const CNTSizeCommand& source) {
+	CNTCommand::operator=(source);
+	this->previousWidth = source.previousWidth;
+
+	return *this;
+}
+
+void CNTSizeCommand::Execute() {
+	this->previousWidth = this->textEditingForm->GetPreviousWidth();
+
+	CRect rect;
+	this->textEditingForm->GetClientRect(rect);
+	DummyManager dummyManager(this->textEditingForm->note, this->textEditingForm->characterMetrics, rect.Width());
+
+	Long row = this->textEditingForm->note->GetCurrent();
+	Long column = this->textEditingForm->current->GetCurrent();
+	Long distance = dummyManager.CountDistance(row, column);
+	Long i = 0;
+	while (i < this->textEditingForm->note->GetLength()) {
+		dummyManager.Unfold(i);
+		i++;
+	}
+	i = 0;
+	while (i < this->textEditingForm->note->GetLength()) {
+		i = dummyManager.Fold(i);
+		i++;
+	}
+	dummyManager.CountIndex(distance, &row, &column);
+	this->textEditingForm->note->Move(row);
+	this->textEditingForm->current = this->textEditingForm->note->GetAt(row);
+	this->textEditingForm->current->Move(column);
+
+	//this->textEditingForm->SetPreviousWidth(rect.Width());
+}
+
+void CNTSizeCommand::Unexecute() {
+	DummyManager dummyManager(this->textEditingForm->note, this->textEditingForm->characterMetrics, this->previousWidth);
+
+	Long row = this->textEditingForm->note->GetCurrent();
+	Long column = this->textEditingForm->current->GetCurrent();
+	Long distance = dummyManager.CountDistance(row, column);
+	Long i = 0;
+	while (i < this->textEditingForm->note->GetLength()) {
+		dummyManager.Unfold(i);
+		i++;
+	}
+	i = 0;
+	while (i < this->textEditingForm->note->GetLength()) {
+		i = dummyManager.Fold(i);
+		i++;
+	}
+	dummyManager.CountIndex(distance, &row, &column);
+	this->textEditingForm->note->Move(row);
+	this->textEditingForm->current = this->textEditingForm->note->GetAt(row);
+	this->textEditingForm->current->Move(column);
+}
+
+string CNTSizeCommand::GetType() {
+	return "CNTSize";
+}
+
+CNTCommand* CNTSizeCommand::Clone() {
+	return new CNTSizeCommand(*this);
+}

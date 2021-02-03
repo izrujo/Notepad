@@ -1,8 +1,6 @@
 #include "NotepadForm.h"
 #include "CommandFactory.h"
 #include "Commands.h"
-#include "KeyActionFactory.h"
-#include "KeyActions.h"
 #include "Document.h"
 #include "PrintJobManager.h"
 #include "PrintStateDialog.h"
@@ -10,6 +8,8 @@
 #include "../TextEditor/Glyph.h"
 #include "../TextEditor/CharacterMetrics.h"
 #include "../TextEditor/ScrollController.h"
+#include "../TextEditor/CNTKeyActionFactory.h"
+#include "../TextEditor/CNTKeyActions.h"
 
 #include "resource.h"
 #include "../TextEditor/resource.h"
@@ -25,6 +25,7 @@ BEGIN_MESSAGE_MAP(NotepadForm, CFrameWnd)
 	ON_WM_SETFOCUS()
 	ON_WM_KILLFOCUS()
 	ON_COMMAND_RANGE(IDM_FILE_NEW, IDM_FORMAT_AUTONEWLINE, OnCommandRange)
+	ON_COMMAND_RANGE(IDM_FILE_CLOSE, IDC_REPORT_DIRTY, OnSimpleCommandRange)
 	ON_WM_KEYDOWN()
 	ON_MESSAGE(WM_THREADNOTIFY, OnThreadNotify)
 	//ON_UPDATE_COMMAND_UI_RANGE(IDM_FORMAT_WORDWRAP, IDM_FORMAT_WORDWRAP, OnUpdateCommandUIRange)
@@ -44,7 +45,7 @@ int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	this->GetClientRect(rect);
 
 	this->textEditingForm = new TextEditingForm;
-	this->textEditingForm->Create(NULL, "Basic Text Editor", WS_CHILD,
+	this->textEditingForm->Create(NULL, "CNTextEditor", WS_CHILD,
 		rect, this, NULL, NULL);
 	this->textEditingForm->ShowWindow(SW_SHOW);
 	this->textEditingForm->UpdateWindow();
@@ -63,6 +64,10 @@ int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 }
 
 void NotepadForm::OnClose() {
+	if (this->textEditingForm != NULL) {
+		delete this->textEditingForm;
+		this->textEditingForm = NULL;
+	}
 	if (this->document != NULL) {
 		delete this->document;
 	}
@@ -117,9 +122,18 @@ void NotepadForm::OnCommandRange(UINT uID) {
 	this->textEditingForm->scrollController->SmartScrollToPoint(x, y);
 }
 
+void NotepadForm::OnSimpleCommandRange(UINT uID) {
+	CommandFactory commandFactory(this);
+	Command* command = commandFactory.Make(uID);
+	if (command != NULL) {
+		command->Execute();
+		delete command;
+	}
+}
+
 void NotepadForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
-	KeyActionFactory keyActionFactory(this);
-	KeyAction* keyAction = keyActionFactory.Make(nChar);
+	CNTKeyActionFactory keyActionFactory(this->textEditingForm);
+	CNTKeyAction* keyAction = keyActionFactory.Make(nChar);
 
 	if (keyAction != 0) {
 		keyAction->OnKeyDown(nChar, nRepCnt, nFlags);

@@ -166,6 +166,9 @@ CNTCommand* CNTCommandFactory::Make(int uID) {
 	command = new CNTUnlockFindReplaceDialogCommand(this->textEditingForm);
 	}
 	//////////////////// Flag ////////////////////
+	else if (uID == IDCNT_ETC_SIZE) {
+	command = new CNTSizeCommand(this->textEditingForm);
+	}
 
 	return command;
 }

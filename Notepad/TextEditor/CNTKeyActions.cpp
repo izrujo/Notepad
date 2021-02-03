@@ -12,8 +12,13 @@
 #include "Scroll.h"
 #include "Selection.h"
 
+#include "../Notepad/NotepadForm.h"
+#include "../Notepad/resource.h"
+
 #include "DummyManager.h" //CtrlF1
 #include "HistoryBook.h" //CtrlF1
+#include "../Notepad/PageSetupDialog.h"
+#include "../Notepad/Document.h"
 
 #include "resource.h"
 
@@ -780,6 +785,121 @@ CNTCtrlHKeyAction& CNTCtrlHKeyAction::operator =(const CNTCtrlHKeyAction& source
 	return *this;
 }
 
+//CNTCtrlNKeyAction
+CNTCtrlNKeyAction::CNTCtrlNKeyAction(TextEditingForm* textEditingForm)
+	: CNTKeyAction(textEditingForm) {
+}
+
+CNTCtrlNKeyAction::CNTCtrlNKeyAction(const CNTCtrlNKeyAction& source)
+	: CNTKeyAction(source) {
+}
+
+CNTCtrlNKeyAction::~CNTCtrlNKeyAction() {
+}
+
+void CNTCtrlNKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	NotepadForm *notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_FILE_NEW, 0));
+}
+
+CNTCtrlNKeyAction& CNTCtrlNKeyAction::operator =(const CNTCtrlNKeyAction& source) {
+	CNTKeyAction::operator=(source);
+
+	return *this;
+}
+
+//CNTCtrlOKeyAction
+CNTCtrlOKeyAction::CNTCtrlOKeyAction(TextEditingForm* textEditingForm)
+	: CNTKeyAction(textEditingForm) {
+}
+
+CNTCtrlOKeyAction::CNTCtrlOKeyAction(const CNTCtrlOKeyAction& source)
+	: CNTKeyAction(source) {
+}
+
+CNTCtrlOKeyAction::~CNTCtrlOKeyAction() {
+}
+
+void CNTCtrlOKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_FILE_OPEN, 0));
+}
+
+CNTCtrlOKeyAction& CNTCtrlOKeyAction::operator =(const CNTCtrlOKeyAction& source) {
+	CNTKeyAction::operator=(source);
+
+	return *this;
+}
+
+//CNTCtrlSKeyAction
+CNTCtrlSKeyAction::CNTCtrlSKeyAction(TextEditingForm* textEditingForm)
+	: CNTKeyAction(textEditingForm) {
+}
+
+CNTCtrlSKeyAction::CNTCtrlSKeyAction(const CNTCtrlSKeyAction& source)
+	: CNTKeyAction(source) {
+}
+
+CNTCtrlSKeyAction::~CNTCtrlSKeyAction() {
+}
+
+void CNTCtrlSKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_FILE_SAVE, 0));
+}
+
+CNTCtrlSKeyAction& CNTCtrlSKeyAction::operator =(const CNTCtrlSKeyAction& source) {
+	CNTKeyAction::operator=(source);
+
+	return *this;
+}
+
+//CNTCtrlShiftSKeyAction
+CNTCtrlShiftSKeyAction::CNTCtrlShiftSKeyAction(TextEditingForm* textEditingForm)
+	: CNTKeyAction(textEditingForm) {
+}
+
+CNTCtrlShiftSKeyAction::CNTCtrlShiftSKeyAction(const CNTCtrlShiftSKeyAction& source)
+	: CNTKeyAction(source) {
+}
+
+CNTCtrlShiftSKeyAction::~CNTCtrlShiftSKeyAction() {
+}
+
+void CNTCtrlShiftSKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_FILE_SAVEAS, 0));
+}
+
+CNTCtrlShiftSKeyAction& CNTCtrlShiftSKeyAction::operator =(const CNTCtrlShiftSKeyAction& source) {
+	CNTKeyAction::operator=(source);
+
+	return *this;
+}
+
+//CNTCtrlPKeyAction
+CNTCtrlPKeyAction::CNTCtrlPKeyAction(TextEditingForm* textEditingForm)
+	: CNTKeyAction(textEditingForm) {
+}
+
+CNTCtrlPKeyAction::CNTCtrlPKeyAction(const CNTCtrlPKeyAction& source)
+	: CNTKeyAction(source) {
+}
+
+CNTCtrlPKeyAction::~CNTCtrlPKeyAction() {
+}
+
+void CNTCtrlPKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	notepadForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDM_FILE_PRINT, 0));
+}
+
+CNTCtrlPKeyAction& CNTCtrlPKeyAction::operator =(const CNTCtrlPKeyAction& source) {
+	CNTKeyAction::operator=(source);
+
+	return *this;
+}
+
 //CNTCtrlF1KeyAction
 CNTCtrlF1KeyAction::CNTCtrlF1KeyAction(TextEditingForm* textEditingForm)
 	: CNTKeyAction(textEditingForm) {
@@ -853,4 +973,33 @@ CNTCtrlF3KeyAction& CNTCtrlF3KeyAction::operator =(const CNTCtrlF3KeyAction& sou
 
 void CNTCtrlF3KeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	this->textEditingForm->SendMessage(WM_COMMAND, MAKEWPARAM(IDCNT_FLAG_UNLOCKFINDREPLACEDIALOG, 0));
+}
+
+//CNTCtrlTKeyAction
+CNTCtrlTKeyAction::CNTCtrlTKeyAction(TextEditingForm* textEditingForm)
+	: CNTKeyAction(textEditingForm) {
+
+}
+
+CNTCtrlTKeyAction::CNTCtrlTKeyAction(const CNTCtrlTKeyAction& source)
+	: CNTKeyAction(source) {
+
+}
+
+CNTCtrlTKeyAction::~CNTCtrlTKeyAction() {
+
+}
+
+CNTCtrlTKeyAction& CNTCtrlTKeyAction::operator =(const CNTCtrlTKeyAction& source) {
+	CNTKeyAction::operator=(source);
+
+	return *this;
+}
+
+void CNTCtrlTKeyAction::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
+	/*NotepadForm* notepadForm = (NotepadForm*)this->textEditingForm->GetParent();
+	PageSetupDialog pageSetupDialog(this->textEditingForm);
+	pageSetupDialog.DoModal();
+	notepadForm->document->deviceMode = (DEVMODE*)GlobalLock(pageSetupDialog.psd.hDevMode);
+	GlobalUnlock(pageSetupDialog.psd.hDevMode);*/
 }

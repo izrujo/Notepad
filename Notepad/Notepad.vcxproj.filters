@@ -145,12 +145,6 @@
     <ClCompile Include="Utilities\String.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
-    <ClCompile Include="Notepad\KeyActionFactory.cpp">
-      <Filter>Notepad</Filter>
-    </ClCompile>
-    <ClCompile Include="Notepad\KeyActions.cpp">
-      <Filter>Notepad</Filter>
-    </ClCompile>
     <ClCompile Include="TextEditor\CNTCommandFactory.cpp">
       <Filter>TextEditor</Filter>
     </ClCompile>
@@ -311,12 +305,6 @@
     </ClInclude>
     <ClInclude Include="Utilities\String.h">
       <Filter>Utilities</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad\KeyActionFactory.h">
-      <Filter>Notepad</Filter>
-    </ClInclude>
-    <ClInclude Include="Notepad\KeyActions.h">
-      <Filter>Notepad</Filter>
     </ClInclude>
     <ClInclude Include="TextEditor\CNTCommandFactory.h">
       <Filter>TextEditor</Filter>

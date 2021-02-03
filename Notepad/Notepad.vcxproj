@@ -31,8 +31,6 @@
     <ClCompile Include="Notepad\FileFactory.cpp" />
     <ClCompile Include="Notepad\FileManager.cpp" />
     <ClCompile Include="Notepad\Files.cpp" />
-    <ClCompile Include="Notepad\KeyActionFactory.cpp" />
-    <ClCompile Include="Notepad\KeyActions.cpp" />
     <ClCompile Include="Notepad\NotepadApp.cpp" />
     <ClCompile Include="Notepad\NotepadForm.cpp" />
     <ClCompile Include="Notepad\PageSetupDialog.cpp" />
@@ -85,8 +83,6 @@
     <ClInclude Include="Notepad\FileFactory.h" />
     <ClInclude Include="Notepad\FileManager.h" />
     <ClInclude Include="Notepad\Files.h" />
-    <ClInclude Include="Notepad\KeyActionFactory.h" />
-    <ClInclude Include="Notepad\KeyActions.h" />
     <ClInclude Include="Notepad\NotepadApp.h" />
     <ClInclude Include="Notepad\NotepadForm.h" />
     <ClInclude Include="Notepad\PageSetupDialog.h" />

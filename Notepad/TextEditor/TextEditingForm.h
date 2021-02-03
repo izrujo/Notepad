@@ -61,6 +61,10 @@ public:
 	void SetCurrentCharacter(char currentCharacter);
 	TCHAR* GetCurrentBuffer() const;
 	void SetCurrentBuffer(TCHAR(*currentBuffer));
+	Long GetPreviousWidth() const;
+	void SetPreviousWidth(Long previousWidth);
+	BOOL GetIsSized() const;
+	void SetIsSized(BOOL isSized);
 
 	BOOL GetIsLockedHScroll() const;
 	void SetIsLockedHScroll(BOOL isLockedHScroll);
@@ -75,12 +79,13 @@ private:
 	BOOL isComposing;
 	char currentCharacter;
 	TCHAR currentBuffer[2];
+	Long previousWidth;
+	BOOL isSized;
 
 	BOOL isLockedHScroll; //자동개행여부
 	BOOL isUnlockedHistoryBook; //실행취소가능여부
 	BOOL isUnlockedFindReplaceDialog; //찾기바꾸기가능여부
 
-	Long previousWidth; //자동개행관련
 	BOOL wasUndo; //실행취소관련
 	BOOL wasMove; //실행취소관련
 	BOOL isAllReplacing; //실행취소관련
@@ -110,6 +115,22 @@ inline TCHAR* TextEditingForm::GetCurrentBuffer() const {
 inline void TextEditingForm::SetCurrentBuffer(TCHAR(*currentBuffer)) {
 	this->currentBuffer[0] = currentBuffer[0];
 	this->currentBuffer[1] = currentBuffer[1];
+}
+
+inline Long TextEditingForm::GetPreviousWidth() const {
+	return this->previousWidth;
+}
+
+inline void TextEditingForm::SetPreviousWidth(Long previousWidth) {
+	this->previousWidth = previousWidth;
+}
+
+inline BOOL TextEditingForm::GetIsSized() const {
+	return this->isSized;
+}
+
+inline void TextEditingForm::SetIsSized(BOOL isSized) {
+	this->isSized = isSized;
 }
 
 inline BOOL TextEditingForm::GetIsLockedHScroll() const {

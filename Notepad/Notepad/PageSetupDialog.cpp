@@ -3,6 +3,8 @@
 #include "Document.h"
 #include "resource.h"
 
+//#include "../TextEditor/TextEditingForm.h"
+
 PageSetupDialog::PageSetupDialog(CWnd* parent) {
 	this->psd = { 0, };
 
@@ -14,6 +16,8 @@ PageSetupDialog::PageSetupDialog(CWnd* parent) {
 	this->psd.lpfnPageSetupHook = (LPPAGESETUPHOOK)pageSetupHookFunction;
 	this->psd.hInstance = AfxGetInstanceHandle();
 	
+	//TextEditingForm* textEditingForm = static_cast<TextEditingForm*>(parent);
+	//NotepadForm* notepadForm = (NotepadForm*)textEditingForm->GetParent();
 	NotepadForm* notepadForm = static_cast<NotepadForm*>(parent);
 
 	this->psd.hDevMode = GlobalAlloc(GHND, sizeof(DEVMODE)); // 이동 가능한 메모리 블록을 할당하고 0으로 초기화합니다.
@@ -39,6 +43,8 @@ BOOL PageSetupDialog::DoModal() {
 }
 
 UINT APIENTRY PageSetupHook(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam) {
+	//TextEditingForm* textEditingForm= static_cast<TextEditingForm*>(CWnd::FromHandle(hdlg)->GetParent());
+	//NotepadForm* notepadForm = (NotepadForm*)textEditingForm->GetParent();
 	NotepadForm* notepadForm = static_cast<NotepadForm*>(CWnd::FromHandle(hdlg)->GetParent());
 
 	/*CSize sizes[10] =
@@ -46,10 +52,10 @@ UINT APIENTRY PageSetupHook(HWND hdlg, UINT uiMsg, WPARAM wParam, LPARAM lParam)
 	CSize(18410, 26670), CSize(21590, 35560), CSize(21590, 27940), CSize(13970, 21590), CSize(27940, 43180) };*/
 
 	if (uiMsg == WM_INITDIALOG) {
-		string header = notepadForm->document->GetHeader();
-		string footer = notepadForm->document->GetFooter();
-		CWnd::FromHandle(GetDlgItem(hdlg, IDC_EDIT_HEADER))->SetWindowTextA(header.c_str());
-		CWnd::FromHandle(GetDlgItem(hdlg, IDC_EDIT_FOOTER))->SetWindowTextA(footer.c_str());
+		//string header = notepadForm->document->GetHeader();
+		//string footer = notepadForm->document->GetFooter();
+		//CWnd::FromHandle(GetDlgItem(hdlg, IDC_EDIT_HEADER))->SetWindowTextA(header.c_str());
+		//CWnd::FromHandle(GetDlgItem(hdlg, IDC_EDIT_FOOTER))->SetWindowTextA(footer.c_str());
 	
 		//10.05 갑자기 이 기능이 자동으로 되네요?
 		//CSize paperSize = notepadForm->document->GetPaperSize();

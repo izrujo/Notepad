@@ -50,6 +50,7 @@
 #define IDCNT_FLAG_LOCKHSCROLL				 50301
 #define IDCNT_FLAG_UNLOCKHISTORYBOOK		 50302
 #define IDCNT_FLAG_UNLOCKFINDREPLACEDIALOG	 50303
+#define IDCNT_ETC_SIZE						 50304
 //////////////////////////////////////////////////
 #define IDCNT_FINDDIALOG				     60000
 #define IDCNT_REPLACEDIALOG					 60001
