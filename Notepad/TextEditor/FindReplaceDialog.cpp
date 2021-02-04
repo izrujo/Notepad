@@ -161,11 +161,11 @@ BOOL FindReplaceDialog::Find() {
 			}
 			i++;
 		}
-		isFindSuccess = true;
+		isFindSuccess = TRUE;
 		selectStart = this->textEditingForm->selection->GetStart(); //자동개행
 	}
 	else {
-		isFindSuccess = false;
+		isFindSuccess = FALSE;
 	}
 
 	//========== 자동 개행 처리 2 ==========
@@ -187,7 +187,7 @@ BOOL FindReplaceDialog::Find() {
 
 		delete dummyManager;
 
-		if (this->textEditingForm->selection != NULL && isFindSuccess == true) {
+		if (this->textEditingForm->selection != NULL && isFindSuccess == TRUE) {
 			delete this->textEditingForm->selection;
 			this->textEditingForm->selection = NULL;
 			this->textEditingForm->selection = new Selection(selectStart, currentRow);

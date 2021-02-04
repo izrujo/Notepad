@@ -12,6 +12,7 @@ class ScrollController;
 class Selection;
 class HistoryBook;
 class FindReplaceDialog;
+class CNTCommand;
 
 static UINT WM_FINDREPLACE = ::RegisterWindowMessage(FINDMSGSTRING);
 
@@ -30,6 +31,7 @@ public:
 	HistoryBook* undoHistoryBook;
 	HistoryBook* redoHistoryBook;
 	FindReplaceDialog* findReplaceDialog;
+	CNTCommand* currentSizeCommand;
 protected:
 	afx_msg void OnClose();
 	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
@@ -80,8 +82,8 @@ private:
 	char currentCharacter;
 	TCHAR currentBuffer[2];
 	Long sizedWidth; //OnSize 자동개행
-	Long previousWidth; //
 	BOOL isSized;
+	Long previousWidth; //SizeCommand
 
 	BOOL isLockedHScroll; //자동개행여부
 	BOOL isUnlockedHistoryBook; //실행취소가능여부

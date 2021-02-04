@@ -1709,28 +1709,31 @@ void CNTUndoCommand::Execute() {
 
 		CNTCommand* command = this->textEditingForm->undoHistoryBook->OpenAt();
 
-		//SizeCommand 추가 1
-		CNTCommand* sizeCommand = 0;
 		if (command->GetType() == "CNTSize") {
-			sizeCommand = command->Clone();
-			sizeCommand->Unexecute();
-			this->textEditingForm->redoHistoryBook->Write(sizeCommand);
+			if (this->textEditingForm->currentSizeCommand != NULL) {
+				delete this->textEditingForm->currentSizeCommand;
+				this->textEditingForm->currentSizeCommand = NULL;
+			}
+			this->textEditingForm->currentSizeCommand = command->Clone();
+			this->textEditingForm->redoHistoryBook->Write(this->textEditingForm->currentSizeCommand->Clone());
 			this->textEditingForm->undoHistoryBook->Erase();
 			command = this->textEditingForm->undoHistoryBook->OpenAt();
 		}
 
-		if (this->textEditingForm->undoHistoryBook->GetLength() > 0) {
+		if (this->textEditingForm->currentSizeCommand != NULL) {
+			this->textEditingForm->currentSizeCommand->Unexecute();
+		}
+
+		if (command != NULL) {
 			command->Unexecute();
 			this->textEditingForm->redoHistoryBook->Write(command->Clone());
 			this->textEditingForm->undoHistoryBook->Erase();
 		}
 
-		//SizeCommand 추가 2
-		if (sizeCommand != 0) {
-			sizeCommand->Execute();
+		if (this->textEditingForm->currentSizeCommand != NULL) {
+			this->textEditingForm->currentSizeCommand->Execute();
 		}
 	}
-
 }
 
 string CNTUndoCommand::GetType() {
@@ -1764,31 +1767,30 @@ void CNTRedoCommand::Execute() {
 	if (this->textEditingForm->redoHistoryBook->GetLength() > 0) {
 		CNTCommand* command = this->textEditingForm->redoHistoryBook->OpenAt();
 
-		//SizeCommand 추가 1
-		CNTCommand* sizeCommand = 0;
 		if (command->GetType() == "CNTSize") {
-			sizeCommand = command->Clone();
-			sizeCommand->Unexecute();
-			this->textEditingForm->undoHistoryBook->Write(sizeCommand);
+			if (this->textEditingForm->currentSizeCommand != NULL) {
+				delete this->textEditingForm->currentSizeCommand;
+				this->textEditingForm->currentSizeCommand = NULL;
+			}
+			this->textEditingForm->currentSizeCommand = command->Clone();
+			this->textEditingForm->undoHistoryBook->Write(this->textEditingForm->currentSizeCommand->Clone());
 			this->textEditingForm->redoHistoryBook->Erase();
 			command = this->textEditingForm->redoHistoryBook->OpenAt();
 		}
 
-		if (this->textEditingForm->redoHistoryBook->GetLength() > 0) {
+		if (this->textEditingForm->currentSizeCommand != NULL) {
+			this->textEditingForm->currentSizeCommand->Unexecute();
+		}
+
+		if (command != NULL) {
 			command->Execute();
 			this->textEditingForm->undoHistoryBook->Write(command->Clone());
 			this->textEditingForm->redoHistoryBook->Erase();
 		}
-		
-		//SizeCommand 추가 2
-		if (sizeCommand != 0) {
-			sizeCommand->Execute();
+
+		if (this->textEditingForm->currentSizeCommand != NULL) {
+			this->textEditingForm->currentSizeCommand->Execute();
 		}
-	}
-	if (this->textEditingForm->selection != NULL) {
-		delete this->textEditingForm->selection;
-		this->textEditingForm->selection = NULL;
-		this->textEditingForm->note->UnselectAll();
 	}
 }
 
@@ -3284,6 +3286,8 @@ void CNTLockHScrollCommand::Execute() {
 	Long index = this->textEditingForm->note->First();
 	this->textEditingForm->current = this->textEditingForm->note->GetAt(index);
 	this->textEditingForm->current->First();
+
+	this->textEditingForm->SetPreviousWidth(rect.Width());
 }
 
 string CNTLockHScrollCommand::GetType() {
@@ -3396,10 +3400,13 @@ CNTSizeCommand& CNTSizeCommand::operator=(const CNTSizeCommand& source) {
 }
 
 void CNTSizeCommand::Execute() {
-	this->previousWidth = this->textEditingForm->GetPreviousWidth();
-
+	if (this->previousWidth == 0) {
+		this->previousWidth = this->textEditingForm->GetPreviousWidth();
+	}
+	
 	CRect rect;
 	this->textEditingForm->GetClientRect(rect);
+
 	DummyManager dummyManager(this->textEditingForm->note, this->textEditingForm->characterMetrics, rect.Width());
 
 	Long row = this->textEditingForm->note->GetCurrent();
@@ -3419,8 +3426,6 @@ void CNTSizeCommand::Execute() {
 	this->textEditingForm->note->Move(row);
 	this->textEditingForm->current = this->textEditingForm->note->GetAt(row);
 	this->textEditingForm->current->Move(column);
-
-	//this->textEditingForm->SetPreviousWidth(rect.Width());
 }
 
 void CNTSizeCommand::Unexecute() {

@@ -58,13 +58,15 @@ TextEditingForm::TextEditingForm() {
 	this->undoHistoryBook = NULL;
 	this->redoHistoryBook = NULL;
 	this->findReplaceDialog = NULL;
+	this->currentSizeCommand = NULL;
 
 	this->isComposing = FALSE;
 	this->currentCharacter = '\0';
 	this->currentBuffer[0] = '\0';
 	this->currentBuffer[1] = '\0';
-	this->previousWidth = 0;
+	this->sizedWidth = 0;
 	this->isSized = TRUE;
+	this->previousWidth = 0;
 
 	this->isLockedHScroll = FALSE;
 	this->isUnlockedHistoryBook = FALSE;
@@ -118,6 +120,9 @@ void TextEditingForm::OnClose() {
 	}
 	if (this->findReplaceDialog != NULL) {
 		delete this->findReplaceDialog;
+	}
+	if (this->currentSizeCommand != NULL) {
+		delete this->currentSizeCommand;
 	}
 
 	CWnd::OnClose();
@@ -209,7 +214,7 @@ void TextEditingForm::OnPaint() {
 }
 
 void TextEditingForm::OnSize(UINT nType, int cx, int cy) {
-	if (this->isLockedHScroll == TRUE && this->previousWidth != cx) {
+	if (this->isLockedHScroll == TRUE && this->sizedWidth != cx) {
 		DummyManager dummyManager(this->note, this->characterMetrics, cx);
 
 		Long row = this->note->GetCurrent();
@@ -232,7 +237,7 @@ void TextEditingForm::OnSize(UINT nType, int cx, int cy) {
 		
 		this->isSized = TRUE;
 	}
-	this->previousWidth = cx; //불필요한 개행처리를 막기 위함(사용자의 윈도우 크기 조정만 개행처리 하기 위함)
+	this->sizedWidth = cx; //불필요한 개행처리를 막기 위함(사용자의 윈도우 크기 조정만 개행처리 하기 위함)
 
 	if (this->scrollController == NULL) {
 		this->scrollController = new ScrollController(this);
@@ -453,9 +458,10 @@ void TextEditingForm::OnEditCommandRange(UINT uID) {
 
 		//SizeCommand 추가
 		if ((type == "CNTWrite" || type == "CNTImeChar" || type == "CNTDelete" 
-			|| type == "CNTDeleteSelection" || type == "CNTPaste" || type == "CNTUndo" || type == "CNTRedo") 
+			|| type == "CNTDeleteSelection" || type == "CNTPaste" || type == "CNTUndo") 
 			&& this->isSized == TRUE) {
 			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDCNT_ETC_SIZE, 0));
+			this->previousWidth = this->sizedWidth;
 			this->isSized = FALSE;
 		}
 
