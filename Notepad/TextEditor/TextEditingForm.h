@@ -79,7 +79,8 @@ private:
 	BOOL isComposing;
 	char currentCharacter;
 	TCHAR currentBuffer[2];
-	Long previousWidth;
+	Long sizedWidth; //OnSize 자동개행
+	Long previousWidth; //
 	BOOL isSized;
 
 	BOOL isLockedHScroll; //자동개행여부
