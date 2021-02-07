@@ -27,6 +27,7 @@ public:
 	Long DeleteFromFront();
 	Long DeleteFromRear();
 	void Clear();
+	void Ready(Long capacity = 256); //HistoryDebugForm - Clear 다음에 사용
 	Long Modify(Long index, T object);
 	Long LinearSearchUnique(void *key, int(*compare)(void*, void*));
 	void LinearSearchDuplicate(void *key, Long* (*indexes), Long *count, int(*compare)(void*, void*));
@@ -266,6 +267,14 @@ void Array<T>::Clear()
 	}
 
 	this->capacity = 0;
+	this->length = 0;
+}
+
+template<typename T>
+void Array<T>::Ready(Long capacity)
+{
+	this->front = new T[capacity];
+	this->capacity = capacity;
 	this->length = 0;
 }
 

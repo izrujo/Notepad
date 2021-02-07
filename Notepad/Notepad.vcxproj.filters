@@ -166,6 +166,9 @@
     <ClCompile Include="TextEditor\TextEditingForm.cpp">
       <Filter>TextEditor</Filter>
     </ClCompile>
+    <ClCompile Include="Notepad\HistoryDebugForm.cpp">
+      <Filter>Notepad</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Notepad\Book.h">
@@ -326,6 +329,9 @@
     </ClInclude>
     <ClInclude Include="TextEditor\resource.h">
       <Filter>TextEditor</Filter>
+    </ClInclude>
+    <ClInclude Include="Notepad\HistoryDebugForm.h">
+      <Filter>Notepad</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

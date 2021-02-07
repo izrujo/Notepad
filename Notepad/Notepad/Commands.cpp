@@ -36,6 +36,8 @@
 #include <dlgs.h>
 #include <winspool.h>
 
+#include "HistoryDebugForm.h"
+
 #pragma warning(disable:4996)
 
 //Command
@@ -933,4 +935,38 @@ string ReportDirtyCommand::GetType() {
 
 Command* ReportDirtyCommand::Clone() {
 	return new ReportDirtyCommand(*this);
+}
+
+//DebugHistoryCommand
+DebugHistoryCommand::DebugHistoryCommand(NotepadForm* notepadForm)
+	: Command(notepadForm) {
+}
+
+DebugHistoryCommand::DebugHistoryCommand(const DebugHistoryCommand& source)
+	: Command(source) {
+}
+
+DebugHistoryCommand::~DebugHistoryCommand() {
+
+}
+
+DebugHistoryCommand& DebugHistoryCommand::operator=(const DebugHistoryCommand& source) {
+	Command::operator=(source);
+
+	return *this;
+}
+
+void DebugHistoryCommand::Execute() {
+	HistoryDebugForm* historyDebugForm = new HistoryDebugForm(this->notepadForm);
+	historyDebugForm->Create(NULL, "Undo/Redo Debug", 13565952UL, CRect(0, 0, 1200, 875));
+	historyDebugForm->ShowWindow(SW_NORMAL);
+	historyDebugForm->UpdateWindow();
+}
+
+string DebugHistoryCommand::GetType() {
+	return "DebugHistory";
+}
+
+Command* DebugHistoryCommand::Clone() {
+	return new DebugHistoryCommand(*this);
 }

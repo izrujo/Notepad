@@ -297,4 +297,17 @@ public:
 	virtual Command* Clone();
 };
 
+//DebugHistoryCommand
+class DebugHistoryCommand : public Command {
+public:
+	DebugHistoryCommand(NotepadForm* notepadForm = 0);
+	DebugHistoryCommand(const DebugHistoryCommand& source);
+	virtual ~DebugHistoryCommand();
+	DebugHistoryCommand& operator=(const DebugHistoryCommand& source);
+
+	virtual void Execute();
+	virtual string GetType();
+	virtual Command* Clone();
+};
+
 #endif //_COMMAND_H

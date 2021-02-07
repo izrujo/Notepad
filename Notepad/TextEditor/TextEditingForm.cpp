@@ -58,7 +58,6 @@ TextEditingForm::TextEditingForm() {
 	this->undoHistoryBook = NULL;
 	this->redoHistoryBook = NULL;
 	this->findReplaceDialog = NULL;
-	this->currentSizeCommand = NULL;
 
 	this->isComposing = FALSE;
 	this->currentCharacter = '\0';
@@ -120,9 +119,6 @@ void TextEditingForm::OnClose() {
 	}
 	if (this->findReplaceDialog != NULL) {
 		delete this->findReplaceDialog;
-	}
-	if (this->currentSizeCommand != NULL) {
-		delete this->currentSizeCommand;
 	}
 
 	CWnd::OnClose();
@@ -458,8 +454,8 @@ void TextEditingForm::OnEditCommandRange(UINT uID) {
 
 		//SizeCommand 추가
 		if ((type == "CNTWrite" || type == "CNTImeChar" || type == "CNTDelete" 
-			|| type == "CNTDeleteSelection" || type == "CNTPaste" || type == "CNTUndo") 
-			&& this->isSized == TRUE) {
+			|| type == "CNTDeleteSelection" || type == "CNTPaste") 
+			&& (this->isSized == TRUE || this->undoHistoryBook->IsEmpty())) {
 			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDCNT_ETC_SIZE, 0));
 			this->previousWidth = this->sizedWidth;
 			this->isSized = FALSE;
@@ -469,6 +465,7 @@ void TextEditingForm::OnEditCommandRange(UINT uID) {
 
 		//========== 실행 취소 추가 ==========
 		if (this->isUnlockedHistoryBook == TRUE) {
+			CNTCommand* sizeCommand = this->undoHistoryBook->OpenAt();
 			//1. Undo아니고 Redo아니고 Find아니고 Replace아니고
 			//1.1. DeleteSelection이면
 			//1.1.1. 실행취소이력이있으면서가장최근이력이매크로이고 방금실행취소를안했으면서방금이동을안했거나 지금모두바꾸기중이면
@@ -488,21 +485,21 @@ void TextEditingForm::OnEditCommandRange(UINT uID) {
 					|| type == "CNTImeChar" || type == "CNTPaste"
 					|| (type == "CNTDeleteSelection" && this->isDeleteSelectionByInput == TRUE)) {
 					CNTCommand* history;
-					if (this->undoHistoryBook->GetLength() > 0 && this->undoHistoryBook->OpenAt()->GetType() == "CNTMacro"
+					if (sizeCommand->GetLength() > 0 && sizeCommand->OpenAt()->GetType() == "CNTMacro"
 						&& (this->wasUndo == FALSE && this->wasMove == FALSE) || this->isAllReplacing == TRUE) {
-						history = this->undoHistoryBook->OpenAt();
+						history = sizeCommand->OpenAt();
 						history->Add(command->Clone());
 					}
 					else {
 						history = new CNTMacroCommand(this);
 						history->Add(command->Clone());
-						this->undoHistoryBook->Write(history);
+						sizeCommand->Write(history);
 						this->wasUndo = FALSE;
 						this->wasMove = FALSE;
 					}
 				}
 				else {
-					this->undoHistoryBook->Write(command->Clone());
+					sizeCommand->Write(command->Clone());
 				}
 				if (this->redoHistoryBook->GetLength() > 0) {
 					this->redoHistoryBook->Empty();
@@ -564,8 +561,7 @@ void TextEditingForm::OnFlagCommandRange(UINT uID) {
 	if (command != NULL) {
 		command->Execute();
 
-		string type = command->GetType();
-		if (type == "CNTSize") {
+		if (command->GetType() == "CNTSize") {
 			this->undoHistoryBook->Write(command->Clone());
 		}
 

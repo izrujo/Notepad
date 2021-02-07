@@ -2,6 +2,7 @@
 #define _COMMAND_H
 
 #include "../Utilities/Array.h"
+#include "../Utilities/Stack.h"
 #include <iostream>
 #include <afxwin.h> //TCHAR
 
@@ -28,9 +29,17 @@ public:
 	virtual Long Add(CNTCommand* command);
 	virtual Long Remove(Long index);
 	virtual CNTCommand* GetAt(Long index);
-
 	virtual Long GetCapacity() const;
 	virtual Long GetLength() const;
+
+	//SizeCommand
+	virtual Long Write(CNTCommand* command);
+	virtual Long Erase();
+	virtual CNTCommand* OpenAt();
+	virtual void Empty();
+	virtual bool IsEmpty();
+	virtual Long GetTop() const;
+	virtual Long GetWidth() const;
 
 protected:
 	TextEditingForm* textEditingForm;
@@ -70,6 +79,55 @@ inline Long CNTMacroCommand::GetCapacity() const {
 
 inline Long CNTMacroCommand::GetLength() const {
 	return this->length;
+}
+
+//CNTSizeCommand
+class CNTSizeCommand : public CNTCommand {
+public:
+	CNTSizeCommand(TextEditingForm* textEditingForm = 0, Long capacity = 64);
+	CNTSizeCommand(const CNTSizeCommand& source);
+	virtual ~CNTSizeCommand();
+	CNTSizeCommand& operator=(const CNTSizeCommand& source);
+
+	virtual void Execute();
+	virtual void Unexecute();
+
+	virtual Long Write(CNTCommand* command);
+	virtual Long Erase();
+	virtual CNTCommand* OpenAt();
+	virtual void Empty();
+	virtual bool IsEmpty();
+
+	virtual string GetType();
+	virtual CNTCommand* Clone();
+
+	virtual Long GetCapacity() const;
+	virtual Long GetLength() const;
+	virtual Long GetTop() const;
+	virtual Long GetWidth() const;
+
+private:
+	Stack<CNTCommand*> commands;
+	Long capacity;
+	Long length;
+	Long top;
+	Long width;
+};
+
+inline Long CNTSizeCommand::GetCapacity() const {
+	return this->capacity;
+}
+
+inline Long CNTSizeCommand::GetLength() const {
+	return this->length;
+}
+
+inline Long CNTSizeCommand::GetTop() const {
+	return this->top;
+}
+
+inline Long CNTSizeCommand::GetWidth() const {
+	return this->width;
 }
 //////////////////// Composite ////////////////////
 
@@ -705,22 +763,5 @@ public:
 	virtual CNTCommand* Clone();
 };
 //////////////////// Flag ////////////////////
-
-//CNTSizeCommand
-class CNTSizeCommand : public CNTCommand {
-public:
-	CNTSizeCommand(TextEditingForm* textEditingForm = 0);
-	CNTSizeCommand(const CNTSizeCommand& source);
-	virtual ~CNTSizeCommand();
-	CNTSizeCommand& operator=(const CNTSizeCommand& source);
-
-	virtual void Execute();
-	virtual void Unexecute();
-	virtual string GetType();
-	virtual CNTCommand* Clone();
-
-private:
-	Long previousWidth;
-};
 
 #endif //_COMMAND_H

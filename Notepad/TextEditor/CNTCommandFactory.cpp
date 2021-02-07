@@ -23,7 +23,7 @@ CNTCommandFactory& CNTCommandFactory::operator=(const CNTCommandFactory& source)
 
 CNTCommand* CNTCommandFactory::Make(int uID) {
 	CNTCommand* command = 0;
-	
+
 	//////////////////// Main ////////////////////
 	if (uID == IDCNT_EDIT_WRITE) {
 		command = new CNTWriteCommand(this->textEditingForm);
@@ -160,14 +160,14 @@ CNTCommand* CNTCommandFactory::Make(int uID) {
 		command = new CNTLockHScrollCommand(this->textEditingForm);
 	}
 	else if (uID == IDCNT_FLAG_UNLOCKHISTORYBOOK) {
-	command = new CNTUnlockHistoryBookCommand(this->textEditingForm);
+		command = new CNTUnlockHistoryBookCommand(this->textEditingForm);
 	}
 	else if (uID == IDCNT_FLAG_UNLOCKFINDREPLACEDIALOG) {
-	command = new CNTUnlockFindReplaceDialogCommand(this->textEditingForm);
+		command = new CNTUnlockFindReplaceDialogCommand(this->textEditingForm);
 	}
 	//////////////////// Flag ////////////////////
 	else if (uID == IDCNT_ETC_SIZE) {
-	command = new CNTSizeCommand(this->textEditingForm);
+		command = new CNTSizeCommand(this->textEditingForm);
 	}
 
 	return command;

@@ -12,7 +12,6 @@ class ScrollController;
 class Selection;
 class HistoryBook;
 class FindReplaceDialog;
-class CNTCommand;
 
 static UINT WM_FINDREPLACE = ::RegisterWindowMessage(FINDMSGSTRING);
 
@@ -31,7 +30,6 @@ public:
 	HistoryBook* undoHistoryBook;
 	HistoryBook* redoHistoryBook;
 	FindReplaceDialog* findReplaceDialog;
-	CNTCommand* currentSizeCommand;
 protected:
 	afx_msg void OnClose();
 	afx_msg void OnChar(UINT nChar, UINT nRepCnt, UINT nFlags);
@@ -63,10 +61,12 @@ public:
 	void SetCurrentCharacter(char currentCharacter);
 	TCHAR* GetCurrentBuffer() const;
 	void SetCurrentBuffer(TCHAR(*currentBuffer));
-	Long GetPreviousWidth() const;
-	void SetPreviousWidth(Long previousWidth);
 	BOOL GetIsSized() const;
 	void SetIsSized(BOOL isSized);
+	Long GetSizedWidth() const;
+	void SetSizedWidth(Long sizedWidth);
+	Long GetPreviousWidth() const;
+	void SetPreviousWidth(Long previousWidth);
 
 	BOOL GetIsLockedHScroll() const;
 	void SetIsLockedHScroll(BOOL isLockedHScroll);
@@ -81,8 +81,8 @@ private:
 	BOOL isComposing;
 	char currentCharacter;
 	TCHAR currentBuffer[2];
-	Long sizedWidth; //OnSize 자동개행
 	BOOL isSized;
+	Long sizedWidth; //OnSize 자동개행
 	Long previousWidth; //SizeCommand
 
 	BOOL isLockedHScroll; //자동개행여부
@@ -120,20 +120,28 @@ inline void TextEditingForm::SetCurrentBuffer(TCHAR(*currentBuffer)) {
 	this->currentBuffer[1] = currentBuffer[1];
 }
 
-inline Long TextEditingForm::GetPreviousWidth() const {
-	return this->previousWidth;
-}
-
-inline void TextEditingForm::SetPreviousWidth(Long previousWidth) {
-	this->previousWidth = previousWidth;
-}
-
 inline BOOL TextEditingForm::GetIsSized() const {
 	return this->isSized;
 }
 
 inline void TextEditingForm::SetIsSized(BOOL isSized) {
 	this->isSized = isSized;
+}
+
+inline Long TextEditingForm::GetSizedWidth() const {
+	return this->sizedWidth;
+}
+
+inline void TextEditingForm::SetSizedWidth(Long sizedWidth) {
+	this->sizedWidth = sizedWidth;
+}
+
+inline Long TextEditingForm::GetPreviousWidth() const {
+	return this->previousWidth;
+}
+
+inline void TextEditingForm::SetPreviousWidth(Long previousWidth) {
+	this->previousWidth = previousWidth;
 }
 
 inline BOOL TextEditingForm::GetIsLockedHScroll() const {

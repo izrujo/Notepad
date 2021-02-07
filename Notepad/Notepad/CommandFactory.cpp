@@ -83,6 +83,9 @@ Command* CommandFactory::Make(int uID) {
 	else if (uID == IDC_REPORT_DIRTY) {
 		command = new ReportDirtyCommand(this->notepadForm);
 	}
+	else if (uID == IDM_DEBUG_HISTORY) {
+		command = new DebugHistoryCommand(this->notepadForm);
+	}
 
 	return command;
 }

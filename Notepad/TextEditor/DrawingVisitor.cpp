@@ -40,14 +40,17 @@ void DrawingVisitor::Visit(Note* note) {
 	}
 	//임시
 
+	COLORREF oldColor = this->dc->GetTextColor();
 	Long i = begin;
 	while (i < note->GetLength()) {
 		this->y = i * this->characterMetrics->GetHeight() - y;
-		note->GetAt(i)->Accept(this);
 		if (i == start || i == end) { //임시
-			this->dc->MoveTo(this->x + 10, this->y);
-			this->dc->LineTo(this->x + 10, this->y + this->characterMetrics->GetHeight()); //임시
+			//this->dc->MoveTo(this->x + 10, this->y);
+			//this->dc->LineTo(this->x + 10, this->y + this->characterMetrics->GetHeight()); //임시
+			oldColor = this->dc->SetTextColor(RGB(255, 0, 0));
 		}
+		note->GetAt(i)->Accept(this);
+		this->dc->SetTextColor(oldColor);
 		i++;
 	}
 }
