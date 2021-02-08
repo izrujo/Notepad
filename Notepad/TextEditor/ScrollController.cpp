@@ -89,6 +89,8 @@ void ScrollController::Update() {
 	Long noteLength;
 
 	this->textEditingForm->GetClientRect(&rect);
+	style = ::GetWindowLong(this->textEditingForm->m_hWnd, GWL_STYLE);
+	UINT disable;
 
 	// 수평 스크롤 생성 부분
 
@@ -105,7 +107,6 @@ void ScrollController::Update() {
 		}
 	}
 	clientWidth = rect.right - rect.left;
-	style = ::GetWindowLong(this->textEditingForm->m_hWnd, GWL_STYLE);
 	// 
 
 	if (clientWidth < this->noteWidth && this->textEditingForm->GetIsLockedHScroll() == FALSE) { // 클라이언트 영역이 더 작으면 스크롤 설정및 생성
@@ -121,16 +122,19 @@ void ScrollController::Update() {
 		}
 		this->horizontalScroll = new HorizontalScroll(minimum, maximum, pageSize, lineSize, position);
 		scrollInfo = this->horizontalScroll->GetScrollInfo();
+		disable = ESB_ENABLE_BOTH;
+		this->textEditingForm->SetScrollInfo(SB_HORZ, &scrollInfo, TRUE);
 	}
 	else {
-		style = style & ~WS_HSCROLL;
+		style = style | WS_HSCROLL;
 		if (this->horizontalScroll != 0) {
 			delete this->horizontalScroll;
 			this->horizontalScroll = new HorizontalScroll(0, 0, 0, 0, 0);
 			scrollInfo = this->horizontalScroll->GetScrollInfo();
 		}
+		disable = ESB_DISABLE_BOTH;
 	}
-	this->textEditingForm->SetScrollInfo(SB_HORZ, &scrollInfo, TRUE);
+	this->textEditingForm->EnableScrollBar(SB_HORZ, disable);
 	::SetWindowLong(this->textEditingForm->m_hWnd, GWL_STYLE, style);
 
 	// 수평 스크롤 생성 부분
@@ -152,18 +156,19 @@ void ScrollController::Update() {
 		}
 		this->verticalScroll = new VerticalScroll(minimum, maximum, pageSize, lineSize, position);
 		scrollInfo = this->verticalScroll->GetScrollInfo();
+		disable = ESB_ENABLE_BOTH;
+		this->textEditingForm->SetScrollInfo(SB_VERT, &scrollInfo, TRUE);
 	}
 	else {
-		style = style & ~WS_VSCROLL;
+		style = style | WS_VSCROLL;
 		if (this->verticalScroll != 0) {
 			delete this->verticalScroll;
 			this->verticalScroll = new VerticalScroll(0, 0, 0, 0, 0);
 			scrollInfo = this->verticalScroll->GetScrollInfo();
-
 		}
-
+		disable = ESB_DISABLE_BOTH;
 	}
-	this->textEditingForm->SetScrollInfo(SB_VERT, &scrollInfo, TRUE);
+	this->textEditingForm->EnableScrollBar(SB_VERT, disable);
 	::SetWindowLong(this->textEditingForm->m_hWnd, GWL_STYLE, style);
 
 	this->textEditingForm->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_ERASE);

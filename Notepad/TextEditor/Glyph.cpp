@@ -98,6 +98,14 @@ Long Glyph::Select(Long start, Long startColumn, Long end, Long endColumn) {
 	return 0;
 }
 
+Long Glyph::GetSelectedStartColumn(Long start) {
+	return -1;
+}
+
+Long Glyph::GetSelectedEndColumn(Long end) {
+	return -1;
+}
+
 string Glyph::GetContent(Long startRow, Long startColumn, Long endRow, Long endColumn) {
 	return "";
 }

@@ -292,6 +292,21 @@ void CNTSizeCommand::Execute() {
 	if (this->width != rect.Width()) { // 최초 Execute 는 의미 없음. 어차피 현재 너비로 재배열하는 것임.
 		DummyManager dummyManager(this->textEditingForm->note, this->textEditingForm->characterMetrics, rect.Width());
 
+		Long start;
+		Long startColumn;
+		Long end;
+		Long endColumn;
+		Long startDistance;
+		Long endDistance;
+		if (this->textEditingForm->selection != NULL) {
+			start = this->textEditingForm->selection->GetStart();
+			end = this->textEditingForm->selection->GetEnd();
+			startColumn = this->textEditingForm->note->GetSelectedStartColumn(start);
+			endColumn = this->textEditingForm->note->GetSelectedEndColumn(end);
+			startDistance = dummyManager.CountDistance(start, startColumn);
+			endDistance = dummyManager.CountDistance(end, endColumn);
+		}
+
 		Long row = this->textEditingForm->note->GetCurrent();
 		Long column = this->textEditingForm->current->GetCurrent();
 		Long distance = dummyManager.CountDistance(row, column);
@@ -309,6 +324,13 @@ void CNTSizeCommand::Execute() {
 		this->textEditingForm->note->Move(row);
 		this->textEditingForm->current = this->textEditingForm->note->GetAt(row);
 		this->textEditingForm->current->Move(column);
+
+		if (this->textEditingForm->selection != NULL) {
+			delete this->textEditingForm->selection;
+			dummyManager.CountIndex(startDistance, &start, &startColumn);
+			dummyManager.CountIndex(endDistance, &end, &endColumn);
+			this->textEditingForm->selection = new Selection(start, end);
+		}
 	}
 }
 
@@ -319,6 +341,21 @@ void CNTSizeCommand::Unexecute() {
 	if (this->width != rect.Width()) {
 		DummyManager dummyManager(this->textEditingForm->note, this->textEditingForm->characterMetrics, this->width);
 
+		Long start;
+		Long startColumn;
+		Long end;
+		Long endColumn;
+		Long startDistance;
+		Long endDistance;
+		if (this->textEditingForm->selection != NULL) {
+			start = this->textEditingForm->selection->GetStart();
+			end = this->textEditingForm->selection->GetEnd();
+			startColumn = this->textEditingForm->note->GetSelectedStartColumn(start);
+			endColumn = this->textEditingForm->note->GetSelectedEndColumn(end);
+			startDistance = dummyManager.CountDistance(start, startColumn);
+			endDistance = dummyManager.CountDistance(end, endColumn);
+		}
+
 		Long row = this->textEditingForm->note->GetCurrent();
 		Long column = this->textEditingForm->current->GetCurrent();
 		Long distance = dummyManager.CountDistance(row, column);
@@ -336,6 +373,13 @@ void CNTSizeCommand::Unexecute() {
 		this->textEditingForm->note->Move(row);
 		this->textEditingForm->current = this->textEditingForm->note->GetAt(row);
 		this->textEditingForm->current->Move(column);
+
+		if (this->textEditingForm->selection != NULL) {
+			delete this->textEditingForm->selection;
+			dummyManager.CountIndex(startDistance, &start, &startColumn);
+			dummyManager.CountIndex(endDistance, &end, &endColumn);
+			this->textEditingForm->selection = new Selection(start, end);
+		}
 	}
 	this->textEditingForm->SetPreviousWidth(this->width);
 }
@@ -633,6 +677,7 @@ void CNTCopyBasicCommand::Execute() {
 		Long end = this->textEditingForm->selection->GetEnd();
 		CString clipBoard;
 		string content;
+		string characterContent;
 		Glyph* line;
 		Glyph* character;
 		Long column = 0;
@@ -646,12 +691,16 @@ void CNTCopyBasicCommand::Execute() {
 				character = line->GetAt(j);
 				if (character->GetIsSelected()) {
 					column = j + 1;
-					content += character->GetContent();
+					characterContent = character->GetContent();
+					if (characterContent == "        ") {
+						characterContent = '\t';
+					}
+					content += characterContent;
 				}
 				j++;
 			}
 
-			if (column >= line->GetLength()) {
+			if (column >= line->GetLength() && i < end) {
 				content.append("\r\n");
 			}
 			clipBoard.Append(content.c_str());
@@ -931,10 +980,10 @@ void CNTImeCompositionCommand::Execute() {
 	DummyManager* dummyManager = 0;
 	Long distance = 0;
 	if (this->textEditingForm->GetIsLockedHScroll() == TRUE) {
-		//CRect rect;
-		//this->textEditingForm->GetClientRect(rect);
-		Long width = this->textEditingForm->GetPreviousWidth();
-		dummyManager = new DummyManager(this->textEditingForm->note, this->textEditingForm->characterMetrics, width);
+		CRect rect;
+		this->textEditingForm->GetClientRect(rect);
+		//Long width = this->textEditingForm->GetPreviousWidth();
+		dummyManager = new DummyManager(this->textEditingForm->note, this->textEditingForm->characterMetrics, rect.Width());
 
 		distance = dummyManager->CountDistance(row, column);
 		row = dummyManager->Unfold(row);
@@ -1330,10 +1379,10 @@ void CNTCopyCommand::Execute() {
 	//========== 자동 개행 처리 1 ==========
 	DummyManager* dummyManager = 0;
 	if (this->textEditingForm->GetIsLockedHScroll() == TRUE) {
-		//CRect rect;
-		//this->textEditingForm->GetClientRect(rect);
-		Long width = this->textEditingForm->GetPreviousWidth();
-		dummyManager = new DummyManager(this->textEditingForm->note, this->textEditingForm->characterMetrics, width);
+		CRect rect;
+		this->textEditingForm->GetClientRect(rect);
+		//Long width = this->textEditingForm->GetPreviousWidth();
+		dummyManager = new DummyManager(this->textEditingForm->note, this->textEditingForm->characterMetrics, rect.Width());
 		dummyManager->Unfold(&start, &end);
 
 		if (this->textEditingForm->selection != NULL) {
@@ -1417,37 +1466,10 @@ void CNTDeleteSelectionCommand::Execute() {
 	if (this->startRow == -1 && this->startColumn == -1 && this->endRow == -1 && this->endColumn == -1 && this->selecteds == "") {
 		this->startRow = this->textEditingForm->selection->GetStart();
 		this->endRow = this->textEditingForm->selection->GetEnd();
-		Glyph* character;
-		Glyph* line;
 
-		bool isSelected = false;
-		line = this->textEditingForm->note->GetAt(this->startRow); //시작 행
-		Long i = 0;
-		while (i < line->GetLength() && isSelected == false) { //시작 행의 개수만큼 그리고 현재 글자가 선택되어있지 않은 동안 반복하다.
-			character = line->GetAt(i); //시작 행에서 글자를 가져오다.
-			isSelected = character->GetIsSelected(); //현재 글자의 선택여부를 확인하다.
-			i++;
-		}
-		this->startColumn = i - 1;
-		if (isSelected == false) {
-			this->startColumn++;
-		}
-
-		isSelected = true;
-		line = this->textEditingForm->note->GetAt(this->endRow); //끝 행
-		i = 0;
-		if (this->startRow == this->endRow) {
-			i = this->startColumn;
-		}
-		while (i < line->GetLength() && isSelected == true) { //끝 행의 개수만큼 그리고 현재 글자가 선택되어있는 동안 반복하다.
-			character = line->GetAt(i); //끝 행에서 글자를 가져오다.
-			isSelected = character->GetIsSelected(); //현재 글자의 선택여부를 확인하다.
-			i++;
-		}
-		this->endColumn = i - 1;
-		if (isSelected == true) {
-			this->endColumn++;
-		}
+		this->startColumn = this->textEditingForm->note->GetSelectedStartColumn(this->startRow);
+		this->endColumn = this->textEditingForm->note->GetSelectedEndColumn(this->endRow);
+		
 		this->selecteds = this->textEditingForm->note->GetContent(this->startRow, this->startColumn, this->endRow, this->endColumn);
 	}
 

@@ -39,6 +39,8 @@ public:
 	virtual void Select(bool isSelected); //Character
 	virtual Long Select(Long start, Long end); //Line
 	virtual Long Select(Long start, Long startColumn, Long end, Long endColumn); //Note
+	virtual Long GetSelectedStartColumn(Long start); //Note
+	virtual Long GetSelectedEndColumn(Long end); //Note
 
 	virtual Glyph* Clone() = 0; //abstract
 	virtual string GetContent() = 0; //abstract

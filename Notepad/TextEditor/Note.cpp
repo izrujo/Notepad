@@ -211,6 +211,47 @@ Long Note::Select(Long start, Long startColumn, Long end, Long endColumn) {
 	return count;
 }
 
+Long Note::GetSelectedStartColumn(Long start) {
+	Long startColumn;
+	Glyph* character;
+	Glyph* line;
+
+	bool isSelected = false;
+	line = this->glyphs.GetAt(start); //시작 행
+	Long i = 0;
+	while (i < line->GetLength() && isSelected == false) { //시작 행의 개수만큼 그리고 현재 글자가 선택되어있지 않은 동안 반복하다.
+		character = line->GetAt(i); //시작 행에서 글자를 가져오다.
+		isSelected = character->GetIsSelected(); //현재 글자의 선택여부를 확인하다.
+		i++;
+	}
+	startColumn = i - 1;
+	if (isSelected == false) {
+		startColumn++;
+	}
+	return startColumn;
+}
+
+Long Note::GetSelectedEndColumn(Long end) {
+	Long endColumn;
+	Glyph* character;
+	Glyph* line;
+
+	bool isSelected = false;
+	line = this->glyphs.GetAt(end);
+	Long i = line->GetLength();
+	while (i > 0 && isSelected == false) {
+		character = line->GetAt(i - 1);
+		isSelected = character->GetIsSelected();
+		i--;
+	}
+	endColumn = i + 1;
+	if (isSelected == false) {
+		endColumn--;
+	}
+
+	return endColumn;
+}
+
 Glyph* Note::Clone() {
 	return new Note(*this);
 }

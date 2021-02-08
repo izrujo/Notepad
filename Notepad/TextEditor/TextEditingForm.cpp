@@ -213,6 +213,21 @@ void TextEditingForm::OnSize(UINT nType, int cx, int cy) {
 	if (this->isLockedHScroll == TRUE && this->sizedWidth != cx) {
 		DummyManager dummyManager(this->note, this->characterMetrics, cx);
 
+		Long start;
+		Long startColumn;
+		Long end;
+		Long endColumn;
+		Long startDistance;
+		Long endDistance;
+		if (this->selection != NULL) {
+			start = this->selection->GetStart();
+			end = this->selection->GetEnd();
+			startColumn = this->note->GetSelectedStartColumn(start);
+			endColumn = this->note->GetSelectedEndColumn(end);
+			startDistance = dummyManager.CountDistance(start, startColumn);
+			endDistance = dummyManager.CountDistance(end, endColumn);
+		}
+
 		Long row = this->note->GetCurrent();
 		Long column = this->current->GetCurrent();
 		Long distance = dummyManager.CountDistance(row, column);
@@ -230,7 +245,14 @@ void TextEditingForm::OnSize(UINT nType, int cx, int cy) {
 		this->note->Move(row);
 		this->current = this->note->GetAt(row);
 		this->current->Move(column);
-		
+
+		if (this->selection != NULL) {
+			delete this->selection;
+			dummyManager.CountIndex(startDistance, &start, &startColumn);
+			dummyManager.CountIndex(endDistance, &end, &endColumn);
+			this->selection = new Selection(start, end);
+		}
+
 		this->isSized = TRUE;
 	}
 	this->sizedWidth = cx; //불필요한 개행처리를 막기 위함(사용자의 윈도우 크기 조정만 개행처리 하기 위함)
@@ -453,8 +475,8 @@ void TextEditingForm::OnEditCommandRange(UINT uID) {
 		string type = command->GetType();
 
 		//SizeCommand 추가
-		if ((type == "CNTWrite" || type == "CNTImeChar" || type == "CNTDelete" 
-			|| type == "CNTDeleteSelection" || type == "CNTPaste") 
+		if ((type == "CNTWrite" || type == "CNTImeChar" || type == "CNTDelete"
+			|| type == "CNTDeleteSelection" || type == "CNTPaste")
 			&& (this->isSized == TRUE || this->undoHistoryBook->IsEmpty())) {
 			this->SendMessage(WM_COMMAND, MAKEWPARAM(IDCNT_ETC_SIZE, 0));
 			this->previousWidth = this->sizedWidth;
@@ -585,7 +607,8 @@ void TextEditingForm::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	CNTKeyActionFactory keyActionFactory(this);
 	CNTKeyAction* keyAction = keyActionFactory.Make(nChar);
 
-	if ((this->note->IsFirst() == true && nChar == VK_BACK)
+	if (this->selection == NULL 
+		&& (this->note->IsFirst() == true && nChar == VK_BACK)
 		|| (this->note->IsLast() == true && nChar == VK_DELETE)) {
 		delete keyAction;
 		keyAction = 0;

@@ -34,6 +34,8 @@ public:
 	virtual bool IsSelecting();
 	virtual string GetSelectedContent(Long start, Long end);
 	virtual Long Select(Long start, Long startColumn, Long end, Long endColumn);
+	virtual Long GetSelectedStartColumn(Long start);
+	virtual Long GetSelectedEndColumn(Long end);
 
 	virtual Glyph* Clone();
 	virtual string GetContent();
