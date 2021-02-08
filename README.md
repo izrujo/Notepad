@@ -1,12 +1,6 @@
 # Notepad
-Notepad written C++ using MFC.
-
+Notepad written C++ using MFC.   
 * * *
-## Implemented Function     
-Input/Delete   
-File Processing   
-Font Set   
-Move Caret   
-Scroll   
-Select/Copy/Paste/Cut   
-Undo/Redo   
+It was created by imitating the Windows default program Notepad.   
+Additionally, I have improved the undo function and implemented a print preview function.
+* * *
