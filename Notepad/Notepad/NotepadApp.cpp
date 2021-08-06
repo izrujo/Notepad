@@ -1,3 +1,4 @@
+#include <vld.h>
 #include "NotepadApp.h"
 #include "NotepadForm.h"
 

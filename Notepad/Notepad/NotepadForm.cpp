@@ -65,7 +65,7 @@ int NotepadForm::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 
 void NotepadForm::OnClose() {
 	if (this->textEditingForm != NULL) {
-		delete this->textEditingForm;
+		this->textEditingForm->SendMessage(WM_CLOSE);
 		this->textEditingForm = NULL;
 	}
 	if (this->document != NULL) {

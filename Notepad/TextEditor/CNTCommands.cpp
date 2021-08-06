@@ -519,8 +519,9 @@ CNTImeCompositionBasicCommand& CNTImeCompositionBasicCommand::operator=(const CN
 }
 
 void CNTImeCompositionBasicCommand::Execute() {
-	TCHAR(*buffer) = new TCHAR[2];
-	buffer = this->textEditingForm->GetCurrentBuffer();
+	TCHAR buffer[2];
+	buffer[0] = this->textEditingForm->GetCurrentBuffer()[0];
+	buffer[1] = this->textEditingForm->GetCurrentBuffer()[1];
 
 	Long index;
 
@@ -971,8 +972,8 @@ CNTImeCompositionCommand& CNTImeCompositionCommand::operator=(const CNTImeCompos
 }
 
 void CNTImeCompositionCommand::Execute() {
-	TCHAR(*buffer) = new TCHAR[2];
-	buffer = this->textEditingForm->GetCurrentBuffer();
+	//TCHAR(*buffer) = new TCHAR[2];
+	//buffer = this->textEditingForm->GetCurrentBuffer();
 
 	Long row = this->textEditingForm->note->GetCurrent();
 	Long column = this->textEditingForm->current->GetCurrent();
@@ -1954,7 +1955,7 @@ CNTUndoCommand& CNTUndoCommand::operator=(const CNTUndoCommand& source) {
 }
 
 void CNTUndoCommand::Execute() {
-	if (!this->textEditingForm->undoHistoryBook->IsEmpty()) {
+	if (this->textEditingForm->GetIsUnlockedHistoryBook() && !this->textEditingForm->undoHistoryBook->IsEmpty()) {
 		if (this->textEditingForm->selection != NULL) {
 			delete this->textEditingForm->selection;
 			this->textEditingForm->selection = NULL;
@@ -2015,7 +2016,7 @@ CNTRedoCommand& CNTRedoCommand::operator=(const CNTRedoCommand& source) {
 }
 
 void CNTRedoCommand::Execute() {
-	if (this->textEditingForm->redoHistoryBook->GetLength() > 0) {
+	if (this->textEditingForm->GetIsUnlockedHistoryBook() && this->textEditingForm->redoHistoryBook->GetLength() > 0) {
 		CNTCommand* redoSizeCommand = this->textEditingForm->redoHistoryBook->OpenAt();
 		redoSizeCommand->Unexecute();
 
